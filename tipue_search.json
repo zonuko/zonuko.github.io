@@ -1,0 +1,22 @@
+{
+    "pages": [
+        {
+            "title": "Pelican でブログ その３", 
+            "text":"これは reStructuredText 形式です。 1 2def add( a, b ): return a + b", 
+            "tags": "misc", 
+            "loc": "./my-first-article3.html"
+        },
+        {
+            "title": "Pelican でブログ その２", 
+            "text":"これは reStructuredText 形式です。その２ インライン数式は \(A_\text{c} = (\pi/4) d^2\) てな感じに書ける。 ブロック数式の書き方は \begin{equation*} \alpha_t(i) = P(O_1, O_2, \cdots O_t, q_t= S_i \lambda) \end{equation*} \begin{align*} \newcommand\T{\Rule{0pt}{1em}{.3em}} \begin{array}{ll} 最大化 &amp; 2x_{1}+x_{2}~~~~~~~~~~~・・・・・・利益(式1)\\ 条件式 &amp; \left\{ \begin{array}{lll} &amp;x_{1}+2x_{2} \leq 10~~・・・・・・材料1の使用条件(式2)\\ &amp;x_{1}+x_{2} \leq 6~~~~~~・・・・・・材料2の使用条件(式3)\\ &amp;3x_{1}+x_{2} \leq 12~~・・・・・・材料3の使用条件(式4)\\ &amp;x_{1}，x_{2} \geq 0\\ \end{array} \right . \end{array} \end{align*} \begin{equation*} \newcommand\T{\Rule{0pt}{1em}{.3em}} \begin{array}{|c|c|} \hline X &amp; P(X = i) \T \\\hline 1 \T &amp; 1/6 \\\hline 2 \T &amp; 1/6 \\\hline 3 \T &amp; 1/6 \\\hline 4 \T &amp; 1/6 \\\hline 5 \T &amp; 1/6 \\\hline 6 \T &amp; 1/6 \\\hline \end{array} \end{equation*} 数式テスト if (!document.getElementById(&#39;mathjaxscript_pelican_#%@#$@#&#39;)) { var align = &#34;center&#34;, indent = &#34;0em&#34;, linebreak = &#34;false&#34;; if (false) { align = (screen.width", 
+            "tags": "test", 
+            "loc": "./my-first-article2.html"
+        },
+        {
+            "title": "Pelican でブログ", 
+            "text":"これは reStructuredText 形式です。", 
+            "tags": "misc", 
+            "loc": "./my-first-article.html"
+        }        
+    ]
+}
