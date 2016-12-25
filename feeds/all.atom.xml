@@ -1,103 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>ぞぬこBLOG</title><link href="https://zonuko.github.io/" rel="alternate"></link><link href="https://zonuko.github.io/feeds/all.atom.xml" rel="self"></link><id>https://zonuko.github.io/</id><updated>2016-12-24T00:00:00+09:00</updated><entry><title>Pelican でブログ その３</title><link href="https://zonuko.github.io/pelican-deburogu-sono3.html" rel="alternate"></link><published>2016-12-24T00:00:00+09:00</published><updated>2016-12-24T00:00:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2016-12-24:pelican-deburogu-sono3.html</id><summary type="html">&lt;p&gt;これは reStructuredText 形式です。&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</summary><category term="programming"></category><category term="python"></category></entry><entry><title>Pelican でブログ その２</title><link href="https://zonuko.github.io/my-first-article2.html" rel="alternate"></link><published>2016-12-23T21:59:00+09:00</published><updated>2016-12-23T21:59:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2016-12-23:my-first-article2.html</id><summary type="html">&lt;p&gt;これは reStructuredText 形式です。その２&lt;/p&gt;
-&lt;p&gt;インライン数式は &lt;span class="math"&gt;\(A_\text{c} = (\pi/4) d^2\)&lt;/span&gt; てな感じに書ける。&lt;/p&gt;
-&lt;p&gt;ブロック数式の書き方は&lt;/p&gt;
-&lt;div class="math"&gt;
-\begin{equation*}
-\alpha_t(i) = P(O_1, O_2, \cdots O_t, q_t= S_i \lambda)
-\end{equation*}
+<feed xmlns="http://www.w3.org/2005/Atom"><title>ぞぬこBLOG</title><link href="https://zonuko.github.io/" rel="alternate"></link><link href="https://zonuko.github.io/feeds/all.atom.xml" rel="self"></link><id>https://zonuko.github.io/</id><updated>2016-12-25T21:50:00+09:00</updated><entry><title>ブログ書くことにした</title><link href="https://zonuko.github.io/posts/2016/12/25/my-first-article/" rel="alternate"></link><published>2016-12-25T21:50:00+09:00</published><updated>2016-12-25T21:50:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2016-12-25:posts/2016/12/25/my-first-article/</id><summary type="html">&lt;p&gt;大した理由は無いけど色々あってブログを書くことにしました。&lt;/p&gt;
+&lt;div class="section" id="id2"&gt;
+&lt;h2&gt;動機&lt;/h2&gt;
+&lt;p&gt;始めようと思った理由は以下のような感じです。&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;勉強だけは色々するけど、発表する場が社内でもない。（自分で作ればあるけど・・・）&lt;/li&gt;
+&lt;li&gt;EvernoteとかOnenoteにまとめてたけど中々見づらくてあとで振り返りづらい。&lt;/li&gt;
+&lt;li&gt;社外の人とも技術的な交流がする場が欲しい。&lt;/li&gt;
+&lt;li&gt;技術的なアウトプットを目に見える形で出すことにメリットが有ると思ったから。&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/div&gt;
-&lt;div class="math"&gt;
-\begin{align*}
-\newcommand\T{\Rule{0pt}{1em}{.3em}}
-\begin{array}{ll}
-最大化 &amp;amp; 2x_{1}+x_{2}~~~~~~~~~~~・・・・・・利益(式1)\\
-条件式 &amp;amp; \left\{
-\begin{array}{lll}
-&amp;amp;x_{1}+2x_{2} \leq 10~~・・・・・・材料1の使用条件(式2)\\
-&amp;amp;x_{1}+x_{2} \leq 6~~~~~~・・・・・・材料2の使用条件(式3)\\
-&amp;amp;3x_{1}+x_{2} \leq 12~~・・・・・・材料3の使用条件(式4)\\
-&amp;amp;x_{1}，x_{2} \geq 0\\
-\end{array}
-\right .
-\end{array}
-\end{align*}
+&lt;div class="section" id="id3"&gt;
+&lt;h2&gt;構成&lt;/h2&gt;
+&lt;div class="line-block"&gt;
+&lt;div class="line"&gt;Pelicanと適当にテーマ使って作ってます。なので見た目はちょくちょく変わるかも。&lt;/div&gt;
+&lt;div class="line"&gt;サーバー自体はGitHub Pages使ってます。&lt;/div&gt;
+&lt;div class="line"&gt;Pelican選んだ理由は以下のような感じです。&lt;/div&gt;
 &lt;/div&gt;
-&lt;div class="math"&gt;
-\begin{equation*}
-\newcommand\T{\Rule{0pt}{1em}{.3em}}
-      \begin{array}{|c|c|}
-      \hline X &amp;amp; P(X = i) \T \\\hline
-        1 \T &amp;amp; 1/6 \\\hline
-        2 \T &amp;amp; 1/6 \\\hline
-        3 \T &amp;amp; 1/6 \\\hline
-        4 \T &amp;amp; 1/6 \\\hline
-        5 \T &amp;amp; 1/6 \\\hline
-        6 \T &amp;amp; 1/6 \\\hline
-      \end{array}
-\end{equation*}
+&lt;ul class="simple"&gt;
+&lt;li&gt;Python好きだったから。&lt;/li&gt;
+&lt;li&gt;流行ってるもの嫌いな天邪鬼だから。（流行ってるものが素晴らしかったり楽しいのは理解してるんですが・・・）&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/div&gt;
-&lt;p&gt;数式テスト&lt;/p&gt;
-&lt;script type='text/javascript'&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
-    var align = "center",
-        indent = "0em",
-        linebreak = "false";
-
-    if (false) {
-        align = (screen.width &lt; 768) ? "left" : align;
-        indent = (screen.width &lt; 768) ? "0em" : indent;
-        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
-    }
-
-    var mathjaxscript = document.createElement('script');
-    var location_protocol = (false) ? 'https' : document.location.protocol;
-    if (location_protocol !== 'http' &amp;&amp; location_protocol !== 'https') location_protocol = 'https:';
-    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
-    mathjaxscript.type = 'text/javascript';
-    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
-    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
-        "MathJax.Hub.Config({" +
-        "    config: ['MMLorHTML.js']," +
-        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
-        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
-        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
-        "    displayAlign: '"+ align +"'," +
-        "    displayIndent: '"+ indent +"'," +
-        "    showMathMenu: true," +
-        "    messageStyle: 'normal'," +
-        "    tex2jax: { " +
-        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
-        "        displayMath: [ ['$$','$$'] ]," +
-        "        processEscapes: true," +
-        "        preview: 'TeX'," +
-        "    }, " +
-        "    'HTML-CSS': { " +
-        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
-        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
-        "    }, " +
-        "}); " +
-        "if ('default' !== 'default') {" +
-            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
-                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
-                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
-                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
-                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
-                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
-            "});" +
-            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
-                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
-                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
-                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
-                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
-                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
-            "});" +
-        "}";
-    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
-}
-&lt;/script&gt;</summary><category term="math"></category></entry><entry><title>Pelican でブログ</title><link href="https://zonuko.github.io/slug1.html" rel="alternate"></link><published>2013-12-15T00:00:00+09:00</published><updated>2013-12-15T00:00:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2013-12-15:slug1.html</id><summary type="html">&lt;p&gt;これは reStructuredText 形式です。&lt;/p&gt;
-</summary><category term="python"></category></entry></feed>
+&lt;div class="section" id="id4"&gt;
+&lt;h2&gt;方向性&lt;/h2&gt;
+&lt;div class="line-block"&gt;
+&lt;div class="line"&gt;基本的には技術的な内容にしていきたいですが、好きなゲームとか音楽とかアニメとかも話すかもしれないです。&lt;/div&gt;
+&lt;div class="line"&gt;あと、数学も大学院終わって大分忘れてきているので、勉強したらその内容でも投稿しようかと。&lt;/div&gt;
+&lt;div class="line"&gt;&lt;br /&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="pelican"&gt;
+&lt;h2&gt;Pelicanについて&lt;/h2&gt;
+&lt;div class="line-block"&gt;
+&lt;div class="line"&gt;ググればいくらでも出ると思いますが、PelicanはPython製の静的サイトジェネレーターです。&lt;/div&gt;
+&lt;div class="line"&gt;（Rubyで言うJekyllとかに値するやつ）&lt;/div&gt;
+&lt;div class="line"&gt;元々個人的に作った社内資料まとめとかにはSphinx使ってて、その流れって感じです。&lt;/div&gt;
+&lt;div class="line"&gt;具体的なPelicanの設定うんぬんは気が向けばそのうち書きます。環境は以下の感じ。&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;OS&lt;ul&gt;
+&lt;li&gt;Windows10 64bit or Mac OS X El Capitan&lt;ul&gt;
+&lt;li&gt;諸事情でSierraじゃないです。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Python3.5.2&lt;ul&gt;
+&lt;li&gt;Pelican 3.6.3&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;エディタの類&lt;ul&gt;
+&lt;li&gt;Visual Studio Code&lt;/li&gt;
+&lt;li&gt;Vim 8&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id5"&gt;
+&lt;h2&gt;その他&lt;/h2&gt;
+&lt;div class="line-block"&gt;
+&lt;div class="line"&gt;Pelican良いと思いますが、車輪の再発明感も否めないです。&lt;/div&gt;
+&lt;div class="line"&gt;多分好き勝手書いていくと思うので、何か間違ってるとかあればコメントしてもらうか、&lt;/div&gt;
+&lt;div class="line"&gt;Twitterにリプなりくれれば多分反応します。&lt;/div&gt;
+&lt;div class="line"&gt;うさぎの画像がたまに出てくるのは大久野島にたまに行くからです。うさぎ好きならおすすめします。泊る場所は島外にしよう！&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;PS. 何故か社内Redmineとかも丁寧語になってしまう現象が・・・&lt;/p&gt;
+&lt;/div&gt;
+</summary><category term="misc"></category></entry></feed>
