@@ -28,9 +28,9 @@
 <meta name="twitter:url" content="https://zonuko.github.io" />
 <meta itemprop="name" content="zonuko blog" />
 <meta itemprop="url" content="https://zonuko.github.io"/>
-<meta property="og:description" content="test" />
-<meta name="twitter:description" content="test" />
-<meta itemprop="description" content="test" />
+<meta property="og:description" content="好きな趣味とか技術とかを書き散らす" />
+<meta name="twitter:description" content="好きな趣味とか技術とかを書き散らす" />
+<meta itemprop="description" content="好きな趣味とか技術とかを書き散らす" />
 <link href="https://zonuko.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="zonuko blog ATOM Feed"/>
 <link href='//fonts.googleapis.com/css?family=Open+Sans:800italic' rel='stylesheet' type='text/css'>
 <link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
@@ -56,7 +56,7 @@
     <div class="uk-container uk-container-center">
 
         <a class="mg-brand uk-navbar-brand uk-hidden-small" href="https://zonuko.github.io">zonuko blog</a>
-        <div class="mg-tagline uk-navbar-content uk-hidden-small">勉強したことをまとめたりするブログ</div>
+        <div class="mg-tagline uk-navbar-content uk-hidden-small">好きな趣味とか技術とかを書き散らす</div>
         <a class="uk-navbar-toggle uk-visible-small" href="#mg-offcanvas" data-uk-offcanvas></a>
         <a class="mg-brand uk-navbar-brand uk-navbar-center uk-visible-small" href="https://zonuko.github.io">zonuko blog</a>
 
@@ -73,17 +73,107 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/pelican-deburogu-sono3.html" class="uk-article-title uk-link-muted" itemprop="name">Pelican でブログ その３</a>
-                <p class="uk-article-meta"><time datetime="2016-12-24" itemprop="datePublished">2016-12-24(土)</time> • <a href="https://zonuko.github.io/category/math.html">math</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/pelican-deburogu-sono3.html#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/my-first-article2.html" class="uk-article-title uk-link-muted" itemprop="name">Pelican でブログ その２</a>
+                <p class="uk-article-meta"><time datetime="2016-12-23" itemprop="datePublished">2016-12-23(金)</time> • <a href="https://zonuko.github.io/category/math.html">math</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/my-first-article2.html#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">数式テスト</p>
-                <section itemprop="articleBody"><p>これは reStructuredText 形式です。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="p">):</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-</pre></div>
-</td></tr></table></section>
-                <a href="https://zonuko.github.io/pelican-deburogu-sono3.html#disqus_thread"></a>
+                <p class="uk-article-lead" itemprop="description">test</p>
+                <section itemprop="articleBody"><p>これは reStructuredText 形式です。その２</p>
+<p>インライン数式は <span class="math">\(A_\text{c} = (\pi/4) d^2\)</span> てな感じに書ける。</p>
+<p>ブロック数式の書き方は</p>
+<div class="math">
+\begin{equation*}
+\alpha_t(i) = P(O_1, O_2, \cdots O_t, q_t= S_i \lambda)
+\end{equation*}
+</div>
+<div class="math">
+\begin{align*}
+\newcommand\T{\Rule{0pt}{1em}{.3em}}
+\begin{array}{ll}
+最大化 &amp; 2x_{1}+x_{2}~~~~~~~~~~~・・・・・・利益(式1)\\
+条件式 &amp; \left\{
+\begin{array}{lll}
+&amp;x_{1}+2x_{2} \leq 10~~・・・・・・材料1の使用条件(式2)\\
+&amp;x_{1}+x_{2} \leq 6~~~~~~・・・・・・材料2の使用条件(式3)\\
+&amp;3x_{1}+x_{2} \leq 12~~・・・・・・材料3の使用条件(式4)\\
+&amp;x_{1}，x_{2} \geq 0\\
+\end{array}
+\right .
+\end{array}
+\end{align*}
+</div>
+<div class="math">
+\begin{equation*}
+\newcommand\T{\Rule{0pt}{1em}{.3em}}
+      \begin{array}{|c|c|}
+      \hline X &amp; P(X = i) \T \\\hline
+        1 \T &amp; 1/6 \\\hline
+        2 \T &amp; 1/6 \\\hline
+        3 \T &amp; 1/6 \\\hline
+        4 \T &amp; 1/6 \\\hline
+        5 \T &amp; 1/6 \\\hline
+        6 \T &amp; 1/6 \\\hline
+      \end{array}
+\end{equation*}
+</div>
+<p>数式テスト</p>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script></section>
+                <a href="https://zonuko.github.io/my-first-article2.html#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
 
@@ -103,9 +193,12 @@
                     <li class="uk-nav-header">Categories</li>
                     <li class="uk-active"><a href="https://zonuko.github.io/category/math.html">math</a></li>
                     <li ><a href="https://zonuko.github.io/category/misc.html">misc</a></li>
-                    <li ><a href="https://zonuko.github.io/category/test.html">test</a></li>
+                    <li ><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
                     <li class="uk-nav-header">Pages</li>
 
+                    <li >
+                        <a href="https://zonuko.github.io/pages/about.html">About</a>
+                    </li>
 
 
                     <li class="uk-nav-divider"></li>
@@ -180,8 +273,11 @@
             <li class="uk-nav-header">Categories</li>
             <li class="uk-active"><a href="https://zonuko.github.io/category/math.html">math</a></li>
             <li ><a href="https://zonuko.github.io/category/misc.html">misc</a></li>
-            <li ><a href="https://zonuko.github.io/category/test.html">test</a></li>
+            <li ><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
             <li class="uk-nav-header">Pages</li>
+            <li >
+                <a href="https://zonuko.github.io/pages/about.html">About</a>
+            </li>
 
 
             <li class="uk-nav-divider"></li>

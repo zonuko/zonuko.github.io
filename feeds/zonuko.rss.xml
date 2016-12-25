@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>zonuko blog</title><link href="https://zonuko.github.io/" rel="alternate"></link><link href="https://zonuko.github.io/feeds/math.atom.xml" rel="self"></link><id>https://zonuko.github.io/</id><updated>2016-12-23T21:59:00+09:00</updated><entry><title>Pelican でブログ その２</title><link href="https://zonuko.github.io/my-first-article2.html" rel="alternate"></link><published>2016-12-23T21:59:00+09:00</published><updated>2016-12-23T21:59:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2016-12-23:my-first-article2.html</id><summary type="html">&lt;p&gt;これは reStructuredText 形式です。その２&lt;/p&gt;
+<rss version="2.0"><channel><title>zonuko blog</title><link>https://zonuko.github.io/</link><description>好きな趣味とか技術とかを書き散らす</description><lastBuildDate>Sat, 24 Dec 2016 00:00:00 +0900</lastBuildDate><item><title>Pelican でブログ その３</title><link>https://zonuko.github.io/pelican-deburogu-sono3.html</link><description>&lt;p&gt;これは reStructuredText 形式です。&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">zonuko</dc:creator><pubDate>Sat, 24 Dec 2016 00:00:00 +0900</pubDate><guid isPermaLink="false">tag:zonuko.github.io,2016-12-24:pelican-deburogu-sono3.html</guid><category>programming</category><category>python</category></item><item><title>Pelican でブログ その２</title><link>https://zonuko.github.io/my-first-article2.html</link><description>&lt;p&gt;これは reStructuredText 形式です。その２&lt;/p&gt;
 &lt;p&gt;インライン数式は &lt;span class="math"&gt;\(A_\text{c} = (\pi/4) d^2\)&lt;/span&gt; てな感じに書ける。&lt;/p&gt;
 &lt;p&gt;ブロック数式の書き方は&lt;/p&gt;
 &lt;div class="math"&gt;
@@ -94,4 +99,5 @@
         "}";
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
-&lt;/script&gt;</summary><category term="math"></category></entry></feed>
+&lt;/script&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">zonuko</dc:creator><pubDate>Fri, 23 Dec 2016 21:59:00 +0900</pubDate><guid isPermaLink="false">tag:zonuko.github.io,2016-12-23:my-first-article2.html</guid><category>math</category></item><item><title>Pelican でブログ</title><link>https://zonuko.github.io/slug1.html</link><description>&lt;p&gt;これは reStructuredText 形式です。&lt;/p&gt;
+</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">zonuko</dc:creator><pubDate>Sun, 15 Dec 2013 00:00:00 +0900</pubDate><guid isPermaLink="false">tag:zonuko.github.io,2013-12-15:slug1.html</guid><category>python</category></item></channel></rss>

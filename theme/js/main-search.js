@@ -10,6 +10,6 @@ $(document).ready(function() {
         'showURL': false,
         'descriptiveWords': 75,
         'highlightEveryTerm': true,
-        'contentLocation': '/tipue_search.json'
+        'contentLocation': '/tipuesearch_content.json'
     });
 });
