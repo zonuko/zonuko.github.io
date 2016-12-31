@@ -73,9 +73,17 @@
     <h1 class="uk-heading-large">Archives</h1>
 
     <article class="uk-article">
-        <a href="posts/2016/12/30/programming-phoenix2/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その2</a>
+        <a href="posts/2017/01/01/programming-phoenix3/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その3</a>
         <p class="uk-article-meta">
-            <time datetime="2016-12-30">2016-12-30(金)</time>
+            <time datetime="2017-01-01">2017-01-01(日)</time>
+        </p>
+        <p>その3です。 その2の続きです。 今回からChpater3です. このChapterではまず rumbl と呼ばれるアプリを作ります. ビデオにたいしてリアルタイムでコメントを付けられるアプリになる予定らしい. 準備 Chapter1と同様に以下のコマンドでPhoenixの新しいプロジェクトを作成します.（詳細は割愛） 1 2 3 4 5 6 7 8 9 10 11 12 13 14$ mix phoenix.new rumbl * creating rumbl/ config/ config.exs ... Fetch and install dependencies? [Yn] y * running mix deps.get * running npm <span...</p>
+
+    </article>
+    <article class="uk-article">
+        <a href="posts/2016/12/31/programming-phoenix2/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その2</a>
+        <p class="uk-article-meta">
+            <time datetime="2016-12-31">2016-12-31(土)</time>
         </p>
         <p>その2です。 その1の続きです。 デフォルトのディレクトリ構成について config ディレクトリ Phoenixの設定ファイル置き場.名前のまま. prod.secret.exs は秘密情報が入っているファイルなので,VCSからは外すこと. config.exs の endpoint はWebサーバーとアプリケーションの接続の境界部分. lib ディレクトリ Supervision treeと,長く起動するプロセスが置かれる.（?,あってるか微妙） DBとのコネクションプールとかのような長く使われるものが置かれるっぽい. test ディレクトリ 名前の通りテストが置かれる. web ディレクトリ Webアプリに必要な model, view, template, controller が置かれる. Plugについて Plug ライブラリは接続の統一化のために使われる. Plug のリポジトリ [Plugリポジトリ] には以下のように書いてある. ・ A specification for composable modules between web applications ・ Connection adapters for different web...</p>
 
