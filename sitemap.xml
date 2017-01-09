@@ -5,21 +5,21 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://zonuko.github.io/</loc>
-<lastmod>2016-12-31T18:02:07-00:00</lastmod>
+<lastmod>2017-01-09T17:57:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://zonuko.github.io/archives.html</loc>
-<lastmod>2016-12-31T18:02:07-00:00</lastmod>
+<lastmod>2017-01-09T17:57:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://zonuko.github.io/categories.html</loc>
-<lastmod>2016-12-31T18:02:07-00:00</lastmod>
+<lastmod>2017-01-09T17:57:37-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -32,8 +32,22 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
-<loc>https://zonuko.github.io/posts/2017/01/01/programming-phoenix3/</loc>
-<lastmod>2017-01-01T00:50:00+09:00</lastmod>
+<loc>https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/</loc>
+<lastmod>2017-01-09T17:52:00+09:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://zonuko.github.io/posts/2017/01/07/programming-phoenix4/</loc>
+<lastmod>2017-01-07T00:43:00+09:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/</loc>
+<lastmod>2017-01-04T16:08:00+09:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
@@ -68,7 +82,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://zonuko.github.io/category/programming.html</loc>
-<lastmod>2017-01-01T00:50:00+09:00</lastmod>
+<lastmod>2017-01-09T17:52:00+09:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
