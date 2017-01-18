@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0"><channel><title>ぞぬこBLOG</title><link>https://zonuko.github.io/</link><description>黒魔術師になりたいブログ</description><lastBuildDate>Sun, 15 Jan 2017 17:52:00 +0900</lastBuildDate><item><title>Programming Phoenix勉強その7</title><link>https://zonuko.github.io/posts/2017/01/15/programming-phoenix7/</link><description>&lt;div class="line-block"&gt;
+<rss version="2.0"><channel><title>ぞぬこBLOG</title><link>https://zonuko.github.io/</link><description>黒魔術師になりたいブログ</description><lastBuildDate>Thu, 19 Jan 2017 00:00:00 +0900</lastBuildDate><item><title>Programming Phoenix勉強その7</title><link>https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/</link><description>&lt;div class="line-block"&gt;
 &lt;div class="line"&gt;その7です。&lt;/div&gt;
 &lt;div class="line"&gt;ここからchapter5です。認証周りをやるらしいです。&lt;/div&gt;
 &lt;div class="line"&gt;&lt;br /&gt;&lt;/div&gt;
@@ -642,7 +642,7 @@
 &lt;/ul&gt;
 &lt;p&gt;1記事がやたらと長くなりましたが実験ということで・・・&lt;/p&gt;
 &lt;/div&gt;
-</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">zonuko</dc:creator><pubDate>Sun, 15 Jan 2017 17:52:00 +0900</pubDate><guid isPermaLink="false">tag:zonuko.github.io,2017-01-15:posts/2017/01/15/programming-phoenix7/</guid><category>Elixir</category><category>Phoenix</category></item><item><title>Programming Phoenix勉強その6</title><link>https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/</link><description>&lt;div class="line-block"&gt;
+</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">zonuko</dc:creator><pubDate>Thu, 19 Jan 2017 00:00:00 +0900</pubDate><guid isPermaLink="false">tag:zonuko.github.io,2017-01-19:posts/2017/01/19/programming-phoenix7/</guid><category>Elixir</category><category>Phoenix</category></item><item><title>Programming Phoenix勉強その6</title><link>https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/</link><description>&lt;div class="line-block"&gt;
 &lt;div class="line"&gt;その6です。&lt;/div&gt;
 &lt;div class="line"&gt;実際にDBを操作するところからです。&lt;/div&gt;
 &lt;div class="line"&gt;&lt;br /&gt;&lt;/div&gt;
