@@ -73,6 +73,22 @@
     <h1 class="uk-heading-large">Archives</h1>
 
     <article class="uk-article">
+        <a href="posts/2017/01/15/programming-phoenix7/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その7</a>
+        <p class="uk-article-meta">
+            <time datetime="2017-01-15">2017-01-15(日)</time>
+        </p>
+        <p>その7です。 ここからchapter5です。認証周りをやるらしいです。 パスワードのハッシュ化 まずはパスワードのハッシュ化を行います。必要なライブラリをインストールするために mix.exs に以下のように追記を行います。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 ... def application do [mod: {Rumbl, []}, applications<span...</p>
+
+    </article>
+    <article class="uk-article">
+        <a href="posts/2017/01/11/programming-phoenix6/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その6</a>
+        <p class="uk-article-meta">
+            <time datetime="2017-01-11">2017-01-11(水)</time>
+        </p>
+        <p>その6です。 実際にDBを操作するところからです。 新規ユーザ生成処理 Rumbl.UserController に以下の関数を実装します。 1 2 3 4def new(conn, _params) do changeset = User.changeset(%User{}) render conn, "new.html", changeset: changeset end changeset 周りとかが謎めいていますが一旦置いときます。単に自分が今理解してないだけですが・・・ DBの操作とそれ以外の検証とかエラーとかセキュリティとかを分離するのに役立つっぽいです。 user.ex...</p>
+
+    </article>
+    <article class="uk-article">
         <a href="posts/2017/01/09/programming-phoenix5/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その5</a>
         <p class="uk-article-meta">
             <time datetime="2017-01-09">2017-01-09(月)</time>
