@@ -66,58 +66,120 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その9</a>
-                <p class="uk-article-meta"><time datetime="2017-01-22" itemprop="datePublished">2017-01-22(日)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その10</a>
+                <p class="uk-article-meta"><time datetime="2017-01-24" itemprop="datePublished">2017-01-24(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその9</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその10</p>
                 <section itemprop="articleBody"><div class="line-block">
-<div class="line">その9です。</div>
-<div class="line">ここからchapter7です。 <tt class="docutils literal">Ecto</tt> の続きっぽいです。</div>
+<div class="line">その10です。</div>
+<div class="line">chapter7の続きです。</div>
 <div class="line"><br /></div>
 </div>
-<div class="section" id="video">
-<h2>videoのカテゴリー追加</h2>
+<div class="section" id="ecto-query">
+<h2>Ecto.Queryの利用</h2>
 <div class="line-block">
-<div class="line">ビデオにカテゴリーを付けられるようにします。ジェネレータを使って <tt class="docutils literal">category</tt> モデルを生成します。ついでに色々準備もします。</div>
-<div class="line">以下のコマンドを実行します。</div>
+<div class="line">前のChapterで調べた <tt class="docutils literal">Ecto.Query</tt> を利用して <tt class="docutils literal">Category</tt> にソート用の <tt class="docutils literal">query</tt> と取得用の <tt class="docutils literal">query</tt> を生成できる関数を用意します。</div>
 <div class="line"><br /></div>
 </div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl $ mix phoenix.gen.model Category categories name:string</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">出来上がったマイグレーションファイルを編集します。 <tt class="docutils literal">NOT NULL</tt> 制約とか付けます。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.CreateCategory</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">alphabetical</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">from</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query</span><span class="p">,</span> <span class="ss">order_by</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span></span>
+<span class="code-line"><span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">create</span> <span class="n">table</span><span class="p">(</span><span class="ss">:categories</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">add</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="no">false</span></span>
-<span class="code-line"></span>
-<span class="code-line">      <span class="n">timestamps</span><span class="p">()</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">create</span> <span class="n">unique_index</span><span class="p">(</span><span class="ss">:categories</span><span class="p">,</span> <span class="p">[</span><span class="ss">:name</span><span class="p">])</span></span>
-<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">names_and_ids</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">from</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query</span><span class="p">,</span> <span class="ss">select</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">}</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">video.ex</tt> を <tt class="docutils literal">Category</tt> に紐付けるように変更します。</div>
+</td></tr></table></div>
+<div class="section" id="id1">
+<h2>テンプレートの準備</h2>
+<div class="line-block">
+<div class="line">カテゴリ一覧は取得できるようになったのでそれを表示できるようにしておきます。</div>
+<div class="line"><tt class="docutils literal">video/form.html.eex</tt> を以下のように編集します。</div>
 <div class="line"><br /></div>
 </div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="vi">@action</span><span class="p">,</span> <span class="n">fn</span> <span class="n">f</span> <span class="o">-&gt;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  ...</span></span>
+<span class="code-line"><span class="x">  &lt;!-- 追加 --&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">label</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="s2">&quot;Category&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;control-label&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="nb">select</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="vi">@categories</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span><span class="p">,</span> <span class="ss">prompt</span><span class="p">:</span> <span class="s2">&quot;Choose a category&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">  ...</span></span>
+<span class="code-line"><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">video/new.html.eex</tt> を以下のように編集します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h2&gt;New video&lt;/h2&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">&quot;form.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="ss">categories</span><span class="p">:</span> <span class="vi">@categories</span><span class="p">,</span></span>
+<span class="code-line">                        <span class="ss">action</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">video/edit.html.eex</tt> を以下のように編集します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h2&gt;Edit video&lt;/h2&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">&quot;form.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="ss">categories</span><span class="p">:</span> <span class="vi">@categories</span><span class="p">,</span></span>
+<span class="code-line">                        <span class="ss">action</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="vi">@video</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="queryapi">
+<h2>QueryのAPIについて</h2>
+<div class="line-block">
+<div class="line"><tt class="docutils literal">Query</tt> 構築の際に使えるものは以下</div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal">==, !=, &lt;=, <span class="pre">&gt;=,&lt;,&gt;</span></tt></li>
+<li><tt class="docutils literal">and, or, not</tt></li>
+<li><tt class="docutils literal">in</tt></li>
+<li><tt class="docutils literal">like,ilike</tt></li>
+<li><tt class="docutils literal">is_nil</tt></li>
+<li><tt class="docutils literal">count, avg, sum, min, max</tt></li>
+<li><tt class="docutils literal">datetime_add, date_add</tt></li>
+<li><tt class="docutils literal">fragment, field, type</tt></li>
+</ul>
+<p>より柔軟に <tt class="docutils literal">Query</tt> を使いたい場合は <tt class="docutils literal">fragments</tt> を使うことが出来る。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">from</span><span class="p">(</span><span class="n">u</span> <span class="ow">in</span> <span class="nc">User</span><span class="p">,</span> <span class="ss">where</span><span class="p">:</span> <span class="n">fragment</span><span class="p">(</span><span class="s2">&quot;lower(username) = ?&quot;</span><span class="p">,</span> <span class="o">^</span><span class="nc">String</span><span class="o">.</span><span class="n">downcase</span><span class="p">(</span><span class="n">uname</span><span class="p">)))</span></span>
+</pre></div>
+</td></tr></table><p>よくある静的プレースホルダと同じでしょうか。この方法でもセキュリティは担保されています。</p>
+<p>もっと柔軟にクエリを投げたいときは以下のように直接SQLを実行できます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; Ecto.Adapters.SQL.query<span class="o">(</span>Rumbl.Repo, <span class="s2">&quot;SELECT power(</span><span class="nv">$1</span><span class="s2">, </span><span class="nv">$2</span><span class="s2">)&quot;</span>, <span class="o">[</span>2, 10<span class="o">])</span></span>
+</pre></div>
+</td></tr></table><p>クエリで関連するものも取りたい時は以下</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -137,44 +199,28 @@
 <span class="code-line">17</span>
 <span class="code-line">18</span>
 <span class="code-line">19</span>
-<span class="code-line">20</span>
-<span class="code-line">21</span>
-<span class="code-line">22</span>
-<span class="code-line">23</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Video</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:model</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">schema</span> <span class="s2">&quot;videos&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:url</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:user</span><span class="p">,</span> <span class="nc">Rumbl.User</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:category</span><span class="p">,</span> <span class="nc">Rumbl.Category</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">timestamps</span><span class="p">()</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="na">@doc</span> <span class="sh">&quot;&quot;&quot;</span></span>
-<span class="code-line"><span class="sh">  Builds a changeset based on the `struct` and `params`.</span></span>
-<span class="code-line"><span class="sh">  &quot;&quot;&quot;</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">struct</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">])</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">],</span> <span class="p">[</span><span class="ss">:category_id</span><span class="p">])</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
+<span class="code-line">20</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>6<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Repo.one from<span class="o">(</span>u in User, limit: 1<span class="o">)</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;users&quot;</span> <span class="nv">db</span><span class="o">=</span>16.0ms <span class="nv">decode</span><span class="o">=</span>15.0ms</span>
+<span class="code-line">SELECT u0.<span class="s2">&quot;id&quot;</span>, u0.<span class="s2">&quot;name&quot;</span>, u0.<span class="s2">&quot;username&quot;</span>, u0.<span class="s2">&quot;password_hash&quot;</span>, u0.<span class="s2">&quot;inserted_at&quot;</span>, u0.<span class="s2">&quot;updated_at&quot;</span> FROM <span class="s2">&quot;users&quot;</span> AS u0 LIMIT <span class="m">1</span> <span class="o">[]</span></span>
+<span class="code-line">%Rumbl.User<span class="o">{</span>__meta__: <span class="c1">#Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, id: 1,</span></span>
+<span class="code-line"> inserted_at: ~N<span class="o">[</span>2017-01-11 03:37:33.878000<span class="o">]</span>, name: <span class="s2">&quot;aaa&quot;</span>, password: nil,</span>
+<span class="code-line"> password_hash: <span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">b</span><span class="nv">$12$L2IGA8kAewNvbOLJ0</span><span class="s2">/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae&quot;</span>,</span>
+<span class="code-line"> updated_at: ~N<span class="o">[</span>2017-01-16 03:40:31.371000<span class="o">]</span>, username: <span class="s2">&quot;aaa&quot;</span>,</span>
+<span class="code-line"> videos: <span class="c1">#Ecto.Association.NotLoaded&lt;association :videos is not loaded&gt;}</span></span>
+<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; user.videos <span class="c1"># この時点ではNotLoaded</span></span>
+<span class="code-line"><span class="c1">#Ecto.Association.NotLoaded&lt;association :videos is not loaded&gt;</span></span>
+<span class="code-line">iex<span class="o">(</span>8<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Repo.preload<span class="o">(</span>user, :videos<span class="o">)</span> <span class="c1"># preloadすると関連するものも取れる</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;videos&quot;</span> <span class="nv">db</span><span class="o">=</span>78.0ms</span>
+<span class="code-line">SELECT v0.<span class="s2">&quot;id&quot;</span>, v0.<span class="s2">&quot;url&quot;</span>, v0.<span class="s2">&quot;title&quot;</span>, v0.<span class="s2">&quot;description&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span>, v0.<span class="s2">&quot;category_id&quot;</span>, v0.<span class="s2">&quot;inserted_at&quot;</span>, v0.<span class="s2">&quot;updated_at&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span> FROM <span class="s2">&quot;videos&quot;</span> AS v0 WHERE <span class="o">(</span>v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">=</span> <span class="nv">$1</span><span class="o">)</span></span>
+<span class="code-line"> ORDER BY v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">[</span>1<span class="o">]</span></span>
+<span class="code-line">%Rumbl.User<span class="o">{</span>__meta__: <span class="c1">#Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, id: 1,</span></span>
+<span class="code-line"> inserted_at: ~N<span class="o">[</span>2017-01-11 03:37:33.878000<span class="o">]</span>, name: <span class="s2">&quot;aaa&quot;</span>, password: nil,</span>
+<span class="code-line"> password_hash: <span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">b</span><span class="nv">$12$L2IGA8kAewNvbOLJ0</span><span class="s2">/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae&quot;</span>,</span>
+<span class="code-line"> updated_at: ~N<span class="o">[</span>2017-01-16 03:40:31.371000<span class="o">]</span>, username: <span class="s2">&quot;aaa&quot;</span>, videos: <span class="o">[]}</span></span>
+<span class="code-line">iex<span class="o">(</span>9<span class="o">)</span>&gt; user.videos</span>
+<span class="code-line"><span class="o">[]</span></span>
 </pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">例に漏れず <tt class="docutils literal">cast/4</tt> じゃなくなってるので適当に公式ドキュメント見て辻褄合わせしてます。</div>
-<div class="line"><tt class="docutils literal">video</tt> モデルに <tt class="docutils literal">category_id</tt> を追加するためのマイグレーションファイルを作ります。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl $ mix ecto.gen.migration add_category_id_to_video</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">出来上がったファイルを編集します。</div>
-<div class="line"><br /></div>
-</div>
+</td></tr></table><p><tt class="docutils literal">Repo.preload</tt> 関数を使えば関連するものも一緒に取得できます。ただ、毎回 <tt class="docutils literal">user</tt> の取得と <tt class="docutils literal">preload</tt> を別々にやるのは面倒なので以下のようなオプションが良いされてます。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -184,351 +230,195 @@
 <span class="code-line"> 7</span>
 <span class="code-line"> 8</span>
 <span class="code-line"> 9</span>
-<span class="code-line">10</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.AddCategoryIdToVideo</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">alter</span> <span class="n">table</span><span class="p">(</span><span class="ss">:videos</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">add</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="n">references</span><span class="p">(</span><span class="ss">:categories</span><span class="p">)</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
+<span class="code-line">10</span>
+<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>10<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Repo.one from<span class="o">(</span>u in User, limit: 1, preload: <span class="o">[</span>:videos<span class="o">])</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;users&quot;</span> <span class="nv">db</span><span class="o">=</span>0.0ms</span>
+<span class="code-line">SELECT u0.<span class="s2">&quot;id&quot;</span>, u0.<span class="s2">&quot;name&quot;</span>, u0.<span class="s2">&quot;username&quot;</span>, u0.<span class="s2">&quot;password_hash&quot;</span>, u0.<span class="s2">&quot;inserted_at&quot;</span>, u0.<span class="s2">&quot;updated_at&quot;</span> FROM <span class="s2">&quot;users&quot;</span> AS u0 LIMIT <span class="m">1</span> <span class="o">[]</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;videos&quot;</span> <span class="nv">db</span><span class="o">=</span>16.0ms</span>
+<span class="code-line">SELECT v0.<span class="s2">&quot;id&quot;</span>, v0.<span class="s2">&quot;url&quot;</span>, v0.<span class="s2">&quot;title&quot;</span>, v0.<span class="s2">&quot;description&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span>, v0.<span class="s2">&quot;category_id&quot;</span>, v0.<span class="s2">&quot;inserted_at&quot;</span>, v0.<span class="s2">&quot;updated_at&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span> FROM <span class="s2">&quot;videos&quot;</span> AS v0 WHERE <span class="o">(</span>v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">=</span> <span class="nv">$1</span><span class="o">)</span></span>
+<span class="code-line"> ORDER BY v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">[</span>1<span class="o">]</span></span>
+<span class="code-line">%Rumbl.User<span class="o">{</span>__meta__: <span class="c1">#Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, id: 1,</span></span>
+<span class="code-line"> inserted_at: ~N<span class="o">[</span>2017-01-11 03:37:33.878000<span class="o">]</span>, name: <span class="s2">&quot;aaa&quot;</span>, password: nil,</span>
+<span class="code-line"> password_hash: <span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">b</span><span class="nv">$12$L2IGA8kAewNvbOLJ0</span><span class="s2">/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae&quot;</span>,</span>
+<span class="code-line"> updated_at: ~N<span class="o">[</span>2017-01-16 03:40:31.371000<span class="o">]</span>, username: <span class="s2">&quot;aaa&quot;</span>, videos: <span class="o">[]}</span></span>
+<span class="code-line">iex<span class="o">(</span>11<span class="o">)</span>&gt;</span>
 </pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">マイグレーションを実行します。いつものコマンドです。</div>
-<div class="line">マイグレーション出来たら <tt class="docutils literal">seeds.exs</tt> を編集して初期データを作ります。カテゴリー名は他の要素で編集されない固定の値だからです。</div>
-<div class="line"><br /></div>
-</div>
+</td></tr></table><p><tt class="docutils literal">join</tt> も普通に出来ます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>11<span class="o">)</span>&gt; Repo.all from u in User,</span>
+<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   join: v in assoc<span class="o">(</span>u, :videos<span class="o">)</span>,</span>
+<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   join: c in assoc<span class="o">(</span>v, :category<span class="o">)</span>,</span>
+<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   where: c.name <span class="o">==</span> <span class="s2">&quot;Comedy&quot;</span>,</span>
+<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   <span class="k">select</span>: <span class="o">{</span>u, v<span class="o">}</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;users&quot;</span> <span class="nv">db</span><span class="o">=</span>31.0ms</span>
+<span class="code-line">SELECT u0.<span class="s2">&quot;id&quot;</span>, u0.<span class="s2">&quot;name&quot;</span>, u0.<span class="s2">&quot;username&quot;</span>, u0.<span class="s2">&quot;password_hash&quot;</span>, u0.<span class="s2">&quot;inserted_at&quot;</span>, u0.<span class="s2">&quot;updated_at&quot;</span>, v1.<span class="s2">&quot;id&quot;</span>, v1.<span class="s2">&quot;url&quot;</span>, v1.<span class="s2">&quot;title&quot;</span>, v1.<span class="s2">&quot;description&quot;</span>, v1.<span class="s2">&quot;user_id&quot;</span>, v1.<span class="s2">&quot;category_id&quot;</span>, v1.</span>
+<span class="code-line"><span class="s2">&quot;inserted_at&quot;</span>, v1.<span class="s2">&quot;updated_at&quot;</span> FROM <span class="s2">&quot;users&quot;</span> AS u0 INNER JOIN <span class="s2">&quot;videos&quot;</span> AS v1 ON v1.<span class="s2">&quot;user_id&quot;</span> <span class="o">=</span> u0.<span class="s2">&quot;id&quot;</span> INNER JOIN <span class="s2">&quot;categories&quot;</span> AS c2 ON c2.<span class="s2">&quot;id&quot;</span> <span class="o">=</span> v1.<span class="s2">&quot;category_id&quot;</span> WHERE <span class="o">(</span>c2.<span class="s2">&quot;name&quot;</span> <span class="o">=</span></span>
+<span class="code-line"><span class="s1">&#39;Comedy&#39;</span><span class="o">)</span> <span class="o">[]</span></span>
+<span class="code-line"><span class="o">[]</span></span>
+<span class="code-line">iex<span class="o">(</span>12<span class="o">)</span>&gt;</span>
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="id2">
+<h2>各制約について</h2>
+<p>現状のアプリケーションはマイグレーションファイルに <tt class="docutils literal">create <span class="pre">unique_index(:users,</span> [:username])</tt> とあり、重複するユーザーネームを登録しようとするとエラーになります。</p>
+<img alt="Quicksilver" src="/images/Phoenix_error2.jpg" />
+<p>このままだと画面にエラーが出てしまうので <tt class="docutils literal">changeset</tt> で受け取れるように変更してみます。 <tt class="docutils literal">user.ex</tt> を編集します。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
 <span class="code-line">2</span>
 <span class="code-line">3</span>
 <span class="code-line">4</span>
 <span class="code-line">5</span>
 <span class="code-line">6</span>
-<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kn">alias</span> <span class="nc">Rumbl.Repo</span></span>
-<span class="code-line"><span class="kn">alias</span> <span class="nc">Rumbl.Category</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="k">for</span> <span class="n">category</span> <span class="o">&lt;-</span> <span class="sx">~w(Action Drama Romance Comedy Sci-fi)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="c1"># カテゴリがすでに存在するか確認して無ければ入れる</span></span>
-<span class="code-line">  <span class="nc">Repo</span><span class="o">.</span><span class="n">get_by</span><span class="p">(</span><span class="nc">Category</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="n">category</span><span class="p">)</span> <span class="o">||</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert!</span><span class="p">(%</span><span class="nc">Category</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="n">category</span><span class="p">})</span></span>
+<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">model</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span> <span class="c1"># 更新予定のパラメータカラムを第三引数でとる(?)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span> <span class="c1"># このリストがcastが返すchangesetに存在するか検証</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:username</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">max</span><span class="p">:</span> <span class="mi">20</span><span class="p">)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">unique_constraint</span><span class="p">(</span><span class="ss">:username</span><span class="p">)</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">用意したら <tt class="docutils literal">mix run priv/repo/seeds.ex</tt> コマンドを実行すればシードデータ投入完了です。</div>
-<div class="line">ここまでの流れも余り違和感も不思議なところも無いかと思います。</div>
-<div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="ecto">
-<h2>Ectoについて</h2>
-<div class="line-block">
-<div class="line">ここで <tt class="docutils literal">Ecto</tt> の <tt class="docutils literal">Query</tt> とかについて軽く解説がありました。</div>
-<div class="line"><tt class="docutils literal">iex</tt> で以下のコマンドを入力すると何が起こっているかわかります。</div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>1<span class="o">)</span>&gt; import Ecto.Query</span>
-<span class="code-line">Ecto.Query</span>
-<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Repo</span>
-<span class="code-line">Rumbl.Repo</span>
-<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Category</span>
-<span class="code-line">Rumbl.Category</span>
-<span class="code-line">iex<span class="o">(</span>4<span class="o">)</span>&gt; Repo.all from c in Category, <span class="k">select</span>: c.name</span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;categories&quot;</span> <span class="nv">db</span><span class="o">=</span>188.0ms <span class="nv">decode</span><span class="o">=</span>15.0ms</span>
-<span class="code-line">SELECT c0.<span class="s2">&quot;name&quot;</span> FROM <span class="s2">&quot;categories&quot;</span> AS c0 <span class="o">[]</span></span>
-<span class="code-line"><span class="o">[</span><span class="s2">&quot;Action&quot;</span>, <span class="s2">&quot;Drama&quot;</span>, <span class="s2">&quot;Romance&quot;</span>, <span class="s2">&quot;Comedy&quot;</span>, <span class="s2">&quot;Sci-fi&quot;</span><span class="o">]</span></span>
-<span class="code-line">iex<span class="o">(</span>5<span class="o">)</span>&gt;</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">上記を見てわかるのは</div>
-</div>
-<ul class="simple">
-<li><tt class="docutils literal">Repo.all</tt> は <tt class="docutils literal">Ecto.Query</tt> を取る</li>
-<li><tt class="docutils literal">Ecto.Query</tt> は <tt class="docutils literal">from</tt> マクロで作れる</li>
-<li><tt class="docutils literal">from</tt> マクロ以降の使い方は <tt class="docutils literal">LINQ to SQL</tt> のクエリ式っぽく書ける</li>
-</ul>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">LINQ to SQL</tt> のクエリ式に馴染みがあるとすんなり受け入れられそうです。メソッドとかでラップされない分柔軟に使えそうだなと思いました。分解して構築することも可能です。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>6<span class="o">)</span>&gt; <span class="nv">query</span> <span class="o">=</span> Category</span>
-<span class="code-line">Rumbl.Category</span>
-<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; <span class="nv">query</span> <span class="o">=</span> from c in query, order_by: c.name</span>
-<span class="code-line"><span class="c1">#Ecto.Query&lt;from c in Rumbl.Category, order_by: [asc: c.name]&gt;</span></span>
-<span class="code-line">iex<span class="o">(</span>8<span class="o">)</span>&gt; <span class="nv">query</span> <span class="o">=</span> from c in query, <span class="k">select</span>: c.name</span>
-<span class="code-line"><span class="c1">#Ecto.Query&lt;from c in Rumbl.Category, order_by: [asc: c.name], select: c.name&gt;</span></span>
-<span class="code-line">iex<span class="o">(</span>9<span class="o">)</span>&gt; Repo.all query</span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;categories&quot;</span> <span class="nv">db</span><span class="o">=</span>47.0ms</span>
-<span class="code-line">SELECT c0.<span class="s2">&quot;name&quot;</span> FROM <span class="s2">&quot;categories&quot;</span> AS c0 ORDER BY c0.<span class="s2">&quot;name&quot;</span> <span class="o">[]</span></span>
-<span class="code-line"><span class="o">[</span><span class="s2">&quot;Action&quot;</span>, <span class="s2">&quot;Comedy&quot;</span>, <span class="s2">&quot;Drama&quot;</span>, <span class="s2">&quot;Romance&quot;</span>, <span class="s2">&quot;Sci-fi&quot;</span><span class="o">]</span></span>
-<span class="code-line">iex<span class="o">(</span>10<span class="o">)</span>&gt;</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">実際に <tt class="docutils literal">Repo.all/1</tt> とかが引数として取れるものは <tt class="docutils literal">Ecto.Queryable</tt> プロトコルを実装したものらしいです。</div>
-<div class="line"><tt class="docutils literal">Repo.all(Category)</tt> とかのような使い方が許されるのはこれらがプロトコルを実装しているからです。</div>
-</div>
-</div>
-<div class="section" id="ecto-queryable">
-<h2>Ecto.Queryableについて</h2>
-<div class="line-block">
-<div class="line">ふと疑問に思って <tt class="docutils literal">Category</tt> とか <tt class="docutils literal">User</tt> とか <tt class="docutils literal">Video</tt> とかに <tt class="docutils literal">Ecto.Queryable</tt> プロトコル実装している部分はどこかと思って探しました。</div>
-<div class="line">ざっくり探った感じまず、 <tt class="docutils literal">Ecto.Queryable</tt> の該当ソースを見ると以下のようになっています。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defimpl</span> <span class="nc">Ecto.Queryable</span><span class="p">,</span> <span class="ss">for</span><span class="p">:</span> <span class="nc">Atom</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">to_query</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="k">try</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">module</span><span class="o">.</span><span class="n">__schema__</span><span class="p">(</span><span class="ss">:query</span><span class="p">)</span></span>
-<span class="code-line">    <span class="k">rescue</span></span>
-<span class="code-line">      <span class="nc">UndefinedFunctionError</span> <span class="o">-&gt;</span></span>
-<span class="code-line">        <span class="n">message</span> <span class="o">=</span> <span class="k">if</span> <span class="ss">:code</span><span class="o">.</span><span class="n">is_loaded</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">          <span class="s2">&quot;the given module does not provide a schema&quot;</span></span>
-<span class="code-line">        <span class="k">else</span></span>
-<span class="code-line">          <span class="s2">&quot;the given module does not exist&quot;</span></span>
-<span class="code-line">        <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">        <span class="k">raise</span> <span class="nc">Protocol.UndefinedError</span><span class="p">,</span></span>
-<span class="code-line">          <span class="ss">protocol</span><span class="p">:</span> <span class="na">@protocol</span><span class="p">,</span> <span class="ss">value</span><span class="p">:</span> <span class="n">module</span><span class="p">,</span> <span class="ss">description</span><span class="p">:</span> <span class="n">message</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">for: Atom</tt> なんだからモジュールはだめじゃん？とか思われるかもしれませんが、モジュール名の実体は <tt class="docutils literal">Atom</tt> なので問題ないです。</div>
-<div class="line">モジュールに <tt class="docutils literal">to_atom</tt> すると <tt class="docutils literal">true</tt> になります。ちなみに <tt class="docutils literal">Erlang</tt> のモジュールは小文字から始まって <tt class="docutils literal">Elixir</tt> のモジュールは <tt class="docutils literal">:'Elixir.Module'</tt> とかになっています。ココらへんはプログラミングElixirとかを参考にするとよいかもしれないです。</div>
-<div class="line"><br /></div>
-<div class="line">話を戻して、 <tt class="docutils literal">try</tt> の部分を見ると <tt class="docutils literal"><span class="pre">module.__schema__(:query)</span></tt> となっていることがわかります。</div>
-<div class="line">じゃあ <tt class="docutils literal">__schema__/1</tt> はどこにあるかというと <tt class="docutils literal">Ecto.Schema</tt> に書いてあります。（内容は直接は関係ないのでおいておきます。）</div>
-<div class="line">ここまで見て一旦自分で <tt class="docutils literal">Queryable</tt> なモジュールを作ってみました。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Test</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Schema</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">これで以下を呼び出してみます。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>0<span class="o">)</span>&gt; Ecto.Queryable.to_query<span class="o">(</span>Test<span class="o">)</span></span>
-<span class="code-line">** <span class="o">(</span>Protocol.UndefinedError<span class="o">)</span> protocol Ecto.Queryable not implemented <span class="k">for</span> Test, the given module does not provide a schema</span>
-<span class="code-line">  <span class="o">(</span>ecto<span class="o">)</span> lib/ecto/queryable.ex:37: Ecto.Queryable.Atom.to_query/1</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">モジュールの中に <tt class="docutils literal">schema</tt> がないとだめとか言われているので適当に作ってみます。</div>
-<div class="line"><br /></div>
-</div>
+</td></tr></table><p><tt class="docutils literal">unique_constraint</tt> を最後のパイプラインに追加することで <tt class="docutils literal">:username</tt> がかぶっていればエラーにしてくれます。</p>
+<p>この調子で外部キー制約もエラーハンドリングできるようにします。 <tt class="docutils literal">video.ex</tt> を以下のように変更します。
+色々やった結果元の部分も間違っていたので修正してます。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
 <span class="code-line">2</span>
 <span class="code-line">3</span>
 <span class="code-line">4</span>
 <span class="code-line">5</span>
-<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Test</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Schema</span></span>
+<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">struct</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">])</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">])</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">assoc_constraint</span><span class="p">(</span><span class="ss">:category</span><span class="p">)</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">validate_required</tt> の第三引数には何がはいるのだろうか・・・と思いましたが、 <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Changeset.html#content">公式ドキュメント</a> に書いてありました。 <tt class="docutils literal">:message</tt> を取り、エラーメッセージをカスタマイズできるっぽいです。</p>
+<p>これで外部制約も確かめることが出来ます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>1<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Repo</span>
+<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Video</span>
+<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Category</span>
+<span class="code-line">iex<span class="o">(</span>4<span class="o">)</span>&gt; import Ecto.Query</span>
+<span class="code-line">iex<span class="o">(</span>5<span class="o">)</span>&gt;  <span class="nv">video</span> <span class="o">=</span> Repo.one<span class="o">(</span>from v in Video, limit: 1<span class="o">)</span></span>
+<span class="code-line">iex<span class="o">(</span>6<span class="o">)</span>&gt; <span class="nv">changeset</span> <span class="o">=</span> Video.changeset<span class="o">(</span>video, %<span class="o">{</span>category_id: 12345<span class="o">})</span></span>
+<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; Repo.update changeset</span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">db</span><span class="o">=</span>0.0ms</span>
+<span class="code-line">begin <span class="o">[]</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY ERROR <span class="nv">db</span><span class="o">=</span>46.0ms</span>
+<span class="code-line">UPDATE <span class="s2">&quot;videos&quot;</span> SET <span class="s2">&quot;category_id&quot;</span> <span class="o">=</span> <span class="nv">$1</span>, <span class="s2">&quot;updated_at&quot;</span> <span class="o">=</span> <span class="nv">$2</span> WHERE <span class="s2">&quot;id&quot;</span> <span class="o">=</span> <span class="nv">$3</span> <span class="o">[</span>12345, <span class="o">{{</span>2017, 1, 23<span class="o">}</span>, <span class="o">{</span>15, 2, 49, 366000<span class="o">}}</span>, 1<span class="o">]</span></span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">db</span><span class="o">=</span>0.0ms</span>
+<span class="code-line">rollback <span class="o">[]</span></span>
+<span class="code-line"><span class="o">{</span>:error,</span>
+<span class="code-line"> <span class="c1">#Ecto.Changeset&lt;action: :update, changes: %{category_id: 12345},</span></span>
+<span class="code-line">  errors: <span class="o">[</span>category: <span class="o">{</span><span class="s2">&quot;does not exist&quot;</span>, <span class="o">[]}]</span>, data: <span class="c1">#Rumbl.Video&lt;&gt;,</span></span>
+<span class="code-line">  valid?: false&gt;<span class="o">}</span></span>
+</pre></div>
+</td></tr></table><p>良さそうです。</p>
+<p>また、削除するときには <tt class="docutils literal">foreign_key_constraint</tt> 関数が使えます。これを使うとカテゴリが削除出来ない理由をユーザに示す事ができます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; <span class="nb">alias</span> Rumbl.Repo</span>
+<span class="code-line">iex&gt; <span class="nb">alias</span> Rumbl.Category</span>
+<span class="code-line">iex&gt; <span class="nb">alias</span> Rumbl.Video</span>
+<span class="code-line">iex&gt; import Ecto.Query</span>
+<span class="code-line">iex&gt; import Ecto.Changeset</span>
+<span class="code-line">iex&gt; <span class="nv">category</span> <span class="o">=</span> Repo.get_by Category, name: <span class="s2">&quot;Drama&quot;</span></span>
+<span class="code-line">iex&gt; <span class="nv">changeset</span> <span class="o">=</span> Ecto.Changeset.change<span class="o">(</span>category<span class="o">)</span></span>
+<span class="code-line">iex&gt; <span class="nv">changeset</span> <span class="o">=</span> foreign_key_constraint<span class="o">(</span>changeset, :videos, name: :videos_category_id_fkey, message: <span class="s2">&quot;still exist&quot;</span><span class="o">)</span></span>
+<span class="code-line">iex&gt; Repo.delete changeset</span>
+<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY ERROR <span class="nv">db</span><span class="o">=</span>312.0ms</span>
+<span class="code-line">DELETE FROM <span class="s2">&quot;categories&quot;</span> WHERE <span class="s2">&quot;id&quot;</span> <span class="o">=</span> <span class="nv">$1</span> <span class="o">[</span>6<span class="o">]</span></span>
+<span class="code-line"><span class="o">{</span>:error,</span>
+<span class="code-line"> <span class="c1">#Ecto.Changeset&lt;action: :delete, changes: %{},</span></span>
+<span class="code-line">  errors: <span class="o">[</span>videos: <span class="o">{</span><span class="s2">&quot;still exist&quot;</span>, <span class="o">[]}]</span>, data: <span class="c1">#Rumbl.Category&lt;&gt;,</span></span>
+<span class="code-line">  valid?: false&gt;<span class="o">}</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">video</tt> のデータの中に既に <tt class="docutils literal">Drama</tt> カテゴリーのIDを参照しているものがあれば設定したエラーを出してくれます。ちなみにどっかで書いたかもしれませんが <tt class="docutils literal">Ecto.Changeset.change</tt> 関数は構造体とかからチェンジセット作ってくれる関数です。 <tt class="docutils literal">cast</tt> やバリデーションを使いたくない時に使えるみたいです。（ <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Changeset.html#change/2">参考</a> ）</p>
+<p>もう一つの選択肢として、マイグレーション時に参照先が削除された時どうするかの設定が書けるみたいです。前に作った <tt class="docutils literal">add_category_id_to_video</tt> を見てみます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.AddCategoryIdToVideo</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">schema</span> <span class="s2">&quot;test&quot;</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">alter</span> <span class="n">table</span><span class="p">(</span><span class="ss">:videos</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">add</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="n">references</span><span class="p">(</span><span class="ss">:categories</span><span class="p">)</span></span>
+<span class="code-line">    <span class="k">end</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">これでさっきのをもっかい打ち込んでみます。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>0<span class="o">)</span>&gt; Ecto.Queryable.to_query<span class="o">(</span>Test<span class="o">)</span></span>
-<span class="code-line"><span class="c1">#Ecto.Query&lt;from t in Test&gt;</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">これでOKです。まとめておくと以下の点を満たすものが <tt class="docutils literal">Queryable</tt> になっていると言ってよさそうです。</div>
-</div>
+</td></tr></table><p><tt class="docutils literal">add :category_id, <span class="pre">references(:categories)</span></tt> の部分が肝です。 <tt class="docutils literal"><span class="pre">references(:categories)</span></tt> には <tt class="docutils literal">:on_delete</tt> オプションが付けられるようです。</p>
 <ul class="simple">
-<li><tt class="docutils literal">Ecto.Schema</tt> を <tt class="docutils literal">use</tt> している</li>
-<li>モジュール内で <tt class="docutils literal">schema</tt> マクロを使っている</li>
+<li><tt class="docutils literal">:nothing</tt> ：デフォルト値。何もしない</li>
+<li><tt class="docutils literal">:delete_all</tt> ：関連するものも一緒に削除する</li>
+<li><tt class="docutils literal">:nilify_all</tt> ：関連するものが削除されたとき <tt class="docutils literal">NULL</tt> にする</li>
 </ul>
 </div>
-<div class="section" id="id1">
-<h2>おまけ</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">Ecto.Schema</tt> の <tt class="docutils literal">__using__</tt> マクロを見てみると以下のようになっています。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</span>
-<span class="code-line">19</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmacro</span> <span class="n">__using__</span><span class="p">(</span><span class="bp">_</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="k">quote</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto.Schema</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">schema</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="ss">embedded_schema</span><span class="p">:</span> <span class="mi">1</span><span class="p">]</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="na">@primary_key</span> <span class="no">nil</span></span>
-<span class="code-line">    <span class="na">@timestamps_opts</span> <span class="p">[]</span></span>
-<span class="code-line">    <span class="na">@foreign_key_type</span> <span class="ss">:id</span></span>
-<span class="code-line">    <span class="na">@schema_prefix</span> <span class="no">nil</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_primary_keys</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_fields</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_assocs</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_embeds</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_raw</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_autogenerate</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_autoupdate</span><span class="p">,</span> <span class="ss">accumulate</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">put_attribute</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="ss">:ecto_autogenerate_id</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">import Ecto.Schema, only: [schema: 2, embedded_schema: 1]</tt> となっているので <tt class="docutils literal">schema/2</tt> マクロを見てみます。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmacro</span> <span class="n">schema</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="p">[</span><span class="ss">do</span><span class="p">:</span> <span class="n">block</span><span class="p">])</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">schema</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="no">true</span><span class="p">,</span> <span class="ss">:id</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span></span>
-<span class="code-line"><span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="kd">defp</span> <span class="n">schema</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">meta?</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="k">quote</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">...</span></span>
-<span class="code-line">    <span class="nc">Module</span><span class="o">.</span><span class="n">eval_quoted</span> <span class="bp">__ENV__</span><span class="p">,</span> <span class="p">[</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__defstruct__</span><span class="p">(</span><span class="na">@struct_fields</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__changeset__</span><span class="p">(</span><span class="na">@changeset_fields</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__schema__</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">primary_key_fields</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__types__</span><span class="p">(</span><span class="n">fields</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__assocs__</span><span class="p">(</span><span class="n">assocs</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__embeds__</span><span class="p">(</span><span class="n">embeds</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__read_after_writes__</span><span class="p">(</span><span class="na">@ecto_raw</span><span class="p">),</span></span>
-<span class="code-line">      <span class="nc">Ecto.Schema</span><span class="o">.</span><span class="n">__autogenerate__</span><span class="p">(</span><span class="na">@ecto_autogenerate_id</span><span class="p">,</span> <span class="n">autogenerate</span><span class="p">,</span> <span class="n">autoupdate</span><span class="p">)]</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">Module.eval_quoted</tt> となっています。 <tt class="docutils literal">eval_quoted</tt> の <a class="reference external" href="https://hexdocs.pm/elixir/Module.html#eval_quoted/4">ドキュメントを見ると</a> <tt class="docutils literal">quote</tt> を展開してモジュールに <tt class="docutils literal">sum</tt> 関数を導入している例が見れます。</div>
-<div class="line"><tt class="docutils literal">Ecto.Schema.__schema__</tt> をみてみます。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">primary_key</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">field_names</span> <span class="o">=</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">elem</span><span class="p">(</span><span class="ni">&amp;1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="c1"># Hash is used by the query cache to specify</span></span>
-<span class="code-line">  <span class="c1"># the underlying schema structure did not change.</span></span>
-<span class="code-line">  <span class="c1"># We don&#39;t include the source because the source</span></span>
-<span class="code-line">  <span class="c1"># is already part of the query cache itself.</span></span>
-<span class="code-line">  <span class="n">hash</span> <span class="o">=</span> <span class="ss">:erlang</span><span class="o">.</span><span class="n">phash2</span><span class="p">({</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">fields</span><span class="p">})</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="k">quote</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="ss">:query</span><span class="p">),</span>       <span class="ss">do</span><span class="p">:</span> <span class="p">%</span><span class="nc">Ecto.Query</span><span class="p">{</span><span class="ss">from</span><span class="p">:</span> <span class="p">{</span><span class="k">unquote</span><span class="p">(</span><span class="n">source</span><span class="p">),</span> <span class="bp">__MODULE__</span><span class="p">},</span> <span class="ss">prefix</span><span class="p">:</span> <span class="k">unquote</span><span class="p">(</span><span class="n">prefix</span><span class="p">)}</span></span>
-<span class="code-line">    <span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="ss">:prefix</span><span class="p">),</span>      <span class="ss">do</span><span class="p">:</span> <span class="k">unquote</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span></span>
-<span class="code-line">    <span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="ss">:source</span><span class="p">),</span>      <span class="ss">do</span><span class="p">:</span> <span class="k">unquote</span><span class="p">(</span><span class="n">source</span><span class="p">)</span></span>
-<span class="code-line">    <span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="ss">:fields</span><span class="p">),</span>      <span class="ss">do</span><span class="p">:</span> <span class="k">unquote</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span></span>
-<span class="code-line">    <span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="ss">:primary_key</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="k">unquote</span><span class="p">(</span><span class="n">primary_key</span><span class="p">)</span></span>
-<span class="code-line">    <span class="kd">def</span> <span class="n">__schema__</span><span class="p">(</span><span class="ss">:hash</span><span class="p">),</span>        <span class="ss">do</span><span class="p">:</span> <span class="k">unquote</span><span class="p">(</span><span class="n">hash</span><span class="p">)</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">quote</tt> の部分が評価されるのでこれで上記のドキュメントの例と同様に <tt class="docutils literal">__schema__</tt> 関数がモジュールで使えるようになることがわかります。</div>
-<div class="line">やっぱメタプログラミングをもっと勉強しないとちゃんとソースの中身見るのはつらそうな気がします。</div>
-<div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="id3">
+<div class="section" id="id5">
 <h2>まとめ</h2>
 <ul class="simple">
-<li><tt class="docutils literal">Ecto.Query</tt> は分解して書ける</li>
-<li><tt class="docutils literal">Repo.all</tt> の引数に取れるのは <tt class="docutils literal">Ecto.Queryable</tt> プロトコルを実装したもののみ</li>
-<li><tt class="docutils literal">Ecto.Queryable</tt> になれるモジュールは <tt class="docutils literal">use Ecto.Schema</tt> と <tt class="docutils literal">schema</tt> を定義したモジュールになる。</li>
+<li><tt class="docutils literal">Query</tt> のAPIを使うことでデータベースへの柔軟な問合せができる。</li>
+<li><tt class="docutils literal">*_constraints</tt> を使うことで各制約のバリデーションを使える。</li>
 </ul>
-<p>気になったことを調べたら本題とは別の部分で長くなってしまいました・・・</p>
+<p>書籍の中には頻繁にデータベースでやることはデータベースの中でやるべきだとありました。また、全部に <tt class="docutils literal">*_constraints</tt> 付けるのではなくクラッシュすべきところはクラッシュすべきとも書いてありました。ココらへんはElixirのLet's Crashの思想から来ているのかと思います。ユーザ側がどうにか出来る制約エラーの場合はカスタムエラーメッセージを出すと良いらしいです。（また英語力が・・・）</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その9</a>
+                <p class="uk-article-meta"><time datetime="2017-01-22" itemprop="datePublished">2017-01-22(日)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその9</p>
+                <p>その9です。 ここからchapter7です。 Ecto の続きっぽいです。 videoのカテゴリー追加 ビデオにカテゴリーを付けられるようにします。ジェネレータを使って category モデルを生成します。ついでに色々準備もします。 以下のコマンドを実行します。 1rumbl $ mix phoenix.gen.model Category categories name:string 出来上がったマイグレーションファイルを編集します。 NOT NULL 制約とか付けます。 1 2 3 4 5 6 7 8 9 10 11 12 13defmodule Rumbl.Repo.Migrations.CreateCategory <span...</p>
+                <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
@@ -618,17 +508,9 @@
                 <hr class="uk-article-divider">
         </article>
 
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2016/12/25/my-first-article/" class="uk-article-title uk-link-muted" itemprop="name">ブログ書くことにした</a>
-                <p class="uk-article-meta"><time datetime="2016-12-25" itemprop="datePublished">2016-12-25(日)</time> • <a href="https://zonuko.github.io/category/misc.html">misc</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2016/12/25/my-first-article/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">ブログ書くことにした</p>
-                <p>大した理由は無いけど色々あってブログを書くことにしました。 動機 始めようと思った理由は以下のような感じです。 勉強だけは色々するけど、発表する場が社内でもない。（自分で作ればあるけど・・・） EvernoteとかOnenoteにまとめてたけど中々見づらくてあとで振り返りづらい。 社外の人とも技術的な交流がする場が欲しい。 技術的なアウトプットを目に見える形で出すことにメリットが有ると思ったから。 構成 Pelicanと適当にテーマ使って作ってます。なので見た目はちょくちょく変わるかも。 サーバー自体はGitHub Pages使ってます。 Pelican選んだ理由は以下のような感じです。 Python好きだったから。 流行ってるもの嫌いな天邪鬼だから。（流行ってるものが素晴らしかったり楽しいのは理解してるんですが・・・） 方向性 基本的には技術的な内容にしていきたいですが、好きなゲームとか音楽とかアニメとかも話すかもしれないです。 あと、数学も大学院終わって大分忘れてきているので、勉強したらその内容でも投稿しようかと。 Pelicanについて ググればいくらでも出ると思いますが、PelicanはPython製の静的サイトジェネレーターです。 （Rubyで言うJekyllとかに値するやつ） 元々個人的に作った社内資料まとめとかにはSphinx使ってて、その流れって感じです。 具体的なPelicanの設定うんぬんは気が向けばそのうち書きます。環境は以下の感じ。 OS Windows10 64bit or Mac OS X El Capitan 諸事情でSierraじゃないです。 Python3.5.2 Pelican 3.6.3 エディタの類 Visual Studio Code Vim その他 Pelican良いと思いますが、ブログを書くという一点のみに着目すると車輪の再発明感も否めないです。 多分好き勝手書いていくと思うので、何か間違ってるとかあればコメントしてもらうか、Twitterにリプなりくれれば多分反応します。 うさぎの画像がたまに出てくるのは大久野島にたまに行くからです。うさぎ好きならおすすめします。一人なら泊る場所は島外にしよう！ PS. 何故か社内Redmineとかも丁寧語になってしまう現象が・・・...</p>
-                <a href="https://zonuko.github.io/posts/2016/12/25/my-first-article/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
+    <ul class="uk-pagination">
+        <li class="uk-active"><span>1</span></li>
+<li><a href="https://zonuko.github.io/index2.html"><i class="uk-icon-angle-double-right"></i></a></li><li><a href="https://zonuko.github.io/index2.html">2</a></li>    </ul>
 
 </div>
 
