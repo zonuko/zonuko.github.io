@@ -66,120 +66,18 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その10</a>
-                <p class="uk-article-meta"><time datetime="2017-01-24" itemprop="datePublished">2017-01-24(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/01/28/programming-phoenix11/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その11</a>
+                <p class="uk-article-meta"><time datetime="2017-01-28" itemprop="datePublished">2017-01-28(土)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/28/programming-phoenix11/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその10</p>
-                <section itemprop="articleBody"><div class="line-block">
-<div class="line">その10です。</div>
-<div class="line">chapter7の続きです。</div>
-<div class="line"><br /></div>
-</div>
-<div class="section" id="ecto-query">
-<h2>Ecto.Queryの利用</h2>
-<div class="line-block">
-<div class="line">前のChapterで調べた <tt class="docutils literal">Ecto.Query</tt> を利用して <tt class="docutils literal">Category</tt> にソート用の <tt class="docutils literal">query</tt> と取得用の <tt class="docutils literal">query</tt> を生成できる関数を用意します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">alphabetical</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">from</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query</span><span class="p">,</span> <span class="ss">order_by</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span></span>
-<span class="code-line"><span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="kd">def</span> <span class="n">names_and_ids</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">from</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query</span><span class="p">,</span> <span class="ss">select</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">}</span></span>
-<span class="code-line"><span class="k">end</span></span>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその11</p>
+                <section itemprop="articleBody"><p>その11です。chapter8です。テストですよ</p>
+<p>環境が <tt class="docutils literal">test</tt> になるのでChapter7でやったWindows用コンパイルをやっておきます。細かい部分は省きます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl&gt; <span class="nb">set</span> <span class="s2">&quot;MIX_ENV=test&quot;</span> <span class="o">&amp;&amp;</span> mix deps.compile</span>
 </pre></div>
-</td></tr></table></div>
-<div class="section" id="id1">
-<h2>テンプレートの準備</h2>
-<div class="line-block">
-<div class="line">カテゴリ一覧は取得できるようになったのでそれを表示できるようにしておきます。</div>
-<div class="line"><tt class="docutils literal">video/form.html.eex</tt> を以下のように編集します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</span>
-<span class="code-line">8</span>
-<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="vi">@action</span><span class="p">,</span> <span class="n">fn</span> <span class="n">f</span> <span class="o">-&gt;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  ...</span></span>
-<span class="code-line"><span class="x">  &lt;!-- 追加 --&gt;</span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">label</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="s2">&quot;Category&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;control-label&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="nb">select</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="vi">@categories</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span><span class="p">,</span> <span class="ss">prompt</span><span class="p">:</span> <span class="s2">&quot;Choose a category&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  ...</span></span>
-<span class="code-line"><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">video/new.html.eex</tt> を以下のように編集します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h2&gt;New video&lt;/h2&gt;</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">&quot;form.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="ss">categories</span><span class="p">:</span> <span class="vi">@categories</span><span class="p">,</span></span>
-<span class="code-line">                        <span class="ss">action</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">video/edit.html.eex</tt> を以下のように編集します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h2&gt;Edit video&lt;/h2&gt;</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">&quot;form.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="ss">categories</span><span class="p">:</span> <span class="vi">@categories</span><span class="p">,</span></span>
-<span class="code-line">                        <span class="ss">action</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="vi">@video</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="queryapi">
-<h2>QueryのAPIについて</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">Query</tt> 構築の際に使えるものは以下</div>
-</div>
-<ul class="simple">
-<li><tt class="docutils literal">==, !=, &lt;=, <span class="pre">&gt;=,&lt;,&gt;</span></tt></li>
-<li><tt class="docutils literal">and, or, not</tt></li>
-<li><tt class="docutils literal">in</tt></li>
-<li><tt class="docutils literal">like,ilike</tt></li>
-<li><tt class="docutils literal">is_nil</tt></li>
-<li><tt class="docutils literal">count, avg, sum, min, max</tt></li>
-<li><tt class="docutils literal">datetime_add, date_add</tt></li>
-<li><tt class="docutils literal">fragment, field, type</tt></li>
-</ul>
-<p>より柔軟に <tt class="docutils literal">Query</tt> を使いたい場合は <tt class="docutils literal">fragments</tt> を使うことが出来る。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">from</span><span class="p">(</span><span class="n">u</span> <span class="ow">in</span> <span class="nc">User</span><span class="p">,</span> <span class="ss">where</span><span class="p">:</span> <span class="n">fragment</span><span class="p">(</span><span class="s2">&quot;lower(username) = ?&quot;</span><span class="p">,</span> <span class="o">^</span><span class="nc">String</span><span class="o">.</span><span class="n">downcase</span><span class="p">(</span><span class="n">uname</span><span class="p">)))</span></span>
-</pre></div>
-</td></tr></table><p>よくある静的プレースホルダと同じでしょうか。この方法でもセキュリティは担保されています。</p>
-<p>もっと柔軟にクエリを投げたいときは以下のように直接SQLを実行できます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; Ecto.Adapters.SQL.query<span class="o">(</span>Rumbl.Repo, <span class="s2">&quot;SELECT power(</span><span class="nv">$1</span><span class="s2">, </span><span class="nv">$2</span><span class="s2">)&quot;</span>, <span class="o">[</span>2, 10<span class="o">])</span></span>
-</pre></div>
-</td></tr></table><p>クエリで関連するものも取りたい時は以下</p>
+</td></tr></table><div class="section" id="id1">
+<h2>テスト用に自動生成されるコードについて</h2>
+<p>テストを実行する前に自動生成された <tt class="docutils literal">video_controller_test.exs</tt> を削除しておきます。</p>
+<p><tt class="docutils literal">conn_case.ex</tt> を見るとテストの初期設定がかいてあるっぽいです。ちなみに最新版だと書籍のやつと大分違います。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -199,110 +97,59 @@
 <span class="code-line">17</span>
 <span class="code-line">18</span>
 <span class="code-line">19</span>
-<span class="code-line">20</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>6<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Repo.one from<span class="o">(</span>u in User, limit: 1<span class="o">)</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;users&quot;</span> <span class="nv">db</span><span class="o">=</span>16.0ms <span class="nv">decode</span><span class="o">=</span>15.0ms</span>
-<span class="code-line">SELECT u0.<span class="s2">&quot;id&quot;</span>, u0.<span class="s2">&quot;name&quot;</span>, u0.<span class="s2">&quot;username&quot;</span>, u0.<span class="s2">&quot;password_hash&quot;</span>, u0.<span class="s2">&quot;inserted_at&quot;</span>, u0.<span class="s2">&quot;updated_at&quot;</span> FROM <span class="s2">&quot;users&quot;</span> AS u0 LIMIT <span class="m">1</span> <span class="o">[]</span></span>
-<span class="code-line">%Rumbl.User<span class="o">{</span>__meta__: <span class="c1">#Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, id: 1,</span></span>
-<span class="code-line"> inserted_at: ~N<span class="o">[</span>2017-01-11 03:37:33.878000<span class="o">]</span>, name: <span class="s2">&quot;aaa&quot;</span>, password: nil,</span>
-<span class="code-line"> password_hash: <span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">b</span><span class="nv">$12$L2IGA8kAewNvbOLJ0</span><span class="s2">/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae&quot;</span>,</span>
-<span class="code-line"> updated_at: ~N<span class="o">[</span>2017-01-16 03:40:31.371000<span class="o">]</span>, username: <span class="s2">&quot;aaa&quot;</span>,</span>
-<span class="code-line"> videos: <span class="c1">#Ecto.Association.NotLoaded&lt;association :videos is not loaded&gt;}</span></span>
-<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; user.videos <span class="c1"># この時点ではNotLoaded</span></span>
-<span class="code-line"><span class="c1">#Ecto.Association.NotLoaded&lt;association :videos is not loaded&gt;</span></span>
-<span class="code-line">iex<span class="o">(</span>8<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Repo.preload<span class="o">(</span>user, :videos<span class="o">)</span> <span class="c1"># preloadすると関連するものも取れる</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;videos&quot;</span> <span class="nv">db</span><span class="o">=</span>78.0ms</span>
-<span class="code-line">SELECT v0.<span class="s2">&quot;id&quot;</span>, v0.<span class="s2">&quot;url&quot;</span>, v0.<span class="s2">&quot;title&quot;</span>, v0.<span class="s2">&quot;description&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span>, v0.<span class="s2">&quot;category_id&quot;</span>, v0.<span class="s2">&quot;inserted_at&quot;</span>, v0.<span class="s2">&quot;updated_at&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span> FROM <span class="s2">&quot;videos&quot;</span> AS v0 WHERE <span class="o">(</span>v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">=</span> <span class="nv">$1</span><span class="o">)</span></span>
-<span class="code-line"> ORDER BY v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">[</span>1<span class="o">]</span></span>
-<span class="code-line">%Rumbl.User<span class="o">{</span>__meta__: <span class="c1">#Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, id: 1,</span></span>
-<span class="code-line"> inserted_at: ~N<span class="o">[</span>2017-01-11 03:37:33.878000<span class="o">]</span>, name: <span class="s2">&quot;aaa&quot;</span>, password: nil,</span>
-<span class="code-line"> password_hash: <span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">b</span><span class="nv">$12$L2IGA8kAewNvbOLJ0</span><span class="s2">/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae&quot;</span>,</span>
-<span class="code-line"> updated_at: ~N<span class="o">[</span>2017-01-16 03:40:31.371000<span class="o">]</span>, username: <span class="s2">&quot;aaa&quot;</span>, videos: <span class="o">[]}</span></span>
-<span class="code-line">iex<span class="o">(</span>9<span class="o">)</span>&gt; user.videos</span>
-<span class="code-line"><span class="o">[]</span></span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.ConnCase</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">ExUnit.CaseTemplate</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">using</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="k">quote</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="c1"># Import conveniences for testing with connections</span></span>
+<span class="code-line">      <span class="kn">use</span> <span class="nc">Phoenix.ConnTest</span></span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="kn">alias</span> <span class="nc">Rumbl.Repo</span></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto</span></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto.Changeset</span></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto.Query</span></span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.Router.Helpers</span></span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="c1"># The default endpoint for testing</span></span>
+<span class="code-line">      <span class="na">@endpoint</span> <span class="nc">Rumbl.Endpoint</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">setup</span> <span class="n">tags</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="ss">:ok</span> <span class="o">=</span> <span class="nc">Ecto.Adapters.SQL.Sandbox</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="k">unless</span> <span class="n">tags</span><span class="p">[</span><span class="ss">:async</span><span class="p">]</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="nc">Ecto.Adapters.SQL.Sandbox</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">,</span> <span class="p">{</span><span class="ss">:shared</span><span class="p">,</span> <span class="n">self</span><span class="p">()})</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="ss">conn</span><span class="p">:</span> <span class="nc">Phoenix.ConnTest</span><span class="o">.</span><span class="n">build_conn</span><span class="p">()}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">Repo.preload</tt> 関数を使えば関連するものも一緒に取得できます。ただ、毎回 <tt class="docutils literal">user</tt> の取得と <tt class="docutils literal">preload</tt> を別々にやるのは面倒なので以下のようなオプションが良いされてます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>10<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Repo.one from<span class="o">(</span>u in User, limit: 1, preload: <span class="o">[</span>:videos<span class="o">])</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;users&quot;</span> <span class="nv">db</span><span class="o">=</span>0.0ms</span>
-<span class="code-line">SELECT u0.<span class="s2">&quot;id&quot;</span>, u0.<span class="s2">&quot;name&quot;</span>, u0.<span class="s2">&quot;username&quot;</span>, u0.<span class="s2">&quot;password_hash&quot;</span>, u0.<span class="s2">&quot;inserted_at&quot;</span>, u0.<span class="s2">&quot;updated_at&quot;</span> FROM <span class="s2">&quot;users&quot;</span> AS u0 LIMIT <span class="m">1</span> <span class="o">[]</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;videos&quot;</span> <span class="nv">db</span><span class="o">=</span>16.0ms</span>
-<span class="code-line">SELECT v0.<span class="s2">&quot;id&quot;</span>, v0.<span class="s2">&quot;url&quot;</span>, v0.<span class="s2">&quot;title&quot;</span>, v0.<span class="s2">&quot;description&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span>, v0.<span class="s2">&quot;category_id&quot;</span>, v0.<span class="s2">&quot;inserted_at&quot;</span>, v0.<span class="s2">&quot;updated_at&quot;</span>, v0.<span class="s2">&quot;user_id&quot;</span> FROM <span class="s2">&quot;videos&quot;</span> AS v0 WHERE <span class="o">(</span>v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">=</span> <span class="nv">$1</span><span class="o">)</span></span>
-<span class="code-line"> ORDER BY v0.<span class="s2">&quot;user_id&quot;</span> <span class="o">[</span>1<span class="o">]</span></span>
-<span class="code-line">%Rumbl.User<span class="o">{</span>__meta__: <span class="c1">#Ecto.Schema.Metadata&lt;:loaded, &quot;users&quot;&gt;, id: 1,</span></span>
-<span class="code-line"> inserted_at: ~N<span class="o">[</span>2017-01-11 03:37:33.878000<span class="o">]</span>, name: <span class="s2">&quot;aaa&quot;</span>, password: nil,</span>
-<span class="code-line"> password_hash: <span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">b</span><span class="nv">$12$L2IGA8kAewNvbOLJ0</span><span class="s2">/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae&quot;</span>,</span>
-<span class="code-line"> updated_at: ~N<span class="o">[</span>2017-01-16 03:40:31.371000<span class="o">]</span>, username: <span class="s2">&quot;aaa&quot;</span>, videos: <span class="o">[]}</span></span>
-<span class="code-line">iex<span class="o">(</span>11<span class="o">)</span>&gt;</span>
-</pre></div>
-</td></tr></table><p><tt class="docutils literal">join</tt> も普通に出来ます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>11<span class="o">)</span>&gt; Repo.all from u in User,</span>
-<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   join: v in assoc<span class="o">(</span>u, :videos<span class="o">)</span>,</span>
-<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   join: c in assoc<span class="o">(</span>v, :category<span class="o">)</span>,</span>
-<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   where: c.name <span class="o">==</span> <span class="s2">&quot;Comedy&quot;</span>,</span>
-<span class="code-line">...<span class="o">(</span>11<span class="o">)</span>&gt;   <span class="k">select</span>: <span class="o">{</span>u, v<span class="o">}</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">source</span><span class="o">=</span><span class="s2">&quot;users&quot;</span> <span class="nv">db</span><span class="o">=</span>31.0ms</span>
-<span class="code-line">SELECT u0.<span class="s2">&quot;id&quot;</span>, u0.<span class="s2">&quot;name&quot;</span>, u0.<span class="s2">&quot;username&quot;</span>, u0.<span class="s2">&quot;password_hash&quot;</span>, u0.<span class="s2">&quot;inserted_at&quot;</span>, u0.<span class="s2">&quot;updated_at&quot;</span>, v1.<span class="s2">&quot;id&quot;</span>, v1.<span class="s2">&quot;url&quot;</span>, v1.<span class="s2">&quot;title&quot;</span>, v1.<span class="s2">&quot;description&quot;</span>, v1.<span class="s2">&quot;user_id&quot;</span>, v1.<span class="s2">&quot;category_id&quot;</span>, v1.</span>
-<span class="code-line"><span class="s2">&quot;inserted_at&quot;</span>, v1.<span class="s2">&quot;updated_at&quot;</span> FROM <span class="s2">&quot;users&quot;</span> AS u0 INNER JOIN <span class="s2">&quot;videos&quot;</span> AS v1 ON v1.<span class="s2">&quot;user_id&quot;</span> <span class="o">=</span> u0.<span class="s2">&quot;id&quot;</span> INNER JOIN <span class="s2">&quot;categories&quot;</span> AS c2 ON c2.<span class="s2">&quot;id&quot;</span> <span class="o">=</span> v1.<span class="s2">&quot;category_id&quot;</span> WHERE <span class="o">(</span>c2.<span class="s2">&quot;name&quot;</span> <span class="o">=</span></span>
-<span class="code-line"><span class="s1">&#39;Comedy&#39;</span><span class="o">)</span> <span class="o">[]</span></span>
-<span class="code-line"><span class="o">[]</span></span>
-<span class="code-line">iex<span class="o">(</span>12<span class="o">)</span>&gt;</span>
-</pre></div>
-</td></tr></table></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">using</tt> ブロックは対して違いが無いですが、 <tt class="docutils literal">setup</tt> ブロックは大分違います。 <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html">Ectoのドキュメント</a> を見て探ってみます。</div>
+<div class="line"><tt class="docutils literal">Ecto.Adapters.SQL.Sandbox.checkout(Rumbl.Repo)</tt> では与えられたリポジトリに対してコネクションを取りに行っているようです。</div>
+<div class="line">次の <tt class="docutils literal">Ecto.Adapters.SQL.Sandbox.mode(Rumbl.Repo, {:shared, <span class="pre">self()})</span></tt> は接続の共有方法を指定しているようです。同期的にテストを行う場合はこちらのようです。（ <tt class="docutils literal">allow/3</tt> 関数を使った非同期の方も書いてありましたが割愛します。）</div>
+<div class="line">また、これは <tt class="docutils literal">checkout</tt> された接続と同じ接続を使うようなので <tt class="docutils literal">checkout</tt> の後に呼び出すのが必須なようです。</div>
+<div class="line">接続に対して所有権の概念が導入されこのようになったようです。</div>
+<div class="line"><br /></div>
+</div>
+</div>
 <div class="section" id="id2">
-<h2>各制約について</h2>
-<p>現状のアプリケーションはマイグレーションファイルに <tt class="docutils literal">create <span class="pre">unique_index(:users,</span> [:username])</tt> とあり、重複するユーザーネームを登録しようとするとエラーになります。</p>
-<img alt="Quicksilver" src="/images/Phoenix_error2.jpg" />
-<p>このままだと画面にエラーが出てしまうので <tt class="docutils literal">changeset</tt> で受け取れるように変更してみます。 <tt class="docutils literal">user.ex</tt> を編集します。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">model</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span> <span class="c1"># 更新予定のパラメータカラムを第三引数でとる(?)</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span> <span class="c1"># このリストがcastが返すchangesetに存在するか検証</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:username</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">max</span><span class="p">:</span> <span class="mi">20</span><span class="p">)</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">unique_constraint</span><span class="p">(</span><span class="ss">:username</span><span class="p">)</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><p><tt class="docutils literal">unique_constraint</tt> を最後のパイプラインに追加することで <tt class="docutils literal">:username</tt> がかぶっていればエラーにしてくれます。</p>
-<p>この調子で外部キー制約もエラーハンドリングできるようにします。 <tt class="docutils literal">video.ex</tt> を以下のように変更します。
-色々やった結果元の部分も間違っていたので修正してます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">struct</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">])</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">])</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">assoc_constraint</span><span class="p">(</span><span class="ss">:category</span><span class="p">)</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><p><tt class="docutils literal">validate_required</tt> の第三引数には何がはいるのだろうか・・・と思いましたが、 <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Changeset.html#content">公式ドキュメント</a> に書いてありました。 <tt class="docutils literal">:message</tt> を取り、エラーメッセージをカスタマイズできるっぽいです。</p>
-<p>これで外部制約も確かめることが出来ます。</p>
+<h2>ログアウト時のテストの実装</h2>
+<p>まずテストデータを作る関数を作ります。 <tt class="docutils literal">test/support/test_helpers.ex</tt> を作ります。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -319,26 +166,36 @@
 <span class="code-line">14</span>
 <span class="code-line">15</span>
 <span class="code-line">16</span>
-<span class="code-line">17</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>1<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Repo</span>
-<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Video</span>
-<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Category</span>
-<span class="code-line">iex<span class="o">(</span>4<span class="o">)</span>&gt; import Ecto.Query</span>
-<span class="code-line">iex<span class="o">(</span>5<span class="o">)</span>&gt;  <span class="nv">video</span> <span class="o">=</span> Repo.one<span class="o">(</span>from v in Video, limit: 1<span class="o">)</span></span>
-<span class="code-line">iex<span class="o">(</span>6<span class="o">)</span>&gt; <span class="nv">changeset</span> <span class="o">=</span> Video.changeset<span class="o">(</span>video, %<span class="o">{</span>category_id: 12345<span class="o">})</span></span>
-<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; Repo.update changeset</span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">db</span><span class="o">=</span>0.0ms</span>
-<span class="code-line">begin <span class="o">[]</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY ERROR <span class="nv">db</span><span class="o">=</span>46.0ms</span>
-<span class="code-line">UPDATE <span class="s2">&quot;videos&quot;</span> SET <span class="s2">&quot;category_id&quot;</span> <span class="o">=</span> <span class="nv">$1</span>, <span class="s2">&quot;updated_at&quot;</span> <span class="o">=</span> <span class="nv">$2</span> WHERE <span class="s2">&quot;id&quot;</span> <span class="o">=</span> <span class="nv">$3</span> <span class="o">[</span>12345, <span class="o">{{</span>2017, 1, 23<span class="o">}</span>, <span class="o">{</span>15, 2, 49, 366000<span class="o">}}</span>, 1<span class="o">]</span></span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY OK <span class="nv">db</span><span class="o">=</span>0.0ms</span>
-<span class="code-line">rollback <span class="o">[]</span></span>
-<span class="code-line"><span class="o">{</span>:error,</span>
-<span class="code-line"> <span class="c1">#Ecto.Changeset&lt;action: :update, changes: %{category_id: 12345},</span></span>
-<span class="code-line">  errors: <span class="o">[</span>category: <span class="o">{</span><span class="s2">&quot;does not exist&quot;</span>, <span class="o">[]}]</span>, data: <span class="c1">#Rumbl.Video&lt;&gt;,</span></span>
-<span class="code-line">  valid?: false&gt;<span class="o">}</span></span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.TestHelpers</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.Repo</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">insert_user</span><span class="p">(</span><span class="n">attrs</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># Dictをマージする キーが被っている時は第二引数のものが優先される</span></span>
+<span class="code-line">    <span class="n">changes</span> <span class="o">=</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">into</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="p">%{</span></span>
+<span class="code-line">      <span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;Some User&quot;</span><span class="p">,</span></span>
+<span class="code-line">      <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;user</span><span class="si">#{</span><span class="nc">Base</span><span class="o">.</span><span class="n">encode16</span><span class="p">(</span><span class="ss">:crypto</span><span class="o">.</span><span class="n">rand_bytes</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span></span>
+<span class="code-line">      <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;supersecret&quot;</span><span class="p">,</span></span>
+<span class="code-line">    <span class="p">})</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">%</span><span class="nc">Rumbl.User</span><span class="p">{}</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Rumbl.User</span><span class="o">.</span><span class="n">registration_changeset</span><span class="p">(</span><span class="n">changes</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert!</span><span class="p">()</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">insert_video</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">attrs</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Ecto</span><span class="o">.</span><span class="n">build_assoc</span><span class="p">(</span><span class="ss">:videos</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert!</span><span class="p">()</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p>良さそうです。</p>
-<p>また、削除するときには <tt class="docutils literal">foreign_key_constraint</tt> 関数が使えます。これを使うとカテゴリが削除出来ない理由をユーザに示す事ができます。</p>
+</td></tr></table><p>新しい目のElixirだと <tt class="docutils literal">Dict</tt> がdeprecatedと怒られるので <tt class="docutils literal">Enum.into</tt> に変えてます。第一引数の <tt class="docutils literal">Enumerable</tt> を第二引数の <tt class="docutils literal">Collectable</tt> のものに合体します。パイプでやろうかと思いましたが逆に見にくくなりそうだったのでやめました。</p>
+<p>作った関数を各テストで使えるように <tt class="docutils literal">import</tt> します。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -353,61 +210,477 @@
 <span class="code-line">12</span>
 <span class="code-line">13</span>
 <span class="code-line">14</span>
-<span class="code-line">15</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; <span class="nb">alias</span> Rumbl.Repo</span>
-<span class="code-line">iex&gt; <span class="nb">alias</span> Rumbl.Category</span>
-<span class="code-line">iex&gt; <span class="nb">alias</span> Rumbl.Video</span>
-<span class="code-line">iex&gt; import Ecto.Query</span>
-<span class="code-line">iex&gt; import Ecto.Changeset</span>
-<span class="code-line">iex&gt; <span class="nv">category</span> <span class="o">=</span> Repo.get_by Category, name: <span class="s2">&quot;Drama&quot;</span></span>
-<span class="code-line">iex&gt; <span class="nv">changeset</span> <span class="o">=</span> Ecto.Changeset.change<span class="o">(</span>category<span class="o">)</span></span>
-<span class="code-line">iex&gt; <span class="nv">changeset</span> <span class="o">=</span> foreign_key_constraint<span class="o">(</span>changeset, :videos, name: :videos_category_id_fkey, message: <span class="s2">&quot;still exist&quot;</span><span class="o">)</span></span>
-<span class="code-line">iex&gt; Repo.delete changeset</span>
-<span class="code-line"><span class="o">[</span>debug<span class="o">]</span> QUERY ERROR <span class="nv">db</span><span class="o">=</span>312.0ms</span>
-<span class="code-line">DELETE FROM <span class="s2">&quot;categories&quot;</span> WHERE <span class="s2">&quot;id&quot;</span> <span class="o">=</span> <span class="nv">$1</span> <span class="o">[</span>6<span class="o">]</span></span>
-<span class="code-line"><span class="o">{</span>:error,</span>
-<span class="code-line"> <span class="c1">#Ecto.Changeset&lt;action: :delete, changes: %{},</span></span>
-<span class="code-line">  errors: <span class="o">[</span>videos: <span class="o">{</span><span class="s2">&quot;still exist&quot;</span>, <span class="o">[]}]</span>, data: <span class="c1">#Rumbl.Category&lt;&gt;,</span></span>
-<span class="code-line">  valid?: false&gt;<span class="o">}</span></span>
-</pre></div>
-</td></tr></table><p><tt class="docutils literal">video</tt> のデータの中に既に <tt class="docutils literal">Drama</tt> カテゴリーのIDを参照しているものがあれば設定したエラーを出してくれます。ちなみにどっかで書いたかもしれませんが <tt class="docutils literal">Ecto.Changeset.change</tt> 関数は構造体とかからチェンジセット作ってくれる関数です。 <tt class="docutils literal">cast</tt> やバリデーションを使いたくない時に使えるみたいです。（ <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Changeset.html#change/2">参考</a> ）</p>
-<p>もう一つの選択肢として、マイグレーション時に参照先が削除された時どうするかの設定が書けるみたいです。前に作った <tt class="docutils literal">add_category_id_to_video</tt> を見てみます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</span>
-<span class="code-line">8</span>
-<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.AddCategoryIdToVideo</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">using</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="k">quote</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># Import conveniences for testing with connections</span></span>
+<span class="code-line">    <span class="kn">use</span> <span class="nc">Phoenix.ConnTest</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">alter</span> <span class="n">table</span><span class="p">(</span><span class="ss">:videos</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">add</span> <span class="ss">:category_id</span><span class="p">,</span> <span class="n">references</span><span class="p">(</span><span class="ss">:categories</span><span class="p">)</span></span>
+<span class="code-line">    <span class="kn">alias</span> <span class="nc">Rumbl.Repo</span></span>
+<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto</span></span>
+<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto.Changeset</span></span>
+<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto.Query</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="kn">import</span> <span class="nc">Rumbl.Router.Helpers</span></span>
+<span class="code-line">    <span class="c1"># 自分で実装したヘルパー関数を各テストで使えるようにする</span></span>
+<span class="code-line">    <span class="kn">import</span> <span class="nc">Rumbl.TestHelpers</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="c1"># The default endpoint for testing</span></span>
+<span class="code-line">    <span class="na">@endpoint</span> <span class="nc">Rumbl.Endpoint</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>最後に <tt class="docutils literal">video_controller_test.exs</tt> を作ります。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoControllerTest</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ConnCase</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;requires user authentication on all actions&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="nc">Enum</span><span class="o">.</span><span class="n">each</span><span class="p">([</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:new</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">put</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="p">%{})),</span></span>
+<span class="code-line">      <span class="n">post</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">,</span> <span class="p">%{})),</span></span>
+<span class="code-line">      <span class="n">delete</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:delete</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">)),</span></span>
+<span class="code-line">    <span class="p">],</span> <span class="k">fn</span> <span class="n">conn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">assert</span> <span class="n">html_response</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="mi">302</span><span class="p">)</span> <span class="c1"># ユーザ認証が必要なので全部設定されたパスにリダイレクトされる</span></span>
+<span class="code-line">      <span class="n">assert</span> <span class="n">conn</span><span class="o">.</span><span class="n">halted</span> <span class="c1"># 認証が行われていないのでhaltedはtrueになる</span></span>
+<span class="code-line">    <span class="k">end</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>ユーザ認証が行われていない時にちゃんとリダイレクトされて <tt class="docutils literal">halted</tt> が <tt class="docutils literal">true</tt> になっているかテストをしています。このテストは <tt class="docutils literal">mix test</tt> で実行した時にパスするはずです。</p>
+</div>
+<div class="section" id="id3">
+<h2>ログイン時のテストの実装</h2>
+<p>ログアウトときたらログインということで実装してみます。</p>
+<p>まずテスト時にログインしてないと話にならないのでそこら辺からやっていきます。 <tt class="docutils literal">auth.ex</tt> の <tt class="docutils literal">call/2</tt> 関数を変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">repo</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">user_id</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">cond</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="p">[</span><span class="ss">:current_user</span><span class="p">]</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">=</span> <span class="n">user_id</span> <span class="o">&amp;&amp;</span> <span class="n">repo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="c1"># assignでconnを変更する(importされた関数)</span></span>
+<span class="code-line">      <span class="c1"># これによって:current_userがコントローラやビューで使えるようになる</span></span>
+<span class="code-line">      <span class="n">assign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:current_user</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></span>
+<span class="code-line">    <span class="no">true</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">assign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:current_user</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">cond</tt> で場合分けをしていて、カレントユーザがすでに入ればそのまま <tt class="docutils literal">conn</tt> を返します。これで <tt class="docutils literal">:current_user</tt> を突っ込んだ後にこいつを呼び出せばそのまま処理に移れるはずです。</p>
+<p>次に <tt class="docutils literal">video_controller_test.exs</tt> を以下のように変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</span>
+<span class="code-line">32</span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</span>
+<span class="code-line">42</span>
+<span class="code-line">43</span>
+<span class="code-line">44</span>
+<span class="code-line">45</span>
+<span class="code-line">46</span>
+<span class="code-line">47</span>
+<span class="code-line">48</span>
+<span class="code-line">49</span>
+<span class="code-line">50</span>
+<span class="code-line">51</span>
+<span class="code-line">52</span>
+<span class="code-line">53</span>
+<span class="code-line">54</span>
+<span class="code-line">55</span>
+<span class="code-line">56</span>
+<span class="code-line">57</span>
+<span class="code-line">58</span>
+<span class="code-line">59</span>
+<span class="code-line">60</span>
+<span class="code-line">61</span>
+<span class="code-line">62</span>
+<span class="code-line">63</span>
+<span class="code-line">64</span>
+<span class="code-line">65</span>
+<span class="code-line">66</span>
+<span class="code-line">67</span>
+<span class="code-line">68</span>
+<span class="code-line">69</span>
+<span class="code-line">70</span>
+<span class="code-line">71</span>
+<span class="code-line">72</span>
+<span class="code-line">73</span>
+<span class="code-line">74</span>
+<span class="code-line">75</span>
+<span class="code-line">76</span>
+<span class="code-line">77</span>
+<span class="code-line">78</span>
+<span class="code-line">79</span>
+<span class="code-line">80</span>
+<span class="code-line">81</span>
+<span class="code-line">82</span>
+<span class="code-line">83</span>
+<span class="code-line">84</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoControllerTest</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ConnCase</span></span>
+<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.Video</span></span>
+<span class="code-line">  <span class="na">@valid_attrs</span> <span class="p">%{</span><span class="ss">url</span><span class="p">:</span> <span class="s2">&quot;http://youtu.be&quot;</span><span class="p">,</span> <span class="ss">title</span><span class="p">:</span> <span class="s2">&quot;vid&quot;</span><span class="p">,</span> <span class="ss">description</span><span class="p">:</span> <span class="s2">&quot;a vid&quot;</span><span class="p">}</span></span>
+<span class="code-line">  <span class="na">@invalid_attrs</span> <span class="p">%{</span><span class="ss">title</span><span class="p">:</span> <span class="s2">&quot;invalid&quot;</span><span class="p">}</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">video_count</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">one</span><span class="p">(</span><span class="n">from</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">query</span><span class="p">,</span> <span class="ss">select</span><span class="p">:</span> <span class="n">count</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">))</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">setup</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="o">=</span> <span class="n">config</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="k">if</span> <span class="n">username</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="ss">:login_as</span><span class="p">]</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="c1"># ログインしておいて欲しいときはこっち</span></span>
+<span class="code-line">      <span class="n">user</span> <span class="o">=</span> <span class="n">insert_user</span><span class="p">(</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span></span>
+<span class="code-line">      <span class="n">conn</span> <span class="o">=</span> <span class="n">assign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:current_user</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">user</span><span class="p">}</span></span>
+<span class="code-line">    <span class="k">else</span></span>
+<span class="code-line">      <span class="c1"># ログインしてほしくないときはこっち</span></span>
+<span class="code-line">      <span class="ss">:ok</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;requires user authentication on all actions&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="nc">Enum</span><span class="o">.</span><span class="n">each</span><span class="p">([</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:new</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">)),</span></span>
+<span class="code-line">      <span class="n">put</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="p">%{})),</span></span>
+<span class="code-line">      <span class="n">post</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">,</span> <span class="p">%{})),</span></span>
+<span class="code-line">      <span class="n">delete</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:delete</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">)),</span></span>
+<span class="code-line">    <span class="p">],</span> <span class="k">fn</span> <span class="n">conn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">assert</span> <span class="n">html_response</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="mi">302</span><span class="p">)</span> <span class="c1"># ユーザ認証が必要なので全部設定されたパスにリダイレクトされる</span></span>
+<span class="code-line">      <span class="n">assert</span> <span class="n">conn</span><span class="o">.</span><span class="n">halted</span> <span class="c1"># 認証が行われていないのでhaltedはtrueになる</span></span>
+<span class="code-line">    <span class="k">end</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="na">@tag</span> <span class="ss">login_as</span><span class="p">:</span> <span class="s2">&quot;max&quot;</span></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;lists all user&#39;s videos on index&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">user</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user_video</span> <span class="o">=</span> <span class="n">insert_video</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="ss">title</span><span class="p">:</span> <span class="s2">&quot;funny cats&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">other_video</span> <span class="o">=</span> <span class="n">insert_video</span><span class="p">(</span><span class="n">insert_user</span><span class="p">(</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;other&quot;</span><span class="p">),</span> <span class="ss">title</span><span class="p">:</span> <span class="s2">&quot;another video&quot;</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span> <span class="n">get</span> <span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">html_response</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="o">=~</span> <span class="sx">~r/Listing videos/</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="nc">String</span><span class="o">.</span><span class="n">contains?</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">resp_body</span><span class="p">,</span> <span class="n">user_video</span><span class="o">.</span><span class="n">title</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">refute</span> <span class="nc">String</span><span class="o">.</span><span class="n">contains?</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">resp_body</span><span class="p">,</span> <span class="n">other_video</span><span class="o">.</span><span class="n">title</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="na">@tag</span> <span class="ss">login_as</span><span class="p">:</span> <span class="s2">&quot;max&quot;</span></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;creates user video and redirects&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">user</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span> <span class="n">post</span> <span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">),</span> <span class="ss">video</span><span class="p">:</span> <span class="na">@valid_attrs</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">redirected_to</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="o">==</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get_by!</span><span class="p">(</span><span class="nc">Video</span><span class="p">,</span> <span class="na">@valid_attrs</span><span class="p">)</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="na">@tag</span> <span class="ss">login_as</span><span class="p">:</span> <span class="s2">&quot;max&quot;</span></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;does not create video and renders errors when invalid&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">count_before</span> <span class="o">=</span> <span class="n">video_count</span><span class="p">(</span><span class="nc">Video</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span> <span class="n">post</span> <span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">),</span> <span class="ss">video</span><span class="p">:</span> <span class="na">@invalid_attrs</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">html_response</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="o">=~</span> <span class="s2">&quot;check the errors&quot;</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">video_count</span><span class="p">(</span><span class="nc">Video</span><span class="p">)</span> <span class="o">==</span> <span class="n">count_before</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="na">@tag</span> <span class="ss">login_as</span><span class="p">:</span> <span class="s2">&quot;max&quot;</span></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;autorizes actions against access by other users&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">user</span><span class="p">:</span> <span class="n">owner</span><span class="p">,</span> <span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">video</span> <span class="o">=</span> <span class="n">insert_video</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="na">@valid_attrs</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">non_owner</span> <span class="o">=</span> <span class="n">insert_user</span><span class="p">(</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;sneaky&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span> <span class="n">assign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:current_user</span><span class="p">,</span> <span class="n">non_owner</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert_error_sent</span> <span class="ss">:not_found</span><span class="p">,</span> <span class="k">fn</span><span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="n">video</span><span class="p">))</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert_error_sent</span> <span class="ss">:not_found</span><span class="p">,</span> <span class="k">fn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="n">video</span><span class="p">))</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">     <span class="n">assert_error_sent</span> <span class="ss">:not_found</span><span class="p">,</span> <span class="k">fn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="n">video</span><span class="p">,</span> <span class="ss">video</span><span class="p">:</span> <span class="na">@valid_attrs</span><span class="p">))</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">     <span class="n">assert_error_sent</span> <span class="ss">:not_found</span><span class="p">,</span> <span class="k">fn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">get</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">video_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:delete</span><span class="p">,</span> <span class="n">video</span><span class="p">))</span></span>
 <span class="code-line">    <span class="k">end</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">add :category_id, <span class="pre">references(:categories)</span></tt> の部分が肝です。 <tt class="docutils literal"><span class="pre">references(:categories)</span></tt> には <tt class="docutils literal">:on_delete</tt> オプションが付けられるようです。</p>
+</td></tr></table><p><tt class="docutils literal">video_controller</tt> に対するテストを一気に追加しました。ポイントとなるのは以下だと思います。テスト自体にそんなに難しいところは無いと思います。</p>
 <ul class="simple">
-<li><tt class="docutils literal">:nothing</tt> ：デフォルト値。何もしない</li>
-<li><tt class="docutils literal">:delete_all</tt> ：関連するものも一緒に削除する</li>
-<li><tt class="docutils literal">:nilify_all</tt> ：関連するものが削除されたとき <tt class="docutils literal">NULL</tt> にする</li>
+<li><tt class="docutils literal">setup</tt> の部分をタグによって場合分けした。それにより、ログイン時のテストにはタグを付けることでログアウト時のテストと一緒にテストが出来る。</li>
+<li><tt class="docutils literal">&#64;～</tt> で共通で使えるリクエストパラメータを外出しした。</li>
 </ul>
 </div>
-<div class="section" id="id5">
+<div class="section" id="plug">
+<h2>Plugのテスト</h2>
+<p><tt class="docutils literal">Plug</tt> のテストも普通のテストと同じように書けます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</span>
+<span class="code-line">32</span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</span>
+<span class="code-line">42</span>
+<span class="code-line">43</span>
+<span class="code-line">44</span>
+<span class="code-line">45</span>
+<span class="code-line">46</span>
+<span class="code-line">47</span>
+<span class="code-line">48</span>
+<span class="code-line">49</span>
+<span class="code-line">50</span>
+<span class="code-line">51</span>
+<span class="code-line">52</span>
+<span class="code-line">53</span>
+<span class="code-line">54</span>
+<span class="code-line">55</span>
+<span class="code-line">56</span>
+<span class="code-line">57</span>
+<span class="code-line">58</span>
+<span class="code-line">59</span>
+<span class="code-line">60</span>
+<span class="code-line">61</span>
+<span class="code-line">62</span>
+<span class="code-line">63</span>
+<span class="code-line">64</span>
+<span class="code-line">65</span>
+<span class="code-line">66</span>
+<span class="code-line">67</span>
+<span class="code-line">68</span>
+<span class="code-line">69</span>
+<span class="code-line">70</span>
+<span class="code-line">71</span>
+<span class="code-line">72</span>
+<span class="code-line">73</span>
+<span class="code-line">74</span>
+<span class="code-line">75</span>
+<span class="code-line">76</span>
+<span class="code-line">77</span>
+<span class="code-line">78</span>
+<span class="code-line">79</span>
+<span class="code-line">80</span>
+<span class="code-line">81</span>
+<span class="code-line">82</span>
+<span class="code-line">83</span>
+<span class="code-line">84</span>
+<span class="code-line">85</span>
+<span class="code-line">86</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.AuthTest</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ConnCase</span></span>
+<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.Auth</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">setup</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">bypass_through</span><span class="p">(</span><span class="nc">Rumbl.Router</span><span class="p">,</span> <span class="ss">:browser</span><span class="p">)</span> <span class="c1"># bypass_through関数でRouterを経由してconnを作る</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;authenticate_user halts when no current_user exists&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span> <span class="nc">Auth</span><span class="o">.</span><span class="n">authenticate_user</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">[])</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">conn</span><span class="o">.</span><span class="n">halted</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;authenticate_user continues when the current_user exists&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">assign</span><span class="p">(</span><span class="ss">:current_user</span><span class="p">,</span> <span class="p">%</span><span class="nc">Rumbl.User</span><span class="p">{})</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="nc">Auth</span><span class="o">.</span><span class="n">authenticate_user</span><span class="p">([])</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">refute</span> <span class="n">conn</span><span class="o">.</span><span class="n">halted</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;login puts the user in the session&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">login_conn</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="nc">Auth</span><span class="o">.</span><span class="n">login</span><span class="p">(%</span><span class="nc">Rumbl.User</span><span class="p">{</span><span class="ss">id</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">send_resp</span><span class="p">(</span><span class="ss">:ok</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># テスト用に:okをレスポンスとして返す</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">next_conn</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">login_conn</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">get_session</span><span class="p">(</span><span class="n">next_conn</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">)</span> <span class="o">===</span> <span class="mi">123</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;logout drops the session&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">logout_conn</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">put_session</span><span class="p">(</span><span class="ss">:user_id</span><span class="p">,</span> <span class="mi">123</span><span class="p">)</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="nc">Auth</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">send_resp</span><span class="p">(</span><span class="ss">:ok</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">next_conn</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">logout_conn</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">refute</span> <span class="n">get_session</span><span class="p">(</span><span class="n">next_conn</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;call places user from session into assigns&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">=</span> <span class="n">insert_user</span><span class="p">()</span></span>
+<span class="code-line">    <span class="c1"># セッションにユーザIDをを入れてcallを呼び出す</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">put_session</span><span class="p">(</span><span class="ss">:user_id</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="nc">Auth</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="nc">Repo</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">current_user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;call with no session sets current_user assign to nil&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># sessionに何も入れずにcallを呼び出す</span></span>
+<span class="code-line">    <span class="n">conn</span> <span class="o">=</span> <span class="nc">Auth</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="nc">Repo</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">current_user</span> <span class="o">==</span> <span class="no">nil</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;login with a valid username and pass&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">=</span> <span class="n">insert_user</span><span class="p">(</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">conn</span><span class="p">}</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="nc">Auth</span><span class="o">.</span><span class="n">login_by_username_add_pass</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="ss">repo</span><span class="p">:</span> <span class="nc">Repo</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">current_user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;login with a not found user&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">,</span> <span class="n">_conn</span><span class="p">}</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="nc">Auth</span><span class="o">.</span><span class="n">login_by_username_add_pass</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="ss">repo</span><span class="p">:</span> <span class="nc">Repo</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;login with password mismatch&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="bp">_</span> <span class="o">=</span> <span class="n">insert_user</span><span class="p">(</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:unauthorized</span><span class="p">,</span> <span class="n">_conn</span><span class="p">}</span> <span class="o">=</span></span>
+<span class="code-line">      <span class="nc">Auth</span><span class="o">.</span><span class="n">login_by_username_add_pass</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="s2">&quot;wrond&quot;</span><span class="p">,</span> <span class="ss">repo</span><span class="p">:</span> <span class="nc">Repo</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>あまり書くことはないですが、 <tt class="docutils literal">setup</tt> で <tt class="docutils literal">bypass_through</tt> で各パイプを経由した <tt class="docutils literal">conn</tt> を作っている点くらいだと思います。
+セッションやらフラッシュメッセージが必要となるためです。</p>
+<p>テストの高速化のために <tt class="docutils literal">config/text.exs</tt> に以下を追加しておきます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="c1"># テストを高速化するためにハッシュの複雑差を変えて計算の時間を減らす</span></span>
+<span class="code-line"><span class="n">config</span> <span class="ss">:comeonin</span><span class="p">,</span> <span class="ss">:bcrypt_log_rounds</span><span class="p">,</span> <span class="mi">4</span></span>
+<span class="code-line"><span class="n">config</span> <span class="ss">:comeonin</span><span class="p">,</span> <span class="ss">:pbkdf2_rounds</span><span class="p">,</span> <span class="mi">1</span></span>
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="id4">
 <h2>まとめ</h2>
-<ul class="simple">
-<li><tt class="docutils literal">Query</tt> のAPIを使うことでデータベースへの柔軟な問合せができる。</li>
-<li><tt class="docutils literal">*_constraints</tt> を使うことで各制約のバリデーションを使える。</li>
-</ul>
-<p>書籍の中には頻繁にデータベースでやることはデータベースの中でやるべきだとありました。また、全部に <tt class="docutils literal">*_constraints</tt> 付けるのではなくクラッシュすべきところはクラッシュすべきとも書いてありました。ココらへんはElixirのLet's Crashの思想から来ているのかと思います。ユーザ側がどうにか出来る制約エラーの場合はカスタムエラーメッセージを出すと良いらしいです。（また英語力が・・・）</p>
+<p>よくあるテストコードと余り変わらなくて特に書くことがない・・・今までの知識を総動員している感覚があります。</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/01/28/programming-phoenix11/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その10</a>
+                <p class="uk-article-meta"><time datetime="2017-01-24" itemprop="datePublished">2017-01-24(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその10</p>
+                <p>その10です。 chapter7の続きです。 Ecto.Queryの利用 前のChapterで調べた Ecto.Query を利用して Category にソート用の query と取得用の query を生成できる関数を用意します。 1 2 3 4 5 6 7def alphabetical(query) do from c in query, order_by: c.name end def names_and_ids(<span...</p>
+                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
@@ -494,17 +767,6 @@
                 <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその2</p>
                 <p>その2です。 その1の続きです。 デフォルトのディレクトリ構成について config ディレクトリ Phoenixの設定ファイル置き場.名前のまま. prod.secret.exs は秘密情報が入っているファイルなので,VCSからは外すこと. config.exs の endpoint はWebサーバーとアプリケーションの接続の境界部分. lib ディレクトリ Supervision treeと,長く起動するプロセスが置かれる.（?,あってるか微妙） DBとのコネクションプールとかのような長く使われるものが置かれるっぽい. test ディレクトリ 名前の通りテストが置かれる. web ディレクトリ Webアプリに必要な model, view, template, controller が置かれる. Plugについて Plug ライブラリは接続の統一化のために使われる. Plug のリポジトリ [Plugリポジトリ] には以下のように書いてある. ・ A specification for composable modules between web applications ・ Connection adapters for different web...</p>
                 <a href="https://zonuko.github.io/posts/2016/12/31/programming-phoenix2/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2016/12/28/programming-phoenix1/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その1</a>
-                <p class="uk-article-meta"><time datetime="2016-12-28" itemprop="datePublished">2016-12-28(水)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2016/12/28/programming-phoenix1/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその1</p>
-                <p>買ってあったけど読んでなかったので読みます.プログラミングElixirは原著の方も翻訳の方も一応読んでます. プログラミングElixirについては色々なところで書評なり見る気がするけど,こっちの方は余り見ない気がします. ちなみに実際にコードを書くPart1のChapter2からやってきます. あとPhoenix自体は何回か触ってます.趣味で. 前提 PostgreSQL9.5 Elixir 1.3.2 Phoenix Framework1.2.1 本より新し目のバージョンにしてるので,色々問題ありそうですが頑張る感じで行きます. 初期構築 プロジェクトテンプレートの生成としてはじめに以下のコマンドを入力します. 1 2 3 4 5 6 7$ mix phoenix.new hello * creating hello/ config/ config.exs ... Fetch and install dependencies? [Yn] y * running mix deps.get * running npm これでカレントディレクトリにhelloってフォルダが掘られて,色々勝手に整備してくれる. 次に以下のコマンドでDB作ったりします. 1 2 3 4 5 6$ cd hello <span...</p>
-                <a href="https://zonuko.github.io/posts/2016/12/28/programming-phoenix1/">Read More</a>
                 <hr class="uk-article-divider">
         </article>
 
