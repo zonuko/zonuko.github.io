@@ -171,7 +171,167 @@
 実際にレンダリングをHTMLとして行わなくてもテストが出来ています。 <tt class="docutils literal">render_to_string</tt> 関数のオプションにテンプレート側で使う変数を割り当てられるようです。</p>
 </div>
 <div class="section" id="id2">
-<h2>モデルのテスト</h2>
+<h2>モデルのテスト（非同期）</h2>
+<p>モデルのテストを行う前に <tt class="docutils literal">model_case.ex</tt> を確認しておきます。ついでに <tt class="docutils literal">import Rumbl.TestHelpers</tt> を追記もしておきます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</span>
+<span class="code-line">32</span>
+<span class="code-line">33</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.ModelCase</span> <span class="k">do</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">ExUnit.CaseTemplate</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">using</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="k">quote</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="kn">alias</span> <span class="nc">Rumbl.Repo</span></span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto</span></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto.Changeset</span></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto.Query</span></span>
+<span class="code-line"></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.TestHelpers</span></span>
+<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.ModelCase</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">setup</span> <span class="n">tags</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="ss">:ok</span> <span class="o">=</span> <span class="nc">Ecto.Adapters.SQL.Sandbox</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="k">unless</span> <span class="n">tags</span><span class="p">[</span><span class="ss">:async</span><span class="p">]</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="nc">Ecto.Adapters.SQL.Sandbox</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">,</span> <span class="p">{</span><span class="ss">:shared</span><span class="p">,</span> <span class="n">self</span><span class="p">()})</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="ss">:ok</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">errors_on</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">struct</span><span class="o">.</span><span class="n">__struct__</span><span class="o">.</span><span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Ecto.Changeset</span><span class="o">.</span><span class="n">traverse_errors</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">Rumbl.ErrorHelpers</span><span class="o">.</span><span class="n">translate_error</span><span class="o">/</span><span class="mi">1</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">flat_map</span><span class="p">(</span><span class="k">fn</span> <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">errors</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="k">for</span> <span class="n">msg</span> <span class="o">&lt;-</span> <span class="n">errors</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">msg</span><span class="p">}</span> <span class="k">end</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>書籍と比べて <tt class="docutils literal">error_on</tt> 関数が変更されてますが余りきにしなくて良さそうです。ぱっとみエラーメッセージをマップに変更しているだけに見えます。</p>
+<p><tt class="docutils literal">model/user_test.exs</tt> を作成し以下のように実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</span>
+<span class="code-line">32</span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</span>
+<span class="code-line">42</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserTest</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ModelCase</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span></span>
+<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.User</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="na">@valid_attrs</span> <span class="p">%{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;A User&quot;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;eva&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;secret&quot;</span><span class="p">}</span></span>
+<span class="code-line">  <span class="na">@invalid_attrs</span> <span class="p">%{}</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;changeset with valid attributes&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="na">@valid_attrs</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">changeset</span><span class="o">.</span><span class="n">valid?</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;changeset with invalid attributes&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="na">@invalid_attrs</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">refute</span> <span class="n">changeset</span><span class="o">.</span><span class="n">valid?</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;changeset does not accepts long usernames&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">duplicate</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:username</span><span class="p">,</span> <span class="s2">&quot;should be at most 20 character(s)&quot;</span><span class="p">}</span> <span class="ow">in</span></span>
+<span class="code-line">      <span class="n">errors_on</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;registration_changeset password must be at least 6 chars long&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="s2">&quot;12345&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">registration_changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:password</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;should be at least %{count} character(s)&quot;</span><span class="p">,</span> <span class="p">[</span><span class="ss">count</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="ss">validation</span><span class="p">:</span> <span class="ss">:length</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">6</span><span class="p">]}}</span></span>
+<span class="code-line">      <span class="ow">in</span> <span class="n">changeset</span><span class="o">.</span><span class="n">errors</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;registration_changeset with valid attributes hashes password&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="s2">&quot;123456&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">registration_changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">%{</span><span class="ss">password</span><span class="p">:</span> <span class="n">pass</span><span class="p">,</span> <span class="ss">password_hash</span><span class="p">:</span> <span class="n">pass_hash</span><span class="p">}</span> <span class="o">=</span> <span class="n">changeset</span><span class="o">.</span><span class="n">changes</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">changeset</span><span class="o">.</span><span class="n">valid?</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="n">pass_hash</span></span>
+<span class="code-line">    <span class="n">assert</span> <span class="nc">Comeonin.Bcrypt</span><span class="o">.</span><span class="n">checkpw</span><span class="p">(</span><span class="n">pass</span><span class="p">,</span> <span class="n">pass_hash</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">erros_on</tt> を使っている場所は <a class="reference external" href="https://forums.pragprog.com/forums/393/topics/14486">ここを参考</a>  にしました。
+これらのテストは副作用を起こさないテストでまとめたため、 <tt class="docutils literal">async: true</tt> にして並列実行しているようです。</p>
+</div>
+<div class="section" id="id4">
+<h2>副作用のあるテスト</h2>
+<p>副作用が無く非同期に実行できるテストに対して、実際に <tt class="docutils literal">Repo.insert</tt> したりするようなテストは副作用が発生します。その為、同じモデルのテストでも副作用あり/無しで分離してテストを書きます。</p>
+<p><tt class="docutils literal">model/user_repo_test.exs</tt> を以下のように作成します。</p>
 </div>
 </section>
         <hr class="uk-article-divider">
