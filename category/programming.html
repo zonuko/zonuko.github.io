@@ -73,14 +73,62 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その12</a>
-                <p class="uk-article-meta"><time datetime="2017-01-29" itemprop="datePublished">2017-01-29(日)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その13</a>
+                <p class="uk-article-meta"><time datetime="2017-01-30" itemprop="datePublished">2017-01-30(月)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその12</p>
-                <section itemprop="articleBody"><p>その12です。テストの続きです。ビュー周りのテストからです。</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその13</p>
+                <section itemprop="articleBody"><p>その13です。ここからPart2です。ここから機能をちゃんと整備します。</p>
+<ul class="simple">
+<li>ビデオに対してリアルタイムコメントを付けられるように</li>
+<li>ビデオを再生可能に</li>
+</ul>
+<p>をやっていくようです。はじめにビデオを再生可能にしていきます。</p>
 <div class="section" id="id1">
-<h2>テンプレートのテスト</h2>
-<p>何個か前の章でやったようにテンプレートのレンダリングも単なる関数なので簡単にテスト可能です。</p>
+<h2>視聴用ページ作成</h2>
+<p>投稿されたビデオを見るためのページを作ります。いつものを作るのでソースのみ提示します。
+<tt class="docutils literal">app.html.eex</tt> に投稿一覧表示用メニューを付けます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">...</span></span>
+<span class="code-line"><span class="x">&lt;body&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;container&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;header class=&quot;header&quot;&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;ol class=&quot;breadcrumb text-right&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;!-- assignsで突っ込んだものが使えている --&gt;</span></span>
+<span class="code-line"><span class="x">        </span><span class="cp">&lt;%=</span> <span class="k">if</span> <span class="vi">@current_user</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">          &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="vi">@current_user</span><span class="o">.</span><span class="n">username</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">          &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;My Videos&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">          &lt;li&gt;</span></span>
+<span class="code-line"><span class="x">...</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">watch_controller.ex</tt> を作成します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.WatchController</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:controller</span></span>
+<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.Video</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">show</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&quot;id&quot;</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">video</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="nc">Video</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;show.html&quot;</span><span class="p">,</span> <span class="ss">video</span><span class="p">:</span> <span class="n">video</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">wathc/show.html.eex</tt> を作成します。コメント入力欄がある唯のページです。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -108,41 +156,179 @@
 <span class="code-line">25</span>
 <span class="code-line">26</span>
 <span class="code-line">27</span>
-<span class="code-line">28</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoViewTest</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ConnCase</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span></span>
-<span class="code-line">  <span class="kn">import</span> <span class="nc">Phoenix.View</span></span>
+<span class="code-line">28</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h2&gt;</span><span class="cp">&lt;%=</span> <span class="vi">@video</span><span class="o">.</span><span class="n">title</span> <span class="cp">%&gt;</span><span class="x">&lt;/h2&gt;</span></span>
+<span class="code-line"><span class="x">&lt;div class=&quot;row&quot;&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;col-sm-7&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">content_tag</span> <span class="ss">:div</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="s2">&quot;video&quot;</span><span class="p">,</span></span>
+<span class="code-line">          <span class="ss">data</span><span class="p">:</span> <span class="o">[</span><span class="nb">id</span><span class="p">:</span> <span class="vi">@video</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="ss">player_id</span><span class="p">:</span> <span class="n">player_id</span><span class="p">(</span><span class="vi">@video</span><span class="p">)</span><span class="o">]</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;col-sm-5&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;div class=&quot;panel panel-default&quot;&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;div class=&quot;panel-heading&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;h3 class=&quot;panel-title&quot;&gt;Annotations&lt;/h3&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;div id=&quot;msg-container&quot; class=&quot;panel-body annotations&quot;&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;div class=&quot;panel-footer&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;textarea id=&quot;msg-input&quot;</span></span>
+<span class="code-line"><span class="x">                  rows=&quot;3&quot;</span></span>
+<span class="code-line"><span class="x">                  class=&quot;form-control&quot;</span></span>
+<span class="code-line"><span class="x">                  placeholder=&quot;Comment...&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;/textarea&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;button id=&quot;msg-submit&quot; class=&quot;btn btn-primary form-control&quot;</span></span>
+<span class="code-line"><span class="x">            type=&quot;submit&quot;&gt;</span></span>
+<span class="code-line"><span class="x">          Post</span></span>
+<span class="code-line"><span class="x">        &lt;/button&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">&lt;/div&gt;</span></span>
+</pre></div>
+</td></tr></table><p>上記テンプレート内で <tt class="docutils literal">player_id/1</tt> という関数を使っているので <tt class="docutils literal">watch_view.ex</tt> を実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.WatchView</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:view</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;renders index.html&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">videos</span> <span class="o">=</span> <span class="p">[%</span><span class="nc">Rumbl.Video</span><span class="p">{</span><span class="ss">id</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="ss">title</span><span class="p">:</span> <span class="s2">&quot;dogs&quot;</span><span class="p">},</span></span>
-<span class="code-line">              <span class="p">%</span><span class="nc">Rumbl.Video</span><span class="p">{</span><span class="ss">id</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="ss">title</span><span class="p">:</span> <span class="s2">&quot;cats&quot;</span><span class="p">}]</span></span>
-<span class="code-line">    <span class="c1"># テンプレートを文字列としてレンダリングする</span></span>
-<span class="code-line">    <span class="n">content</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span><span class="nc">Rumbl.VideoView</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">,</span> <span class="ss">videos</span><span class="p">:</span> <span class="n">videos</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">assert</span> <span class="nc">String</span><span class="o">.</span><span class="n">contains?</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s2">&quot;Listing videos&quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="c1"># 内包表記は中の式は評価される</span></span>
-<span class="code-line">    <span class="k">for</span> <span class="n">video</span> <span class="o">&lt;-</span> <span class="n">videos</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">assert</span> <span class="nc">String</span><span class="o">.</span><span class="n">contains?</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">video</span><span class="o">.</span><span class="n">title</span><span class="p">)</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;renders new.html&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">}</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">Rumbl.Video</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">Rumbl.Video</span><span class="p">{})</span></span>
-<span class="code-line">    <span class="n">categories</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;cats&quot;</span><span class="p">,</span> <span class="mi">123</span><span class="p">}]</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">content</span> <span class="o">=</span> <span class="n">render_to_string</span><span class="p">(</span><span class="nc">Rumbl.VideoView</span><span class="p">,</span> <span class="s2">&quot;new.html&quot;</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">conn</span><span class="p">:</span> <span class="n">conn</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="n">changeset</span><span class="p">,</span> <span class="ss">categories</span><span class="p">:</span> <span class="n">categories</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">assert</span> <span class="nc">String</span><span class="o">.</span><span class="n">contains?</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s2">&quot;New video&quot;</span><span class="p">)</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">player_id</span><span class="p">(</span><span class="n">video</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="sx">~r{^.*(?:youtu\.be/|\w+/|v=)(?&lt;id&gt;[^</span><span class="err">#</span><span class="sx">&amp;?]*)}</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Regex</span><span class="o">.</span><span class="n">named_captures</span><span class="p">(</span><span class="n">video</span><span class="o">.</span><span class="n">url</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">get_in</span><span class="p">([</span><span class="s2">&quot;id&quot;</span><span class="p">])</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p>注目すべきは <tt class="docutils literal">render_to_string</tt> 関数でテンプレートを文字列としてレンダリングしている点かと思います。
-実際にレンダリングをHTMLとして行わなくてもテストが出来ています。 <tt class="docutils literal">render_to_string</tt> 関数のオプションにテンプレート側で使う変数を割り当てられるようです。</p>
+</td></tr></table><p>正規表現を使って投稿されたYouTubeのURLに対してパラメータ部分のみを取り出しています。
+<tt class="docutils literal">router.ex</tt> に <tt class="docutils literal">/</tt> スコープに <tt class="docutils literal">get <span class="pre">&quot;/watch/:id&quot;,</span> WatchController, :show</tt> を追加しておきます。</p>
+<p>最後に、ビデオ一覧画面にウォッチ画面へのリンクボタンを作成します。 <tt class="docutils literal">video/index.html.eex</tt> に以下を追加します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">...</span></span>
+<span class="code-line"><span class="x">&lt;tbody&gt;</span></span>
+<span class="code-line"><span class="x">  </span><span class="cp">&lt;%=</span> <span class="k">for</span> <span class="n">video</span> <span class="o">&lt;-</span> <span class="vi">@videos</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">    &lt;tr&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">user_id</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">url</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">title</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">description</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="x">      &lt;td class=&quot;text-right&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        </span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Watch&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">watch_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="n">video</span><span class="p">),</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;btn btn-default btn-xs&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">...</span></span>
+</pre></div>
+</td></tr></table><p>これで準備は完了です。次からJavaScript側のコードを作成します。</p>
 </div>
 <div class="section" id="id2">
-<h2>モデルのテスト（非同期）</h2>
-<p>モデルのテストを行う前に <tt class="docutils literal">model_case.ex</tt> を確認しておきます。ついでに <tt class="docutils literal">import Rumbl.TestHelpers</tt> を追記もしておきます。</p>
+<h2>視聴用ページ作成</h2>
+<p>最初にPhoenixでのJavaScriptのビルド周りについて触れられています。</p>
+<ul class="simple">
+<li>ビルドツールは <tt class="docutils literal">Brunch</tt> がデフォルト</li>
+<li><tt class="docutils literal">Brunch</tt> の設定はデフォルトでES6になっている</li>
+<li><tt class="docutils literal">Brunch</tt> を使わないように変えることも可能。プロジェクト作成時に <tt class="docutils literal"><span class="pre">--no-Brunch</span></tt> オプションを与えると最初から除ける。</li>
+<li><tt class="docutils literal">web/static/js</tt> 以下にあるファイルをすべて <tt class="docutils literal">app.js</tt> にまとめる</li>
+<li>staticファイルの読み込みは <tt class="docutils literal"><span class="pre">static_path(&#64;conn,</span> &quot;/js/app.js&quot;)</tt> で行う</li>
+<li>モジュールシステムを利用しないライブラリは <tt class="docutils literal">web/static/vendor</tt> に追加する<ul>
+<li>公式ドキュメントによると <tt class="docutils literal">bower</tt> で入れたものはこっちに配備されるっぽい？</li>
+</ul>
+</li>
+</ul>
+<p>というわけでJavaScript周りを実装します。 <tt class="docutils literal">static/js/player.js</tt> を以下の通り実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">let</span> <span class="nx">Player</span> <span class="o">=</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">player</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">init</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">player</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="nb">window</span><span class="p">.</span><span class="nx">onYouTubeIframeAPIReady</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="k">this</span><span class="p">.</span><span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">player</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">);</span></span>
+<span class="code-line">        <span class="p">};</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">youtubeScriptTag</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// APIの読み込み APIが読み込まれるとonYouTubeIframeAPIReady関数が自動で呼ばれる</span></span>
+<span class="code-line">        <span class="nx">youtubeScriptTag</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;//www.youtube.com/iframe_api&quot;</span><span class="p">;</span></span>
+<span class="code-line">        <span class="nb">document</span><span class="p">.</span><span class="nx">head</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">youtubeScriptTag</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="nx">onReady</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">this</span><span class="p">.</span><span class="nx">player</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">YT</span><span class="p">.</span><span class="nx">Player</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="nx">height</span><span class="o">:</span> <span class="s2">&quot;360&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">width</span><span class="o">:</span> <span class="s2">&quot;420&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">videoId</span><span class="o">:</span> <span class="nx">playerId</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">events</span><span class="o">:</span> <span class="p">{</span></span>
+<span class="code-line">                <span class="s2">&quot;onReady&quot;</span><span class="o">:</span> <span class="p">(</span><span class="nx">event</span> <span class="o">=&gt;</span> <span class="nx">onReady</span><span class="p">(</span><span class="nx">event</span><span class="p">)),</span></span>
+<span class="code-line">                <span class="s2">&quot;onStateChange&quot;</span><span class="o">:</span> <span class="p">(</span><span class="nx">event</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">))</span></span>
+<span class="code-line">            <span class="p">}</span></span>
+<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{},</span></span>
+<span class="code-line">    <span class="nx">getCurrentTime</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span> <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span> <span class="p">}</span></span>
+<span class="code-line"><span class="p">};</span></span>
+<span class="code-line"><span class="kr">export</span> <span class="k">default</span> <span class="nx">Player</span><span class="p">;</span></span>
+</pre></div>
+</td></tr></table><p>YouTubeのAPIを読み込んでいます。本筋から外れてしまうので割愛します。文法がES2015形式なので昔のJavaScriptとはちょっと変わっています。</p>
+<p>ソースを作っただけでは読み込んでくれないので <tt class="docutils literal">static/js/app.js</tt> を以下のように変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="p">...</span></span>
+<span class="code-line"><span class="kr">import</span> <span class="nx">Player</span> <span class="nx">from</span> <span class="s2">&quot;./player&quot;</span><span class="p">;</span></span>
+<span class="code-line"><span class="kd">let</span> <span class="nx">video</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">);</span></span>
+<span class="code-line"><span class="k">if</span><span class="p">(</span><span class="nx">video</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">Player</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">video</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">video</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-player-id&quot;</span><span class="p">),</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;player ready!&quot;</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">});</span></span>
+<span class="code-line"><span class="p">}</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">import</tt> 文もES2015の文法だったと記憶してます。これも特に言うことはありません。</p>
+<p>こんな感じで実装して実行したあと、 <tt class="docutils literal">priv/static/js/app.js</tt> を見に行くとソースがまとめられていることがわかります。
+抜粋して載せてみます。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -175,42 +361,80 @@
 <span class="code-line">30</span>
 <span class="code-line">31</span>
 <span class="code-line">32</span>
-<span class="code-line">33</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.ModelCase</span> <span class="k">do</span></span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">var</span> <span class="nx">Player</span> <span class="o">=</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">player</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">ExUnit.CaseTemplate</span></span>
+<span class="code-line">    <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">init</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">plyerId</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">using</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="k">quote</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="kn">alias</span> <span class="nc">Rumbl.Repo</span></span>
+<span class="code-line">        <span class="nb">window</span><span class="p">.</span><span class="nx">onYouTubeIframeAPIReady</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="nx">_this</span><span class="p">.</span><span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">);</span></span>
+<span class="code-line">        <span class="p">};</span></span>
+<span class="code-line">        <span class="kd">var</span> <span class="nx">youtubeScriptTag</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// APIの読み込み APIが読み込まれるとonYouTubeIframeAPIReady関数が自動で呼ばれる</span></span>
+<span class="code-line">        <span class="nx">youtubeScriptTag</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;//www.youtube.com/iframe_api&quot;</span><span class="p">;</span></span>
+<span class="code-line">        <span class="nb">document</span><span class="p">.</span><span class="nx">head</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">youtubeScriptTag</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">onIframeReady</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="nx">_onReady</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">var</span> <span class="nx">_this2</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span></span>
 <span class="code-line"></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto</span></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto.Changeset</span></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Ecto.Query</span></span>
+<span class="code-line">        <span class="k">this</span><span class="p">.</span><span class="nx">player</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">YT</span><span class="p">.</span><span class="nx">Player</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="nx">height</span><span class="o">:</span> <span class="s2">&quot;360&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">width</span><span class="o">:</span> <span class="s2">&quot;420&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">videoId</span><span class="o">:</span> <span class="nx">playerId</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">events</span><span class="o">:</span> <span class="p">{</span></span>
+<span class="code-line">                <span class="s2">&quot;onReady&quot;</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onReady</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">                    <span class="k">return</span> <span class="nx">_onReady</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span></span>
+<span class="code-line">                <span class="p">},</span></span>
+<span class="code-line">                <span class="s2">&quot;onStateChange&quot;</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">                    <span class="k">return</span> <span class="nx">_this2</span><span class="p">.</span><span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span></span>
+<span class="code-line">                <span class="p">}</span></span>
+<span class="code-line">            <span class="p">}</span></span>
+<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">onPlayerStateChange</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{},</span></span>
+<span class="code-line">    <span class="nx">getCurrentTime</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">getCurrentTime</span><span class="p">()</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">seekTo</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">}</span></span>
+<span class="code-line"><span class="p">};</span></span>
+<span class="code-line"><span class="nx">exports</span><span class="p">.</span><span class="k">default</span> <span class="o">=</span> <span class="nx">Player</span><span class="p">;</span></span>
+<span class="code-line"><span class="p">});</span></span>
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="id3">
+<h2>スラッグの追加</h2>
+<p>各ビデオを任意のURLでアクセス出来るように <tt class="docutils literal">Slug</tt> を付けます。</p>
+<p><tt class="docutils literal">mix ecto.gen.migration add_slug_to_video</tt> を実行後以下のようにマイグレーションファイルを変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.AddSlugToVideo</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
 <span class="code-line"></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.TestHelpers</span></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.ModelCase</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">alter</span> <span class="n">table</span><span class="p">(</span><span class="ss">:videos</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">add</span> <span class="ss">:slug</span><span class="p">,</span> <span class="ss">:string</span></span>
 <span class="code-line">    <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">setup</span> <span class="n">tags</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="ss">:ok</span> <span class="o">=</span> <span class="nc">Ecto.Adapters.SQL.Sandbox</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="k">unless</span> <span class="n">tags</span><span class="p">[</span><span class="ss">:async</span><span class="p">]</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="nc">Ecto.Adapters.SQL.Sandbox</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">,</span> <span class="p">{</span><span class="ss">:shared</span><span class="p">,</span> <span class="n">self</span><span class="p">()})</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="ss">:ok</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">errors_on</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">struct</span><span class="o">.</span><span class="n">__struct__</span><span class="o">.</span><span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Ecto.Changeset</span><span class="o">.</span><span class="n">traverse_errors</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">Rumbl.ErrorHelpers</span><span class="o">.</span><span class="n">translate_error</span><span class="o">/</span><span class="mi">1</span><span class="p">)</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">flat_map</span><span class="p">(</span><span class="k">fn</span> <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">errors</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="k">for</span> <span class="n">msg</span> <span class="o">&lt;-</span> <span class="n">errors</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">msg</span><span class="p">}</span> <span class="k">end</span><span class="p">)</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p>書籍と比べて <tt class="docutils literal">error_on</tt> 関数が変更されてますが余りきにしなくて良さそうです。ぱっとみエラーメッセージをマップに変更しているだけに見えます。</p>
-<p><tt class="docutils literal">model/user_test.exs</tt> を作成し以下のように実装します。</p>
+</td></tr></table><p>出来たらマイグレーションを実行後、 <tt class="docutils literal">video.ex</tt> で新たに追加された <tt class="docutils literal">slug</tt> カラムを使うようにします。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -252,136 +476,75 @@
 <span class="code-line">39</span>
 <span class="code-line">40</span>
 <span class="code-line">41</span>
-<span class="code-line">42</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserTest</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ModelCase</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span></span>
-<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.User</span></span>
+<span class="code-line">42</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Video</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:model</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="na">@valid_attrs</span> <span class="p">%{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;A User&quot;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;eva&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;secret&quot;</span><span class="p">}</span></span>
-<span class="code-line">  <span class="na">@invalid_attrs</span> <span class="p">%{}</span></span>
+<span class="code-line">  <span class="n">schema</span> <span class="s2">&quot;videos&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:url</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:slug</span><span class="p">,</span> <span class="ss">:string</span> <span class="c1"># 追加</span></span>
+<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:user</span><span class="p">,</span> <span class="nc">Rumbl.User</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;changeset with valid attributes&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="na">@valid_attrs</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">assert</span> <span class="n">changeset</span><span class="o">.</span><span class="n">valid?</span></span>
+<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:category</span><span class="p">,</span> <span class="nc">Rumbl.Category</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">timestamps</span><span class="p">()</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;changeset with invalid attributes&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="na">@invalid_attrs</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">refute</span> <span class="n">changeset</span><span class="o">.</span><span class="n">valid?</span></span>
+<span class="code-line">  <span class="na">@doc</span> <span class="sh">&quot;&quot;&quot;</span></span>
+<span class="code-line"><span class="sh">  Builds a changeset based on the `struct` and `params`.</span></span>
+<span class="code-line"><span class="sh">  &quot;&quot;&quot;</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">struct</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">])</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">])</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">slugify_title</span><span class="p">()</span> <span class="c1"># タイトルをSlugに変換</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">assoc_constraint</span><span class="p">(</span><span class="ss">:category</span><span class="p">)</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;changeset does not accepts long usernames&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">duplicate</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:username</span><span class="p">,</span> <span class="s2">&quot;should be at most 20 character(s)&quot;</span><span class="p">}</span> <span class="ow">in</span></span>
-<span class="code-line">      <span class="n">errors_on</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">slugify_title</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># タイトルからSlugを作成する</span></span>
+<span class="code-line">    <span class="c1"># changesetを弄るだけで変更予定データの追加などが出来ている</span></span>
+<span class="code-line">    <span class="k">if</span> <span class="n">title</span> <span class="o">=</span> <span class="n">get_change</span><span class="p">(</span><span class="n">changeset</span><span class="p">,</span> <span class="ss">:title</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">put_change</span><span class="p">(</span><span class="n">changeset</span><span class="p">,</span> <span class="ss">:slug</span><span class="p">,</span> <span class="n">slugify</span><span class="p">(</span><span class="n">title</span><span class="p">))</span></span>
+<span class="code-line">    <span class="k">else</span></span>
+<span class="code-line">      <span class="n">changeset</span></span>
+<span class="code-line">    <span class="k">end</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;registration_changeset password must be at least 6 chars long&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="s2">&quot;12345&quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">registration_changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:password</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;should be at least %{count} character(s)&quot;</span><span class="p">,</span> <span class="p">[</span><span class="ss">count</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="ss">validation</span><span class="p">:</span> <span class="ss">:length</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">6</span><span class="p">]}}</span></span>
-<span class="code-line">      <span class="ow">in</span> <span class="n">changeset</span><span class="o">.</span><span class="n">errors</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;registration_changeset with valid attributes hashes password&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="s2">&quot;123456&quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">registration_changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="p">%{</span><span class="ss">password</span><span class="p">:</span> <span class="n">pass</span><span class="p">,</span> <span class="ss">password_hash</span><span class="p">:</span> <span class="n">pass_hash</span><span class="p">}</span> <span class="o">=</span> <span class="n">changeset</span><span class="o">.</span><span class="n">changes</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">assert</span> <span class="n">changeset</span><span class="o">.</span><span class="n">valid?</span></span>
-<span class="code-line">    <span class="n">assert</span> <span class="n">pass_hash</span></span>
-<span class="code-line">    <span class="n">assert</span> <span class="nc">Comeonin.Bcrypt</span><span class="o">.</span><span class="n">checkpw</span><span class="p">(</span><span class="n">pass</span><span class="p">,</span> <span class="n">pass_hash</span><span class="p">)</span></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">slugify</span><span class="p">(</span><span class="n">str</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">str</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">downcase</span><span class="p">()</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sx">~r/[^\w-]+/u</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">erros_on</tt> を使っている場所は <a class="reference external" href="https://forums.pragprog.com/forums/393/topics/14486">ここを参考</a>  にしました。
-これらのテストは副作用を起こさないテストでまとめたため、 <tt class="docutils literal">async: true</tt> にして並列実行しているようです。</p>
+</td></tr></table><p><tt class="docutils literal">get_change</tt> や <tt class="docutils literal">put_change</tt> などを使うことで、変更が <tt class="docutils literal">changeset</tt> の中だけで収まってくれています。</p>
 </div>
 <div class="section" id="id4">
-<h2>副作用のあるテスト</h2>
-<p>副作用が無く非同期に実行できるテストに対して、実際に <tt class="docutils literal">Repo.insert</tt> したりするようなテストは副作用が発生します。その為、同じモデルのテストでも副作用あり/無しで分離してテストを書きます。</p>
-<p><tt class="docutils literal">model/user_repo_test.exs</tt> を以下のように作成します。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserRepoTest</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ModelCase</span></span>
-<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.User</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="na">@valid_attrs</span> <span class="p">%{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;A User&quot;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;eva&quot;</span><span class="p">}</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;converts unique_constraint on username to error&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">insert_user</span><span class="p">(</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;eric&quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">attrs</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="na">@valid_attrs</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="s2">&quot;eric&quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">attrs</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">changeset</span><span class="p">}</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span></span>
-<span class="code-line">    <span class="c1"># changeset.errorsはキーワードリストになっている</span></span>
-<span class="code-line">    <span class="c1"># キーワードリストの各要素は最初の値がアトムとなるタプルとしても認識される</span></span>
-<span class="code-line">    <span class="n">assert</span> <span class="p">{</span><span class="ss">:username</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;has already been taken&quot;</span><span class="p">,</span> <span class="p">[]}}</span> <span class="ow">in</span> <span class="n">changeset</span><span class="o">.</span><span class="n">errors</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><p>実際にインサートを行っている以外には大した違いが無いです。 <tt class="docutils literal">async</tt> オプションはデフォルトで <tt class="docutils literal">false</tt> なので指定をしていません。
-関係ないですが、キーワードリストについて忘れてて若干ハマりました・・・</p>
-<p>同様に <tt class="docutils literal">category_repo_test.exs</tt> を以下のように作ります。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.CategoryRepoTest</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.ModelCase</span></span>
-<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.Category</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">test</span> <span class="s2">&quot;alphabetical/1 orders by name&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="nc">Repo</span><span class="o">.</span><span class="n">insert!</span><span class="p">(%</span><span class="nc">Category</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">})</span></span>
-<span class="code-line">    <span class="nc">Repo</span><span class="o">.</span><span class="n">insert!</span><span class="p">(%</span><span class="nc">Category</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">})</span></span>
-<span class="code-line">    <span class="nc">Repo</span><span class="o">.</span><span class="n">insert!</span><span class="p">(%</span><span class="nc">Category</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">})</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">query</span> <span class="o">=</span> <span class="nc">Category</span> <span class="o">|&gt;</span> <span class="nc">Category</span><span class="o">.</span><span class="n">alphabetical</span><span class="p">()</span></span>
-<span class="code-line">    <span class="n">query</span> <span class="o">=</span> <span class="n">from</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query</span><span class="p">,</span> <span class="ss">select</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span></span>
-<span class="code-line">    <span class="n">assert</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">==</span> <span class="sx">~w(a b c)</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><p>別段躓くところはなかったです。</p>
-</div>
-<div class="section" id="id5">
 <h2>まとめ</h2>
 <ul class="simple">
-<li>ビューは単なる関数なので <tt class="docutils literal">render_to_string</tt> などを使って簡単にテストができる。</li>
-<li>副作用が無いテストを分離することで非同期にテストを実行できる。</li>
+<li><tt class="docutils literal">JavaScript</tt> のビルドツールのデフォルトは <tt class="docutils literal">Brunch</tt></li>
+<li><tt class="docutils literal">JavaScript</tt> の書式はデフォルトでES2015(ES6)形式</li>
+<li>static系統のファイルは <tt class="docutils literal">web/static/*</tt> に色々おいていくとよしなにしてくれる</li>
 </ul>
-<p><tt class="docutils literal">NUnit</tt> とか使ってうっかり先に書いたテストに依存するようなテストを書いちゃうことは結構ありましたが、今回のように改めてテストの同期/非同期を意識したのは新鮮でした。
-書籍の区分け的にはここで一段落です。以降からパート2に入ります。 <tt class="docutils literal">Channel</tt> とかは目玉昨日の一つだと思うのでやっていきます。</p>
+<p>全体的にクライアントサイドって感じでした。</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その12</a>
+                <p class="uk-article-meta"><time datetime="2017-01-29" itemprop="datePublished">2017-01-29(日)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその12</p>
+                <p>その12です。テストの続きです。ビュー周りのテストからです。 テンプレートのテスト 何個か前の章でやったようにテンプレートのレンダリングも単なる関数なので簡単にテスト可能です。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28defmodule Rumbl.VideoViewTest do use Rumbl.ConnCase, async: true import Phoenix.View test <span...</p>
+                <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
@@ -468,17 +631,6 @@
                 <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその4</p>
                 <p>その4です。 その3の続きです。 :show アクションの実装からです. :showアクションの実装 :show アクションで各ユーザの詳細を表示できるようにします. まず Controler を実装します. 1 2 3 4def show(conn, %{"id" => id}) do user = Repo.get(Rumbl.User, id) render conn, "show.html"<span...</p>
                 <a href="https://zonuko.github.io/posts/2017/01/07/programming-phoenix4/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その3</a>
-                <p class="uk-article-meta"><time datetime="2017-01-04" itemprop="datePublished">2017-01-04(水)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその3</p>
-                <p>その3です。 その2の続きです。 今回からChpater3です. このChapterではまず rumbl と呼ばれるアプリを作ります. ビデオにたいしてリアルタイムでコメントを付けられるアプリになる予定らしい. 準備 Chapter1と同様に以下のコマンドでPhoenixの新しいプロジェクトを作成します.（詳細は割愛） 1 2 3 4 5 6 7 8 9 10 11 12 13 14$ mix phoenix.new rumbl * creating rumbl/ config/ config.exs ... Fetch and install dependencies? [Yn] y * running mix deps.get * running npm $...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/">Read More</a>
                 <hr class="uk-article-divider">
         </article>
 
