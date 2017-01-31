@@ -73,267 +73,56 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その3</a>
-                <p class="uk-article-meta"><time datetime="2017-01-04" itemprop="datePublished">2017-01-04(水)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/01/07/programming-phoenix4/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その4</a>
+                <p class="uk-article-meta"><time datetime="2017-01-07" itemprop="datePublished">2017-01-07(土)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/07/programming-phoenix4/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその3</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその4</p>
                 <section itemprop="articleBody"><div class="line-block">
-<div class="line">その3です。</div>
-<div class="line">その2の続きです。</div>
-<div class="line">今回からChpater3です.</div>
-<div class="line">このChapterではまず <tt class="docutils literal">rumbl</tt> と呼ばれるアプリを作ります.</div>
-<div class="line">ビデオにたいしてリアルタイムでコメントを付けられるアプリになる予定らしい.</div>
+<div class="line">その4です。</div>
+<div class="line">その3の続きです。</div>
+<div class="line"><tt class="docutils literal">:show</tt> アクションの実装からです.</div>
 <div class="line"><br /></div>
 </div>
-<div class="section" id="id1">
-<h2>準備</h2>
+<div class="section" id="show">
+<h2>:showアクションの実装</h2>
 <div class="line-block">
-<div class="line">Chapter1と同様に以下のコマンドでPhoenixの新しいプロジェクトを作成します.（詳細は割愛）</div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>$ mix phoenix.new rumbl</span>
-<span class="code-line">* creating rumbl/ config/ config.exs</span>
-<span class="code-line">  ...</span>
-<span class="code-line"></span>
-<span class="code-line">Fetch and install dependencies? <span class="o">[</span>Yn<span class="o">]</span> y</span>
-<span class="code-line">* running mix deps.get</span>
-<span class="code-line">* running npm</span>
-<span class="code-line"></span>
-<span class="code-line">$ <span class="nb">cd</span> rumbl</span>
-<span class="code-line">rumbl $ mix ecto.create</span>
-<span class="code-line"><span class="o">==</span>&gt; connection</span>
-<span class="code-line">Compiling <span class="m">1</span> file （.ex）</span>
-<span class="code-line">Generated connection app</span>
-<span class="code-line">...</span>
-</pre></div>
-</td></tr></table></div>
-<div class="section" id="model">
-<h2>Modelの追加</h2>
-<div class="line-block">
-<div class="line">実際はコマンドで自動生成されるものを手製で実装します.</div>
-<div class="line"><tt class="docutils literal">web/models/user.ex</tt> を以下の内容で実装します.</div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.User</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kd">defstruct</span> <span class="p">[</span><span class="ss">:id</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">:password</span><span class="p">]</span></span>
-<span class="code-line"><span class="n">endD</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">これは <tt class="docutils literal">id, name, username, password</tt> 構造体として持つUserモジュールです.</div>
-</div>
-</div>
-<div class="section" id="repository">
-<h2>Repositoryの変更</h2>
-<div class="line-block">
-<div class="line">現段階では,RepositoryはRDBからではなく独自にハードコーディングします.</div>
-<div class="line">このようにすることで,データの概念とデータベースの概念が分離されていることがわかります.</div>
-<div class="line">（ <tt class="docutils literal">Repo</tt> と <tt class="docutils literal">Model</tt> として）</div>
-<div class="line">まず, <tt class="docutils literal">lib/rumbl/repo.ex</tt> を以下のように変更します.</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</span>
-<span class="code-line">19</span>
-<span class="code-line">20</span>
-<span class="code-line">21</span>
-<span class="code-line">22</span>
-<span class="code-line">23</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="na">@moduledoc</span> <span class="sh">&quot;&quot;&quot;</span></span>
-<span class="code-line"><span class="sh">  In memory repository.</span></span>
-<span class="code-line"><span class="sh">  &quot;&quot;&quot;</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">all</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">[%</span><span class="nc">Rumbl.User</span><span class="p">{</span><span class="ss">id</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;Jose&quot;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;josevalim&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;elixir&quot;</span><span class="p">},</span></span>
-<span class="code-line">    <span class="p">%</span><span class="nc">Rumbl.User</span><span class="p">{</span><span class="ss">id</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;Bruce&quot;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;redropids&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;7longs&quot;</span><span class="p">},</span></span>
-<span class="code-line">    <span class="p">%</span><span class="nc">Rumbl.User</span><span class="p">{</span><span class="ss">id</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="s2">&quot;Chris&quot;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;chrismccord&quot;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s2">&quot;phx&quot;</span><span class="p">}]</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">all</span><span class="p">(</span><span class="n">_module</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="p">[]</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">get</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="nc">Enum</span><span class="o">.</span><span class="n">find</span> <span class="n">all</span><span class="p">(</span><span class="n">module</span><span class="p">),</span> <span class="k">fn</span> <span class="n">map</span> <span class="o">-&gt;</span> <span class="n">map</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">id</span> <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">get_by</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="nc">Enum</span><span class="o">.</span><span class="n">find</span> <span class="n">all</span><span class="p">(</span><span class="n">module</span><span class="p">),</span> <span class="k">fn</span> <span class="n">map</span> <span class="o">-&gt;</span></span>
-<span class="code-line">      <span class="nc">Enum</span><span class="o">.</span><span class="n">all?</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="k">fn</span> <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">val</span> <span class="k">end</span><span class="p">)</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">Ecto</tt> を使わないようにしたので, <tt class="docutils literal">lib/rumbl.ex</tt> を編集して上記の <tt class="docutils literal">repo.ex</tt> をプロセス管理対象から外します.</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="c1"># Start the Ecto repository</span></span>
-<span class="code-line"><span class="c1"># supervisor(Rumbl.Repo, []), # これをコメントアウト</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">上手く行っているか試すにはコンソールでプロジェクトフォルダに移動して <tt class="docutils literal">iex <span class="pre">-S</span> mix</tt> コマンドで <tt class="docutils literal">iex</tt> を起動します.</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</span>
-<span class="code-line">19</span>
-<span class="code-line">20</span>
-<span class="code-line">21</span>
-<span class="code-line">22</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl $ iex -S mix</span>
-<span class="code-line">Erlang/OTP <span class="m">19</span> <span class="o">[</span>erts-8.2<span class="o">]</span> <span class="o">[</span>source<span class="o">]</span> <span class="o">[</span>64-bit<span class="o">]</span> <span class="o">[</span>smp:4:4<span class="o">]</span> <span class="o">[</span>async-threads:10<span class="o">]</span> <span class="o">[</span>hipe<span class="o">]</span> <span class="o">[</span>kernel-poll:false<span class="o">]</span> <span class="o">[</span>dtrace<span class="o">]</span></span>
-<span class="code-line"></span>
-<span class="code-line">Compiling <span class="m">7</span> files <span class="o">(</span>.ex<span class="o">)</span></span>
-<span class="code-line">Interactive Elixir <span class="o">(</span>1.3.4<span class="o">)</span> - press Ctrl+C to <span class="nb">exit</span> <span class="o">(</span><span class="nb">type</span> h<span class="o">()</span> ENTER <span class="k">for</span> <span class="nb">help</span><span class="o">)</span></span>
-<span class="code-line">iex<span class="o">(</span>1<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.User</span>
-<span class="code-line">Rumbl.User</span>
-<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; <span class="nb">alias</span> Rumbl.Repo</span>
-<span class="code-line">Rumbl.Repo</span>
-<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; Repo.all User</span>
-<span class="code-line"><span class="o">[</span>%Rumbl.User<span class="o">{</span>id: <span class="s2">&quot;1&quot;</span>, name: <span class="s2">&quot;Jose&quot;</span>, password: <span class="s2">&quot;elixir&quot;</span>, username: <span class="s2">&quot;josevalim&quot;</span><span class="o">}</span>,</span>
-<span class="code-line"> %Rumbl.User<span class="o">{</span>id: <span class="s2">&quot;2&quot;</span>, name: <span class="s2">&quot;Bruce&quot;</span>, password: <span class="s2">&quot;7longs&quot;</span>, username: <span class="s2">&quot;redropids&quot;</span><span class="o">}</span>,</span>
-<span class="code-line"> %Rumbl.User<span class="o">{</span>id: <span class="s2">&quot;3&quot;</span>, name: <span class="s2">&quot;Chris&quot;</span>, password: <span class="s2">&quot;phx&quot;</span>, username: <span class="s2">&quot;chrismccord&quot;</span><span class="o">}]</span></span>
-<span class="code-line">iex<span class="o">(</span>4<span class="o">)</span>&gt; Repo.all Rumbl.Other</span>
-<span class="code-line"><span class="o">[]</span></span>
-<span class="code-line">iex<span class="o">(</span>5<span class="o">)</span>&gt; Repo.get User, <span class="s2">&quot;1&quot;</span></span>
-<span class="code-line">%Rumbl.User<span class="o">{</span>id: <span class="s2">&quot;1&quot;</span>, name: <span class="s2">&quot;Jose&quot;</span>, password: <span class="s2">&quot;elixir&quot;</span>, username: <span class="s2">&quot;josevalim&quot;</span><span class="o">}</span></span>
-<span class="code-line">iex<span class="o">(</span>6<span class="o">)</span>&gt; Repo.get_by User, name: <span class="s2">&quot;Brunce&quot;</span></span>
-<span class="code-line">nil</span>
-<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; Repo.get_by User, name: <span class="s2">&quot;Bruce&quot;</span></span>
-<span class="code-line">%Rumbl.User<span class="o">{</span>id: <span class="s2">&quot;2&quot;</span>, name: <span class="s2">&quot;Bruce&quot;</span>, password: <span class="s2">&quot;7longs&quot;</span>, username: <span class="s2">&quot;redropids&quot;</span><span class="o">}</span></span>
-<span class="code-line">iex<span class="o">(</span>8<span class="o">)</span>&gt;</span>
-</pre></div>
-</td></tr></table></div>
-<div class="section" id="controller">
-<h2>Controllerの実装</h2>
-<div class="line-block">
-<div class="line">上記で作成した <tt class="docutils literal">Repository</tt> を扱う <tt class="docutils literal">Controller</tt> を実装します.</div>
-<div class="line">まず,専用のルーティング設定を <tt class="docutils literal">web/router.ex</tt> に設定します.</div>
+<div class="line"><tt class="docutils literal">:show</tt> アクションで各ユーザの詳細を表示できるようにします.</div>
+<div class="line">まず <tt class="docutils literal">Controler</tt> を実装します.</div>
 <div class="line"><br /></div>
 </div>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
 <span class="code-line">2</span>
 <span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">scope</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="nc">Rumbl</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">pipe_through</span> <span class="ss">:browser</span> <span class="c1"># Use the default browser stacks.</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">get</span> <span class="s2">&quot;/users&quot;</span><span class="p">,</span> <span class="nc">UserController</span><span class="p">,</span> <span class="ss">:index</span>     <span class="c1"># 追加</span></span>
-<span class="code-line">  <span class="n">get</span> <span class="s2">&quot;/users/:id&quot;</span><span class="p">,</span> <span class="nc">UserController</span><span class="p">,</span> <span class="ss">:show</span>  <span class="c1"># 追加</span></span>
-<span class="code-line">  <span class="n">get</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:index</span></span>
+<span class="code-line">4</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">show</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&quot;id&quot;</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">user</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span></span>
+<span class="code-line">  <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;show.html&quot;</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">user</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line">みて分かる通り <tt class="docutils literal">UserControler</tt> の <tt class="docutils literal">index</tt> アクションと <tt class="docutils literal">show</tt> アクションに対応するルーティング設定を行います.</div>
-<div class="line"><tt class="docutils literal">get</tt> マクロはHTTPメソッドのGETで呼び出されることを想定されています.</div>
-<div class="line">次に,設定したルーティングに対応する <tt class="docutils literal">Controller</tt> を実装します.</div>
+<div class="line">次に, <tt class="docutils literal">web/templates/user/show.html.eex</tt> を以下の内容で実装します.</div>
 <div class="line"><br /></div>
 </div>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</span>
-<span class="code-line">8</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserController</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:controller</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">users</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="ss">users</span><span class="p">:</span> <span class="n">users</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
+<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h1&gt;Showing User&lt;/h1&gt;</span></span>
+<span class="code-line"><span class="x">&lt;b&gt;</span><span class="cp">&lt;%=</span> <span class="n">first_name</span><span class="p">(</span><span class="vi">@user</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/b&gt; (</span><span class="cp">&lt;%=</span> <span class="vi">@user</span><span class="o">.</span><span class="n">id</span> <span class="cp">%&gt;</span><span class="x">)</span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">hello</tt> アプリで作成したものと対して変わらないと思います.</div>
-<div class="line">違いは <tt class="docutils literal">Repo.all/1</tt> 関数でユーザ一覧を取ってきてることくらいだと思います.</div>
-<div class="line">この時点でもまだ <tt class="docutils literal">View</tt> がないとエラーになるので, <tt class="docutils literal">View</tt> の実装をします.</div>
+<div class="line">よく見ると <tt class="docutils literal">&lt;b&gt;</tt> タグの部分が <tt class="docutils literal">index.html.eex</tt> とかぶっているのがわかります.</div>
 <div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="view">
-<h2>Viewの実装</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">web/views/user_view.ex</tt> を以下の内容で実装します.</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserView</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:view</span></span>
-<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.User</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">first_name</span><span class="p">(%</span><span class="nc">User</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">name</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">単純に名前を名字と名前で分解しているだけの関数です.</div>
-<div class="line"><tt class="docutils literal">View</tt> モジュール名は <tt class="docutils literal">Controller</tt> 名から自動で推測されます.</div>
-<div class="line">（ <tt class="docutils literal">UserController</tt> なら <tt class="docutils literal">UserView</tt> といった具合）</div>
-<div class="line"><br /></div>
-</div>
 </div>
 <div class="section" id="template">
-<h2>Templateの実装</h2>
+<h3>templateの分離</h3>
 <div class="line-block">
-<div class="line"><tt class="docutils literal">web/templates/user/index.html.eex</tt> を以下の内容で実装します.</div>
+<div class="line">各テンプレートで重複している部分を別テンプレートに分離します.</div>
+<div class="line"><tt class="docutils literal">web/templates/user/user.html.eex</tt> を以下の内容で実装します.</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;b&gt;</span><span class="cp">&lt;%=</span> <span class="n">first_name</span><span class="p">(</span><span class="vi">@user</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/b&gt; (</span><span class="cp">&lt;%=</span> <span class="vi">@user</span><span class="o">.</span><span class="n">id</span> <span class="cp">%&gt;</span><span class="x">)</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">共通部分をくくりだしたので,既存のテンプレートを編集します.</div>
+<div class="line"><tt class="docutils literal">web/templates/user/index.html.eex</tt> を以下の内容に変更します.</div>
+<div class="line"><tt class="docutils literal">&lt;%= render &quot;user.html&quot;, user: user %&gt;</tt> の部分が変更点です.</div>
 <div class="line"><br /></div>
 </div>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
@@ -350,84 +139,97 @@
 <span class="code-line"><span class="x">&lt;table class=&quot;table&quot;&gt;</span></span>
 <span class="code-line"><span class="x">  </span><span class="cp">&lt;%=</span> <span class="k">for</span> <span class="n">user</span> <span class="o">&lt;-</span> <span class="vi">@users</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
 <span class="code-line"><span class="x">    &lt;tr&gt;</span></span>
-<span class="code-line"><span class="x">      &lt;td&gt;&lt;b&gt;</span><span class="cp">&lt;%=</span> <span class="n">first_name</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/b&gt; (</span><span class="cp">&lt;%=</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="cp">%&gt;</span><span class="x">)&lt;/td&gt;</span></span>
-<span class="code-line"><span class="x">      &lt;td&gt;&gt;</span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;View&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">user_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">&quot;user.html&quot;</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">user</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;View&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">user_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
 <span class="code-line"><span class="x">    &lt;/tr&gt;</span></span>
 <span class="code-line"><span class="x">  </span><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
 <span class="code-line"><span class="x">&lt;/table&gt;</span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">Template</tt> は <tt class="docutils literal">View</tt> 名から自動で推測されます.</div>
-<div class="line">（ <tt class="docutils literal">UserView</tt> なら <tt class="docutils literal">user</tt> フォルダといった具合）</div>
-<div class="line">ここまでくれば <tt class="docutils literal"><span class="pre">http://localhost:4000/users</span></tt> でユーザ一覧が表示されます.</div>
-<div class="line"><tt class="docutils literal">EEx</tt> のハイライトないので　 <tt class="docutils literal">ERB</tt> でハイライトしてます.</div>
+<div class="line"><tt class="docutils literal">web/templates/user/show.html.eex</tt> も同様に変更します.</div>
 <div class="line"><br /></div>
 </div>
-</div>
-<div class="section" id="viewuse-rumbl-web-view">
-<h2>Viewのuse Rumbl.Web, :viewについて</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">view</tt> に記述した <tt class="docutils literal">use Rumbl.Web, :view</tt> の実体は <tt class="docutils literal">web/web.ex</tt> に存在します.</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</span>
-<span class="code-line">19</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Web</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="err">…</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">view</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="k">quote</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="kn">use</span> <span class="nc">Phoenix.View</span><span class="p">,</span> <span class="ss">root</span><span class="p">:</span> <span class="s2">&quot;web/templates&quot;</span></span>
-<span class="code-line"></span>
-<span class="code-line">      <span class="c1"># Import convenience functions from controllers</span></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Phoenix.Controller</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">get_csrf_token</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="ss">get_flash</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="ss">view_module</span><span class="p">:</span> <span class="mi">1</span><span class="p">]</span></span>
-<span class="code-line"></span>
-<span class="code-line">      <span class="c1"># Use all HTML functionality (forms, tags, etc)</span></span>
-<span class="code-line">      <span class="kn">use</span> <span class="nc">Phoenix.HTML</span></span>
-<span class="code-line"></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.Router.Helpers</span></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.ErrorHelpers</span></span>
-<span class="code-line">      <span class="kn">import</span> <span class="nc">Rumbl.Gettext</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line">  <span class="err">…</span></span>
-<span class="code-line"><span class="k">end</span></span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h1&gt;Showing User&lt;/h1&gt;</span></span>
+<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">render</span> <span class="s2">&quot;user.html&quot;</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="vi">@user</span> <span class="cp">%&gt;</span><span class="x"></span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">Phoenix.HTML</tt> をHTML周りのことを色々やってくれているようです.</div>
-<div class="line">また,これによって生成されるHTMLは安全で,XSS対策なども行ってくれているようです.</div>
-<div class="line">ここには勝手に関数を書くのはNG.書きたいなら真似して <tt class="docutils literal">import</tt> を使うこと.</div>
+<div class="line"><tt class="docutils literal">view</tt> はモジュール, <tt class="docutils literal">template</tt> は関数と捉えると良いみたいです.</div>
+<div class="line"><tt class="docutils literal">iex <span class="pre">-S</span> mix</tt> で以下のコマンドを入力すると何が起きているかなんとなくわかります.</div>
+<div class="line"><tt class="docutils literal">view</tt> の部分が <tt class="docutils literal">:safe</tt> とリストの入れ子のタプルになってて一見わかりにくいですが,リストの部分は単なるタグの入れ子になってるみたいです.</div>
+<div class="line">素のタグ部分と, <tt class="docutils literal">&lt;%= %&gt;</tt> とか <tt class="docutils literal">&lt;% %&gt;</tt> の部分とでわけられてるみたいです.</div>
 <div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>1<span class="o">)</span>&gt; <span class="nv">user</span> <span class="o">=</span> Rumbl.Repo.get Rumbl.User, <span class="s2">&quot;1&quot;</span></span>
+<span class="code-line">%Rumbl.User<span class="o">{</span>id: <span class="s2">&quot;1&quot;</span>, name: <span class="s2">&quot;Jose&quot;</span>, password: <span class="s2">&quot;elixir&quot;</span>, username: <span class="s2">&quot;josevalim&quot;</span><span class="o">}</span></span>
+<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; <span class="nv">view</span> <span class="o">=</span> Rumbl.UserView.render<span class="o">(</span><span class="s2">&quot;user.html&quot;</span>, user: user<span class="o">)</span></span>
+<span class="code-line"><span class="o">{</span>:safe, <span class="o">[[[[[</span><span class="s2">&quot;&quot;</span> <span class="p">|</span> <span class="s2">&quot;&lt;b&gt;&quot;</span><span class="o">]</span> <span class="p">|</span> <span class="s2">&quot;Jose&quot;</span><span class="o">]</span> <span class="p">|</span> <span class="s2">&quot;&lt;/b&gt; (&quot;</span><span class="o">]</span> <span class="p">|</span> <span class="s2">&quot;1&quot;</span><span class="o">]</span> <span class="p">|</span> <span class="s2">&quot;)\n&quot;</span><span class="o">]}</span></span>
+<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; Phoenix.HTML.safe_to_string<span class="o">(</span>view<span class="o">)</span></span>
+<span class="code-line"><span class="s2">&quot;&lt;b&gt;Jose&lt;/b&gt; (1)\n&quot;</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">:safe</tt> はこのHTMLが安全であることを示しています.</div>
+<div class="line">また、リストになっているのはパフォーマスのためだそうです.</div>
+<div class="line">ぱっと見どのテンプレートも <tt class="docutils literal">render</tt> 関数呼び出しで呼び出されるっぽいですがテンプレート名でパターンマッチが行われることによってレンダリングしてるようです.</div>
+<div class="line"><tt class="docutils literal">error</tt> 見るとよりわかりやすそうです.</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>def render<span class="o">(</span><span class="s2">&quot;404.html&quot;</span>, _assigns<span class="o">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="s2">&quot;Page not found&quot;</span></span>
+<span class="code-line">end</span>
+<span class="code-line"></span>
+<span class="code-line">def render<span class="o">(</span><span class="s2">&quot;500.html&quot;</span>, _assigns<span class="o">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="s2">&quot;Internal server error&quot;</span></span>
+<span class="code-line">end</span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">render</tt> 関数が2つあって第一引数のテンプレート名でパターンマッチしてるのがわかります.</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>レンダリングについて</h3>
+<div class="line-block">
+<div class="line">一番初めに <tt class="docutils literal">templates/layout/app.html.eex</tt> がレンダリングされて,その後正規のテンプレートがレンダリングされる.</div>
+<div class="line">まぁRailsとかもおんなじ感じだったと思うのでここらへんは適当にすっ飛ばします.</div>
+<div class="line"><br /></div>
+</div>
 </div>
 </div>
 <div class="section" id="id2">
 <h2>まとめ</h2>
 <div class="line-block">
-<div class="line">今回は前回より具体的に各機能を実装しました.</div>
-<div class="line">個人的には今までよくわからなかった <tt class="docutils literal">Repository</tt> と <tt class="docutils literal">Model</tt> の関係がちょっとわかったのが収穫でした.</div>
-<div class="line">他のフレームワーク触ってると, <tt class="docutils literal">View</tt> と <tt class="docutils literal">Template</tt> が分離しているのが一瞬戸惑いそうだとおもいました.</div>
+<div class="line">ここでChapter3終わるのでちょっと短いですがここまでです.</div>
+<div class="line"><tt class="docutils literal">&#64;conn</tt> みたいな度々出てくる <tt class="docutils literal">conn</tt> の正体がまだイマイチ理解しきれてないので具体的にどういうものがどういう流れで入ってきてるのかぼちぼちしらべたいです.</div>
 <div class="line"><br /></div>
 </div>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/01/07/programming-phoenix4/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その3</a>
+                <p class="uk-article-meta"><time datetime="2017-01-04" itemprop="datePublished">2017-01-04(水)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその3</p>
+                <p>その3です。 その2の続きです。 今回からChpater3です. このChapterではまず rumbl と呼ばれるアプリを作ります. ビデオにたいしてリアルタイムでコメントを付けられるアプリになる予定らしい. 準備 Chapter1と同様に以下のコマンドでPhoenixの新しいプロジェクトを作成します.（詳細は割愛） 1 2 3 4 5 6 7 8 9 10 11 12 13 14$ mix phoenix.new rumbl * creating rumbl/ config/ config.exs ... Fetch and install dependencies? [Yn] y * running mix deps.get * running npm $...</p>
+                <a href="https://zonuko.github.io/posts/2017/01/04/programming-phoenix3/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">

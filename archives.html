@@ -73,6 +73,14 @@
     <h1 class="uk-heading-large">Archives</h1>
 
     <article class="uk-article">
+        <a href="posts/2017/01/31/programming-phoenix14/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その14</a>
+        <p class="uk-article-meta">
+            <time datetime="2017-01-31">2017-01-31(火)</time>
+        </p>
+        <p>その14です。その13の続きです。追加した Slug をURLに使ってアクセスできるようにします。 URLのカスタマイズ URLを単なるID指定から id + 先程作成した slug でアクセスできるようにします。 Phoenix.Param を impl することでカスタマイズ可能です。 1 2 3 4 5defimpl Phoenix.Param, for: Rumbl.Video do def to_param(%{slug: slug, id: id}) do "#{id}-<span...</p>
+
+    </article>
+    <article class="uk-article">
         <a href="posts/2017/01/30/programming-phoenix13/" class="uk-article-title uk-link-muted mg-list-title">Programming Phoenix勉強その13</a>
         <p class="uk-article-meta">
             <time datetime="2017-01-30">2017-01-30(月)</time>
