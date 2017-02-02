@@ -73,67 +73,259 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その14</a>
-                <p class="uk-article-meta"><time datetime="2017-01-31" itemprop="datePublished">2017-01-31(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/02/03/programming-phoenix15/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その15</a>
+                <p class="uk-article-meta"><time datetime="2017-02-03" itemprop="datePublished">2017-02-03(金)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/03/programming-phoenix15/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその14</p>
-                <section itemprop="articleBody"><p>その14です。その13の続きです。追加した <tt class="docutils literal">Slug</tt> をURLに使ってアクセスできるようにします。</p>
-<div class="section" id="url">
-<h2>URLのカスタマイズ</h2>
-<p>URLを単なるID指定から <tt class="docutils literal">id</tt> + 先程作成した <tt class="docutils literal">slug</tt> でアクセスできるようにします。</p>
-<p><tt class="docutils literal">Phoenix.Param</tt> を <tt class="docutils literal">impl</tt> することでカスタマイズ可能です。</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその15</p>
+                <section itemprop="articleBody"><p>その15です。ここからChapter10の <tt class="docutils literal">Channel</tt> です。Phoenixの目玉機能の一つな気もするので楽しみです。</p>
+<div class="section" id="channel">
+<h2>Channelについて</h2>
+<ul class="simple">
+<li>ステートを持つ双方向通信である<ul>
+<li>ステートフルなので <tt class="docutils literal">Cookie</tt> などを意識しなくて良い</li>
+</ul>
+</li>
+<li>トピックと呼ばれる単位で各会話は管理される</li>
+<li>各々の会話はプロセスで管理され、一つがバグっても他に影響を与えないし、並列性も持つ</li>
+<li>クライアント側はES6(ES2015)で記述する</li>
+<li>実装するにあたりクライアントとサーバーで以下3つを意識する<ul>
+<li>接続と切断</li>
+<li>メッセージの送信</li>
+<li>メッセージの受信</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h2>クライアントサイドの実装</h2>
+<p>というわけで、ES6でクライアントサイドから実装していきます。まず <tt class="docutils literal">video.js</tt> を作成します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kr">import</span> <span class="nx">Player</span> <span class="nx">from</span> <span class="s2">&quot;./player&quot;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kd">let</span> <span class="nx">Video</span> <span class="o">=</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">init</span><span class="p">(</span><span class="nx">socket</span><span class="p">,</span> <span class="nx">element</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span><span class="p">;</span> <span class="p">}</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">playerId</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-player-id&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">videoId</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-id&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="nx">socket</span><span class="p">.</span><span class="nx">connect</span><span class="p">()</span></span>
+<span class="code-line">        <span class="nx">Player</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="k">this</span><span class="p">.</span><span class="nx">onReady</span><span class="p">(</span><span class="nx">videoId</span><span class="p">,</span> <span class="nx">socket</span><span class="p">);</span></span>
+<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">onReady</span><span class="p">(</span><span class="nx">videoId</span><span class="p">,</span> <span class="nx">socket</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">msgContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-container&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">msgInput</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-input&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">postButton</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-submit&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// トピックの識別</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">voidChannel</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">channel</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">+</span> <span class="nx">videoId</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// TODO: join the vidChannel</span></span>
+<span class="code-line">    <span class="p">}</span></span>
+<span class="code-line"><span class="p">}</span></span>
+<span class="code-line"><span class="kr">export</span> <span class="k">default</span> <span class="nx">Video</span><span class="p">;</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">player</tt> の <tt class="docutils literal">import</tt> をこっちに移設しています。また、 <tt class="docutils literal">init</tt> メソッドと <tt class="docutils literal">onReady</tt> メソッドを定義しています。
+<tt class="docutils literal">onReady</tt> はコールバックとして使っているようです。
+コメントにあるようにトピックの識別子は <tt class="docutils literal">videoId</tt> としています。</p>
+<p><tt class="docutils literal">app.js</tt> を上の実装に合わせて変えておきます。 <tt class="docutils literal">Player</tt> を作成していた部分に変わって <tt class="docutils literal">Video</tt> の利用にします。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kr">import</span> <span class="nx">socket</span> <span class="nx">from</span> <span class="s2">&quot;./socket&quot;</span><span class="p">;</span></span>
+<span class="code-line"><span class="kr">import</span> <span class="nx">Video</span> <span class="nx">from</span> <span class="s2">&quot;./video&quot;</span><span class="p">;</span></span>
+<span class="code-line"><span class="nx">Video</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">socket</span><span class="p">,</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">));</span></span>
+</pre></div>
+</td></tr></table><p>デフォルトで用意されている <tt class="docutils literal">socket.js</tt> のインポートも行っています。
+このファイルについては後で触るようです。</p>
+<p>通常のリクエストと <tt class="docutils literal">socket</tt> のデータの流れの違いについても触れられています。
+前の章で見たように通常のアクセスではデータは <tt class="docutils literal">conn</tt> という形で各パイプラインを流れて、
+その中で変換されていきます。 <tt class="docutils literal">conn</tt> は新しい接続ごとに新しいものが作られて使われます。</p>
+<p>一方 <tt class="docutils literal">socket</tt> の方ではステートフルなためソケットの寿命まで一つの接続が変換され続けます。</p>
+</div>
+<div class="section" id="socket-js">
+<h2>socket.jsの変更</h2>
+<p>最初のソケットを作成します。 <tt class="docutils literal">socket.js</tt> の中身を変更して実装していきます。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
 <span class="code-line">2</span>
 <span class="code-line">3</span>
 <span class="code-line">4</span>
-<span class="code-line">5</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defimpl</span> <span class="nc">Phoenix.Param</span><span class="p">,</span> <span class="ss">for</span><span class="p">:</span> <span class="nc">Rumbl.Video</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">to_param</span><span class="p">(%{</span><span class="ss">slug</span><span class="p">:</span> <span class="n">slug</span><span class="p">,</span> <span class="ss">id</span><span class="p">:</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="s2">&quot;</span><span class="si">#{</span><span class="n">id</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">slug</span><span class="si">}</span><span class="s2">&quot;</span></span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">Socket</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&quot;phoenix&quot;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kd">let</span> <span class="nx">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Socket</span><span class="p">(</span><span class="s2">&quot;/socket&quot;</span><span class="p">,</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">params</span><span class="o">:</span> <span class="p">{</span> <span class="nx">token</span><span class="o">:</span> <span class="nb">window</span><span class="p">.</span><span class="nx">userToken</span> <span class="p">},</span></span>
+<span class="code-line">    <span class="c1">// バッククオートで囲んだものがテンプレートリテラルとして値を文字に埋め込める</span></span>
+<span class="code-line">    <span class="nx">logger</span><span class="o">:</span> <span class="p">(</span><span class="nx">kind</span><span class="p">,</span> <span class="nx">msg</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">kind</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">msg</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span> <span class="p">}</span></span>
+<span class="code-line"><span class="p">});</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kr">export</span> <span class="k">default</span> <span class="nx">socket</span></span>
+</pre></div>
+</td></tr></table><p>余計な部分を消してしまって問題ないです。ログをコンソールに出すように変更しただけです。</p>
+<p><tt class="docutils literal">Phoenix</tt> 側でのソケットのエンドポイントは <tt class="docutils literal">endpoint.ex</tt> に記述されています。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">socket</span> <span class="s2">&quot;/socket&quot;</span><span class="p">,</span> <span class="nc">Rumbl.UserSocket</span></span>
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="id2">
+<h2>サーバーサイドの実装</h2>
+<p><tt class="docutils literal">Rumbl.UserSocket</tt> がエントリポイントになっていることがわかったので中身を見てみます。
+<tt class="docutils literal">channel/user_socket.ex</tt> です。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserSocket</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Phoenix.Socket</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">transport</span> <span class="ss">:websocket</span><span class="p">,</span> <span class="nc">Phoenix.Transports.WebSocket</span></span>
+<span class="code-line">  <span class="c1"># transport :longpoll, Phoenix.Transports.LongPoll</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">connect</span><span class="p">(</span><span class="n">_params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">id</span><span class="p">(</span><span class="n">_socket</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="no">nil</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>余計なコメントは消してます。</p>
+<ul class="simple">
+<li><tt class="docutils literal">transport</tt> のところをコメントと合わせて見るとわかるように、二種類サポートされているようです。
+通常の <tt class="docutils literal">websocket</tt> と <tt class="docutils literal">longpoll</tt> のロングポーリングです。
+これは接続方法が抽象化され、他の部分の処理は同じで良いということです。</li>
+<li><tt class="docutils literal">connect/2</tt> 関数はユーザの接続制御に用いられる。現在は全てのユーザが接続可能。認証は後で追加するらしい。</li>
+<li><tt class="docutils literal">id/1</tt> 関数はソケットの識別を行っています。 <tt class="docutils literal">nil</tt> なので全ユーザが匿名です。</li>
+</ul>
+<p>実際に実装していきます。まず <tt class="docutils literal">user_socket.ex</tt> に以下を追加します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="c1">## Channels</span></span>
+<span class="code-line"><span class="n">channel</span> <span class="s2">&quot;videos:*&quot;</span><span class="p">,</span> <span class="nc">Rumbl.VideoChannel</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">Phoenix</tt> ではトピックはリソース名（ <tt class="docutils literal">:videos</tt> とか）でサブトピックは付随するIDになるようです。</p>
+<p>上記に書いた通り、 <tt class="docutils literal">VideoChannel</tt> にディスパッチしているのでこれを実装していきます。
+<tt class="docutils literal">channels/video_channel.ex</tt> を実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoChannel</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:channel</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">&lt;&gt;</span> <span class="n">video_id</span><span class="p">,</span> <span class="n">_params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:video_id</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">video_id</span><span class="p">))}</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><a class="reference external" href="https://hexdocs.pm/phoenix/Phoenix.Param.html">公式ドキュメント</a> を見ると単なる <tt class="docutils literal">impl</tt> なら <tt class="docutils literal">&#64;derive {Phoenix.Param, key: :username}</tt> で行けるようです。
-今回は <tt class="docutils literal"><span class="pre">&quot;#{id}-#{slug}&quot;</span></tt> などのちょっとカスタムされたURLでアクセスしたいので直接実装してます。（ <tt class="docutils literal">derive</tt> で実装できる方法はあるのだろうか・・・）</p>
-<p><tt class="docutils literal">IEX</tt> で上記で作成したものを試してみます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; <span class="nv">video</span> <span class="o">=</span> %Rumbl.Video<span class="o">{</span>id: 1, slug: <span class="s2">&quot;hello&quot;</span><span class="o">}</span></span>
-<span class="code-line">iex&gt; Rumbl.Router.Helpers.watch_path<span class="o">(</span>%URI<span class="o">{}</span>, :show, video<span class="o">)</span></span>
-<span class="code-line"><span class="s2">&quot;/watch/1-hello&quot;</span></span>
+</td></tr></table><p><tt class="docutils literal">join/3</tt> コールバック関数を作りました。（コールバックという呼び方はOTPに習っているようです。）</p>
+<p>引数に与えられている <tt class="docutils literal">socket</tt> は接続されている間状態を保持します。
+なので、 <tt class="docutils literal">assign</tt> などでデータを追加するとそれもずっと保持されて参照可能です。</p>
+<p>クライアント側でも <tt class="docutils literal">join</tt> 出来るようにします。 <tt class="docutils literal">video.js</tt> を変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="nx">onReady</span><span class="p">(</span><span class="nx">videoId</span><span class="p">,</span> <span class="nx">socket</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">      <span class="kd">let</span> <span class="nx">msgContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-container&quot;</span><span class="p">);</span></span>
+<span class="code-line">      <span class="kd">let</span> <span class="nx">msgInput</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-input&quot;</span><span class="p">);</span></span>
+<span class="code-line">      <span class="kd">let</span> <span class="nx">postButton</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-submit&quot;</span><span class="p">);</span></span>
+<span class="code-line">      <span class="c1">// トピックの識別</span></span>
+<span class="code-line">      <span class="kd">let</span> <span class="nx">vidChannel</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">channel</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">+</span> <span class="nx">videoId</span><span class="p">);</span></span>
+<span class="code-line">      <span class="c1">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span></span>
+<span class="code-line">      <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">join</span><span class="p">()</span></span>
+<span class="code-line">          <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="nx">resp</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;joined the video channel&quot;</span><span class="p">,</span> <span class="nx">resp</span><span class="p">))</span></span>
+<span class="code-line">          <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reason</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;join failed&quot;</span><span class="p">,</span> <span class="nx">reason</span><span class="p">));</span></span>
+<span class="code-line">  <span class="p">}</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">watch_path/3</tt> の第一引数が <tt class="docutils literal">%URI{}</tt> となっています。すべてのヘルパーはこのURI構造体を第一引数を取るらしいです。</p>
-<p>URI構造体を使ってちょっと遊んでみます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; <span class="nv">url</span> <span class="o">=</span> URI.parse<span class="o">(</span><span class="s2">&quot;http://example.com/prefix&quot;</span><span class="o">)</span></span>
-<span class="code-line">%URI<span class="o">{</span>authority: <span class="s2">&quot;example.com&quot;</span>, fragment: nil, host: <span class="s2">&quot;example.com&quot;</span>,</span>
-<span class="code-line"> path: <span class="s2">&quot;/prefix&quot;</span>, port: 80, query: nil, scheme: <span class="s2">&quot;http&quot;</span>, userinfo: nil<span class="o">}</span></span>
-<span class="code-line">iex<span class="o">(</span>6<span class="o">)</span>&gt; Rumbl.Router.Helpers.watch_url<span class="o">(</span>url, :show, video<span class="o">)</span></span>
-<span class="code-line"><span class="s2">&quot;http://example.com/prefix/watch/1-hello&quot;</span></span>
+</td></tr></table><p>抜粋しました。クライアントサイドでサーバーサイドの関数呼んでるような見た目です。
+また、 <tt class="docutils literal">receive</tt> はOTPでよく出てくるメッセージを受信するやつと同じっぽい感じで使っているみたいです。</p>
+<p>次に、試しに5秒毎にクライアントに通知を投げる処理を追加してみます。
+<tt class="docutils literal">video_channel.ex</tt> を以下のように実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoChannel</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:channel</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">&lt;&gt;</span> <span class="n">video_id</span><span class="p">,</span> <span class="n">_params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># 5秒ごとにクライアントにメッセージを送る</span></span>
+<span class="code-line">    <span class="c1"># send_interval/2関数は最終的にはsend_interval(Time, self(), Message)という形で呼び出される</span></span>
+<span class="code-line">    <span class="ss">:timer</span><span class="o">.</span><span class="n">send_interval</span><span class="p">(</span><span class="mi">5_000</span><span class="p">,</span> <span class="ss">:ping</span><span class="p">)</span></span>
+<span class="code-line">    <span class="c1"># socket.assignsにvideo_idを保存</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:video_id</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">video_id</span><span class="p">))}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="c1"># OTPのコールバックhandle_castやhandle_callの仲間</span></span>
+<span class="code-line">  <span class="c1"># castやcallで処理される以外のメッセージを処理するらしい</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="ss">:ping</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">count</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">assigns</span><span class="p">[</span><span class="ss">:count</span><span class="p">]</span> <span class="o">||</span> <span class="mi">1</span></span>
+<span class="code-line">    <span class="n">push</span> <span class="n">socket</span><span class="p">,</span> <span class="s2">&quot;ping&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">count</span><span class="p">:</span> <span class="n">count</span><span class="p">}</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:count</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p>第一引数に与えたURLに続くパスとしてパスを構築してくれていることがわかります。じゃあ今使っている <tt class="docutils literal">localhost</tt> のURLはどうなってんだという疑問がわきます。
-以下を試してみます。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; <span class="nv">url</span> <span class="o">=</span> Rumbl.Endpoint.struct_url</span>
-<span class="code-line">%URI<span class="o">{</span>authority: nil, fragment: nil, host: <span class="s2">&quot;localhost&quot;</span>, path: nil, port: 4000,</span>
-<span class="code-line"> query: nil, scheme: <span class="s2">&quot;http&quot;</span>, userinfo: nil<span class="o">}</span></span>
-<span class="code-line">iex<span class="o">(</span>8<span class="o">)</span>&gt; Rumbl.Router.Helpers.watch_url<span class="o">(</span>url, :show, video<span class="o">)</span></span>
-<span class="code-line"><span class="s2">&quot;http://localhost:4000/watch/1-hello&quot;</span></span>
-</pre></div>
-</td></tr></table><p>どうやら内部的には <tt class="docutils literal">struct_url</tt> で全体のURLが構築されているらしいことがわかります。また、 <tt class="docutils literal">url</tt> というAPIもあるようです。
-こちらは文字列でURL全体を返してくれます。</p>
-<p>ここまでやって、ウォッチページにとぼうとするとエラーになります。 <tt class="docutils literal">watch_controller</tt> の <tt class="docutils literal">:show</tt> アクションではURLパラメータとして
-<tt class="docutils literal">:id</tt> を期待しているのに <tt class="docutils literal"><span class="pre">1-hello</span></tt> のようなパラメータが来ているためです。これからこの点を修正します。</p>
+</td></tr></table><p>コメントに書いてあるように、 <tt class="docutils literal">join</tt> されると5秒ごとに自分自身にメッセージを投げて <tt class="docutils literal">handle_info</tt> コールバックで受け取っています。
+<tt class="docutils literal">handle_info</tt> では <tt class="docutils literal">socket</tt> に追加された <tt class="docutils literal">count</tt> をインクリメントしていっているだけです。
+<tt class="docutils literal">push</tt> されるとクライアント側に通知が行くようです。</p>
 </div>
-<div class="section" id="id2">
-<h2>リンクの修正</h2>
-<p>上記の問題を解決するためにリンクを修正します。 <tt class="docutils literal">lib/rumbl/permalink.ex</tt> を実装します。
-ちなみに <tt class="docutils literal">lib</tt> フォルダと <tt class="docutils literal">web</tt> フォルダの違いはコードリロードが走るかどうかの違いのようです。</p>
+<div class="section" id="id3">
+<h2>リアルタイムアノテーションの実装</h2>
+<p>基本的なところはわかったので動画にリアルタイムコメントを付けられるようにします。
+ちなみに <a class="reference external" href="http://www.weblio.jp/content/%E3%82%A2%E3%83%8E%E3%83%86%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3">ここ</a>
+によるとYouTubeの動画へのコメントとかをアノテーションって呼ぶときもあるらしいですよ。</p>
+<p><tt class="docutils literal">video.js</tt> を変更します。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -166,44 +358,65 @@
 <span class="code-line">30</span>
 <span class="code-line">31</span>
 <span class="code-line">32</span>
-<span class="code-line">33</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Permalink</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="c1"># cast,dump,load,typeの実装を要求するbehaviour</span></span>
-<span class="code-line">  <span class="na">@behaviour</span> <span class="nc">Ecto.Type</span></span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</span>
+<span class="code-line">42</span>
+<span class="code-line">43</span>
+<span class="code-line">44</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="nx">onReady</span><span class="p">(</span><span class="nx">videoId</span><span class="p">,</span> <span class="nx">socket</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">msgContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-container&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">msgInput</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-input&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">postButton</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-submit&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// トピックの識別</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">vidChannel</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">channel</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">+</span> <span class="nx">videoId</span><span class="p">);</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">type</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="ss">:id</span></span>
+<span class="code-line">        <span class="nx">postButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="kd">let</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">msgInput</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">at</span><span class="o">:</span> <span class="nx">Player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">()</span> <span class="p">};</span></span>
+<span class="code-line">            <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="nx">payload</span><span class="p">)</span></span>
+<span class="code-line">                <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">));</span></span>
+<span class="code-line">            <span class="nx">msgInput</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span></span>
+<span class="code-line">        <span class="p">});</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="c1"># changesetのcast関数が呼び出される時とかクエリを構築する時とかに使われる</span></span>
-<span class="code-line">  <span class="c1"># 文字列の場合</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">cast</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_binary</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="k">case</span> <span class="nc">Integer</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="p">{</span><span class="n">int</span><span class="p">,</span> <span class="bp">_</span><span class="p">}</span> <span class="ow">when</span> <span class="n">int</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">int</span><span class="p">}</span></span>
-<span class="code-line">      <span class="bp">_</span> <span class="o">-&gt;</span> <span class="ss">:error</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">        <span class="c1">// サーバーからのプッシュイベントを受け取るイベントハンドラを設定</span></span>
+<span class="code-line">        <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="k">this</span><span class="p">.</span><span class="nx">renderAnnotation</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">resp</span><span class="p">);</span></span>
+<span class="code-line">        <span class="p">});</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">cast</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_integer</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">integer</span><span class="p">}</span></span>
-<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">        <span class="c1">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span></span>
+<span class="code-line">        <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">join</span><span class="p">()</span></span>
+<span class="code-line">            <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="nx">resp</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;joined the video channel&quot;</span><span class="p">,</span> <span class="nx">resp</span><span class="p">))</span></span>
+<span class="code-line">            <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reason</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;join failed&quot;</span><span class="p">,</span> <span class="nx">reason</span><span class="p">));</span></span>
+<span class="code-line">    <span class="p">},</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">cast</span><span class="p">(</span><span class="bp">_</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="ss">:error</span></span>
-<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">    <span class="nx">esc</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">div</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="nx">div</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="nx">str</span><span class="p">));</span></span>
+<span class="code-line">        <span class="k">return</span> <span class="nx">div</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">;</span></span>
+<span class="code-line">    <span class="p">},</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="c1"># データがデータベースに送信される時に呼び出される</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">dump</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_integer</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">integer</span><span class="p">}</span></span>
-<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">    <span class="nx">renderAnnotation</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="p">{</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">at</span> <span class="p">})</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">template</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="c1"># データがデータベースからロードされる時に呼び出される</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">load</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_integer</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">integer</span><span class="p">}</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
+<span class="code-line">        <span class="nx">template</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="sb">`</span></span>
+<span class="code-line"><span class="sb">        &lt;a href=&quot;#&quot; data-seek=&quot;</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">esc</span><span class="p">(</span><span class="nx">at</span><span class="p">)</span><span class="si">}</span><span class="sb">&quot;&gt;</span></span>
+<span class="code-line"><span class="sb">            &lt;b&gt;</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">esc</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">username</span><span class="p">)</span><span class="si">}</span><span class="sb">&lt;/b&gt;: </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">esc</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span><span class="si">}</span><span class="sb"></span></span>
+<span class="code-line"><span class="sb">        &lt;/a&gt;</span></span>
+<span class="code-line"><span class="sb">        `</span><span class="p">;</span></span>
+<span class="code-line"></span>
+<span class="code-line">        <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">template</span><span class="p">);</span></span>
+<span class="code-line">        <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">scrollTop</span> <span class="o">=</span> <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">scrollHeight</span><span class="p">;</span></span>
+<span class="code-line">    <span class="p">}</span></span>
+<span class="code-line"><span class="p">}</span></span>
 </pre></div>
-</td></tr></table><p>データが呼び出されたり、突っ込まれたりするときの動作を記述しています。
-今回関係があるのは一つ目の <tt class="docutils literal">cast/1</tt> 関数で、文字列を <tt class="docutils literal">binary</tt> として受け取り、先頭の数字とそれ以外でパースしている部分です。</p>
-<p>この処理により、 <tt class="docutils literal"><span class="pre">3-hello</span></tt> のようなパラメータも受取が可能になります。
-上記作ったものを利用できるように <tt class="docutils literal">video.ex</tt> を編集します。</p>
+</td></tr></table><p>サーバーからのプッシュイベントを受け取る用に設定したのと、受け取った物をレンダリングする関数を作成しました。
+また、 <tt class="docutils literal">esc</tt> 関数でXSS対策を行っています。</p>
+<p><tt class="docutils literal">count</tt> のやり取りからコメントのやり取りに変更したのでサーバー側も合わせて変更します。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -220,41 +433,182 @@
 <span class="code-line">14</span>
 <span class="code-line">15</span>
 <span class="code-line">16</span>
-<span class="code-line">17</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Video</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:model</span></span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoChannel</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:channel</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="c1"># idフィールドのカスタマイズ 第二要素は型らしい</span></span>
-<span class="code-line">  <span class="na">@primary_key</span> <span class="p">{</span><span class="ss">:id</span><span class="p">,</span> <span class="nc">Rumbl.Permalink</span><span class="p">,</span> <span class="ss">autogenerate</span><span class="p">:</span> <span class="no">true</span><span class="p">}</span></span>
-<span class="code-line">  <span class="n">schema</span> <span class="s2">&quot;videos&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:url</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:slug</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:user</span><span class="p">,</span> <span class="nc">Rumbl.User</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:category</span><span class="p">,</span> <span class="nc">Rumbl.Category</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">timestamps</span><span class="p">()</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">&lt;&gt;</span> <span class="n">video_id</span><span class="p">,</span> <span class="n">_params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span></span>
 <span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="n">...</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="c1"># クライアントから直接送信された時に受け取るコールバック</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">handle_in</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># 接続しているクライアント全てにブロードキャストする</span></span>
+<span class="code-line">    <span class="c1"># ユーザが任意のメッセージを送れないようにparamsを分解する</span></span>
+<span class="code-line">    <span class="n">broadcast!</span> <span class="n">socket</span><span class="p">,</span> <span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="p">%{</span></span>
+<span class="code-line">      <span class="ss">user</span><span class="p">:</span> <span class="p">%{</span><span class="ss">username</span><span class="p">:</span> <span class="s2">&quot;anon&quot;</span><span class="p">},</span></span>
+<span class="code-line">      <span class="ss">body</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span></span>
+<span class="code-line">      <span class="ss">at</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;at&quot;</span><span class="p">]</span></span>
+<span class="code-line">    <span class="p">}</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">&#64;praimary_key</tt> アトリビュートを使ってプライマリーキーをカスタマイズしています。
-<tt class="docutils literal">:id</tt> 以外をキーとしたい場合も似たような感じで書けば出来るようです。</p>
-<p>ここまでやればビデオ閲覧画面は完成です。</p>
+</td></tr></table><p><tt class="docutils literal">join</tt> 関数をもとに戻したのと <tt class="docutils literal">handle_in/3</tt> 関数を新たに追加しました。
+<tt class="docutils literal">handle_in</tt> では <tt class="docutils literal">Map.put</tt> とかでメッセージを作っていないのはセキュリティ対策のようです。
+メッセージはユーザから任意で入力されるので <tt class="docutils literal">params</tt> をバラして好き勝手入れられない様にしています。</p>
 </div>
-<div class="section" id="id3">
+<div class="section" id="id5">
+<h2>認証の追加</h2>
+<p>誰が送ったメッセージか知りたいので認証を行います。
+普通のアプリケーションはセッションでの認証が主ですが、 <tt class="docutils literal">websocket</tt> では接続が長く続くため、
+トークン認証で行います。まずテンプレートにトークンを埋め込みます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">...</span></span>
+<span class="code-line"><span class="x">&lt;/div&gt; &lt;!-- /container --&gt;</span></span>
+<span class="code-line"><span class="x">&lt;!-- websocket用ユーザトークンの埋め込み Rumbl.Authでの認証が通っていることが条件 --&gt;</span></span>
+<span class="code-line"><span class="x">&lt;script&gt;window.userToken = &quot;</span><span class="cp">&lt;%=</span> <span class="n">assigns</span><span class="o">[</span><span class="ss">:user_token</span><span class="o">]</span> <span class="cp">%&gt;</span><span class="x">&quot;&lt;/script&gt;</span></span>
+<span class="code-line"><span class="x">&lt;script src=&quot;</span><span class="cp">&lt;%=</span> <span class="n">static_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="s2">&quot;/js/app.js&quot;</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&quot;&gt;&lt;/script&gt;</span></span>
+<span class="code-line"><span class="x">...</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">user_token</tt> を <tt class="docutils literal">assign</tt> するように <tt class="docutils literal">auth.ex</tt> を変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Auth</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">...</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">repo</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user_id</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">)</span></span>
+<span class="code-line">    <span class="k">cond</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">user</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="p">[</span><span class="ss">:current_user</span><span class="p">]</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">put_current_user</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="c1"># 変更</span></span>
+<span class="code-line">      <span class="n">user</span> <span class="o">=</span> <span class="n">user_id</span> <span class="o">&amp;&amp;</span> <span class="n">repo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">put_current_user</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="c1"># 変更</span></span>
+<span class="code-line">      <span class="no">true</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">assign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:current_user</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">login</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">put_current_user</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="c1"># 変更</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">put_session</span><span class="p">(</span><span class="ss">:user_id</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">configure_session</span><span class="p">(</span><span class="ss">renew</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">  <span class="n">...</span></span>
+<span class="code-line">  <span class="c1"># 追加</span></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">put_current_user</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># 第二引数はsalt</span></span>
+<span class="code-line">    <span class="n">token</span> <span class="o">=</span> <span class="nc">Phoenix.Token</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;user socket&quot;</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">conn</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">assign</span><span class="p">(</span><span class="ss">:current_user</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">assign</span><span class="p">(</span><span class="ss">:user_token</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span> <span class="c1"># トークンを突っ込んでapp.html.eexより使う</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>特に不思議なところはなくて、 <tt class="docutils literal">Phoenix.Token.sign</tt> を使ってトークンを作っているだけです。</p>
+<p><tt class="docutils literal">user_socket.ex</tt> を変更してセッションに割り当てられた <tt class="docutils literal">:user_token</tt> から <tt class="docutils literal">user_id</tt> を判別し、
+<tt class="docutils literal">socket</tt> に割り当てるようにします。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">...</span></span>
+<span class="code-line">  <span class="c1"># 2週間有効</span></span>
+<span class="code-line">  <span class="na">@max_age</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">connect</span><span class="p">(%{</span><span class="s2">&quot;token&quot;</span> <span class="o">=&gt;</span> <span class="n">token</span><span class="p">},</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># 第二引数はsalt</span></span>
+<span class="code-line">    <span class="k">case</span> <span class="nc">Phoenix.Token</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="s2">&quot;user socket&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="ss">max_age</span><span class="p">:</span> <span class="na">@max_age</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">user_id</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)}</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_reason</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="ss">:error</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">connect</span><span class="p">(</span><span class="n">_params</span><span class="p">,</span> <span class="n">_socket</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="ss">:error</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">id</span><span class="p">(</span><span class="n">socket</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="s2">&quot;user_socket:</span><span class="si">#{</span><span class="n">socket</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>これも余り不思議なところはなくて、 <tt class="docutils literal">Phoenix.Token.verify</tt> を使ってトークンから <tt class="docutils literal">user_id</tt> を取っているだけです。
+これでログインしていなければコメントが投稿できなくなりました。</p>
+</div>
+<div class="section" id="id6">
 <h2>まとめ</h2>
 <ul class="simple">
-<li><tt class="docutils literal">Phoenix.Param</tt> を <tt class="docutils literal">impl</tt> することでURLパラメータがカスタマイズ出来る。</li>
-<li><tt class="docutils literal">&#64;primary_key</tt> でプライマリーキーをカスタマイズ出来る。</li>
+<li><tt class="docutils literal">Channel</tt> はサーバーとクライアントの双方向リアルタイム通信を行う。</li>
+<li><tt class="docutils literal">Channel</tt> はOTPの上に成り立っていて、コールバック関数などもそれに従っている。</li>
+<li><tt class="docutils literal">Phoenix</tt> には最初からクライアント側の <tt class="docutils literal">weboscket</tt> 用ライブラリも用意されている。</li>
+<li>接続が長期間続くため、認証はトークンを利用して行う。</li>
 </ul>
-<p>ちょっと短かったです・・・バランスが難しい。</p>
-<p><tt class="docutils literal">&#64;primary_key</tt> の2個目の要素の型指定とかまだちょっと疑問が残るので追々調べてみようと思います。</p>
+<p><tt class="docutils literal">websocket</tt> その1でした。今まで余りやったことがないことをしている感があって面白いです。
+次は投稿されたコメントの永続化からです。</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/02/03/programming-phoenix15/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その14</a>
+                <p class="uk-article-meta"><time datetime="2017-01-31" itemprop="datePublished">2017-01-31(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその14</p>
+                <p>その14です。その13の続きです。追加した Slug をURLに使ってアクセスできるようにします。 URLのカスタマイズ URLを単なるID指定から id + 先程作成した slug でアクセスできるようにします。 Phoenix.Param を impl することでカスタマイズ可能です。 1 2 3 4 5defimpl Phoenix.Param, for: Rumbl.Video do def to_param(%{slug: slug, id: id}) do "#{id}-<span...</p>
+                <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
@@ -341,17 +695,6 @@
                 <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその6</p>
                 <p>その6です。 実際にDBを操作するところからです。 新規ユーザ生成処理 Rumbl.UserController に以下の関数を実装します。 1 2 3 4def new(conn, _params) do changeset = User.changeset(%User{}) render conn, "new.html", changeset: changeset end changeset 周りとかが謎めいていますが一旦置いときます。単に自分が今理解してないだけですが・・・ DBの操作とそれ以外の検証とかエラーとかセキュリティとかを分離するのに役立つっぽいです。 user.ex...</p>
                 <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その5</a>
-                <p class="uk-article-meta"><time datetime="2017-01-09" itemprop="datePublished">2017-01-09(月)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその5</p>
-                <p>その5です。ここからChapter4です。 Ecto を使って独自実装してた Repository を Postgres に置き換えていきます。 まず lib/rumbl/repo.ex をもとに戻します。 1 2 3defmodule Rumbl.Repo do use Ecto.Repo, otp_app: :rumbl end さらに lib/rumbl.ex でコメントアウトした部分をもとに戻します。 1 2# Start the Ecto repository supervisor(Rumbl.Repo<span...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/">Read More</a>
                 <hr class="uk-article-divider">
         </article>
 
