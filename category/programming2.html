@@ -73,64 +73,19 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その6</a>
-                <p class="uk-article-meta"><time datetime="2017-01-11" itemprop="datePublished">2017-01-11(水)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その7</a>
+                <p class="uk-article-meta"><time datetime="2017-01-19" itemprop="datePublished">2017-01-19(木)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその6</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその7</p>
                 <section itemprop="articleBody"><div class="line-block">
-<div class="line">その6です。</div>
-<div class="line">実際にDBを操作するところからです。</div>
+<div class="line">その7です。</div>
+<div class="line">ここからchapter5です。認証周りをやるらしいです。</div>
 <div class="line"><br /></div>
 </div>
 <div class="section" id="id1">
-<h2>新規ユーザ生成処理</h2>
+<h2>パスワードのハッシュ化</h2>
 <div class="line-block">
-<div class="line"><tt class="docutils literal">Rumbl.UserController</tt> に以下の関数を実装します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">new</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{})</span></span>
-<span class="code-line">  <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;new.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="n">changeset</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">changeset</tt> 周りとかが謎めいていますが一旦置いときます。単に自分が今理解してないだけですが・・・</div>
-<div class="line">DBの操作とそれ以外の検証とかエラーとかセキュリティとかを分離するのに役立つっぽいです。</div>
-<div class="line"><tt class="docutils literal">user.ex</tt> に上記で利用している <tt class="docutils literal">User.changeset</tt> 関数を実装します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="ss">:empty</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">model</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="sx">~w(name username)</span><span class="p">,</span> <span class="p">[])</span></span>
-<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:username</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">max</span><span class="p">:</span> <span class="mi">20</span><span class="p">)</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">Ecto</tt> を使う関数を定義しました。 <tt class="docutils literal">cast</tt> で <tt class="docutils literal">Ecto.changeset</tt> を生成してバリデーションチェックを掛けているようです。</div>
-<div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="id2">
-<h2>前準備</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">:new</tt> アクションを実装する前に前準備をします。</div>
-<div class="line">今まで書いてあったルーティング設定を消して以下を追加します。まぁ説明不要だと思います。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">resouces</span> <span class="s2">&quot;/users&quot;</span><span class="p">,</span> <span class="nc">UserController</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="p">]</span></span>
-</pre></div>
-</td></tr></table></div>
-<div class="section" id="id3">
-<h2>テンプレート実装</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">:new</tt> に対応するテンプレートを適当に作ります。</div>
+<div class="line">まずはパスワードのハッシュ化を行います。必要なライブラリをインストールするために <tt class="docutils literal">mix.exs</tt> に以下のように追記を行います。</div>
 <div class="line"><br /></div>
 </div>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
@@ -146,108 +101,33 @@
 <span class="code-line">11</span>
 <span class="code-line">12</span>
 <span class="code-line">13</span>
-<span class="code-line">14</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h1&gt;New User&lt;/h1&gt;</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="n">user_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">),</span> <span class="n">fn</span> <span class="n">f</span> <span class="o">-&gt;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">text_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">text_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Username&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">password_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Password&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">submit</span> <span class="s2">&quot;Create User&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;btn, btn-primary&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">ここまでやって起動したところ、何やらWarningが出たので解消します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>warning: <span class="sb">`</span>Ecto.Changeset.cast/4<span class="sb">`</span> is deprecated, please use <span class="sb">`</span>cast/3<span class="sb">`</span> + <span class="sb">`</span>validate_required/3<span class="sb">`</span> instead</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/models/user.ex:15: Rumbl.User.changeset/2</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/controllers/user_controller.ex:16: Rumbl.UserController.new/2</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/controllers/user_controller.ex:1: Rumbl.UserController.action/2</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/controllers/user_controller.ex:1: Rumbl.UserController.phoenix_controller_pipeline/2</span>
-<span class="code-line"></span>
-<span class="code-line">warning: passing :empty to Ecto.Changeset.cast/3 is deprecated, please pass an empty map or :invalid instead</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/models/user.ex:15: Rumbl.User.changeset/2</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/controllers/user_controller.ex:16: Rumbl.UserController.new/2</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/controllers/user_controller.ex:1: Rumbl.UserController.action/2</span>
-<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> web/controllers/user_controller.ex:1: Rumbl.UserController.phoenix_controller_pipeline/2</span>
-</pre></div>
-</td></tr></table></div>
-<div class="section" id="warning">
-<h2>Warningの解消</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">Ecto</tt> とかのバージョの違いのせいか2つWarningが出てました。1つは <tt class="docutils literal">user.ex</tt> の <tt class="docutils literal">changeset/2</tt> 関数のデフォルト引数で <tt class="docutils literal">:empty</tt> としていた部分です。</div>
-<div class="line">その部分を以下のように変えます。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">単純に空の <tt class="docutils literal">Map</tt> にしただけですね。</div>
-<div class="line">もう1つ <tt class="docutils literal">cast/4</tt> 関数を呼び出している部分でもWarningが出ているので修正します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">model</span></span>
-<span class="code-line"><span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span></span>
-<span class="code-line"><span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span></span>
-<span class="code-line"><span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:username</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">max</span><span class="p">:</span> <span class="mi">20</span><span class="p">)</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><a class="reference external" href="http://www.phoenixframework.org/docs/ecto-models">ここ</a> とか <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Changeset.html#cast/4">ここらへん</a> 参考にしましたが英語力の無さ故にあってるかわからないです。誰か教えて!!</div>
-<div class="line">パラメータの名前的にはあってそうですが・・・</div>
-<div class="line">また、これを見ると <tt class="docutils literal">cast</tt> が <tt class="docutils literal">changeset</tt> を返してきて、それに対してバリデーションを掛けているのがわかります。</div>
-<div class="line"><br /></div>
-</div>
-</div>
-<div class="section" id="create">
-<h2>Createアクションの実装</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">new</tt> アクションを実装したので実際にDBにインサートする <tt class="docutils literal">create</tt> アクションを実装します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">create</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&quot;user&quot;</span> <span class="o">=&gt;</span> <span class="n">user_params</span><span class="p">})</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">user_params</span><span class="p">)</span></span>
-<span class="code-line">  <span class="k">case</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">user</span><span class="p">}</span> <span class="o">-&gt;</span></span>
-<span class="code-line">      <span class="n">conn</span></span>
-<span class="code-line">      <span class="o">|&gt;</span> <span class="n">put_flash</span><span class="p">(</span><span class="ss">:info</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> created!&quot;</span><span class="p">)</span></span>
-<span class="code-line">      <span class="o">|&gt;</span> <span class="n">redirect</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="n">user_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">))</span></span>
-<span class="code-line">    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">changeset</span><span class="p">}</span> <span class="o">-&gt;</span></span>
-<span class="code-line">      <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;new.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="n">changeset</span><span class="p">)</span></span>
-<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>  <span class="n">...</span></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="p">[</span><span class="ss">mod</span><span class="p">:</span> <span class="p">{</span><span class="nc">Rumbl</span><span class="p">,</span> <span class="p">[]},</span></span>
+<span class="code-line">   <span class="ss">applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="ss">:phoenix_pubsub</span><span class="p">,</span> <span class="ss">:phoenix_html</span><span class="p">,</span> <span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:logger</span><span class="p">,</span> <span class="ss">:gettext</span><span class="p">,</span></span>
+<span class="code-line">                  <span class="ss">:phoenix_ecto</span><span class="p">,</span> <span class="ss">:postgrex</span><span class="p">,</span> <span class="ss">:comeonin</span><span class="p">]]</span> <span class="c1"># comeoninを追加</span></span>
+<span class="code-line"><span class="k">end</span></span>
+<span class="code-line">  <span class="n">...</span></span>
+<span class="code-line"><span class="kd">defp</span> <span class="n">deps</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="p">[{</span><span class="ss">:phoenix</span><span class="p">,</span> <span class="s2">&quot;~&gt; 1.2.1&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:phoenix_pubsub</span><span class="p">,</span> <span class="s2">&quot;~&gt; 1.0&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:phoenix_ecto</span><span class="p">,</span> <span class="s2">&quot;~&gt; 3.0&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:postgrex</span><span class="p">,</span> <span class="s2">&quot;&gt;= 0.0.0&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:phoenix_html</span><span class="p">,</span> <span class="s2">&quot;~&gt; 2.6&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:phoenix_live_reload</span><span class="p">,</span> <span class="s2">&quot;~&gt; 1.0&quot;</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="ss">:dev</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:gettext</span><span class="p">,</span> <span class="s2">&quot;~&gt; 0.11&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="s2">&quot;~&gt; 1.0&quot;</span><span class="p">},</span></span>
+<span class="code-line">   <span class="p">{</span><span class="ss">:comeonin</span><span class="p">,</span> <span class="s2">&quot;~&gt; 2.0&quot;</span><span class="p">}]</span> <span class="c1"># 追加</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line">あんまり説明することはないですが、 <tt class="docutils literal">conn</tt> からのパイプラインで作成後の <tt class="docutils literal">template</tt> 用の処理を読んでる点くらいでしょうか。パイプラインが最大の特徴かもしれませんが・・・</div>
-<div class="line">また、 <tt class="docutils literal">new.html.eex</tt> もエラーを表示するように変えます。</div>
+<div class="line"><tt class="docutils literal">application</tt> に対して追加しているのはこのアプリの依存ライブラリを書いているようです。</div>
+<div class="line"><tt class="docutils literal">comeonin</tt> とか言うライブラリを追加しています。 <a class="reference external" href="https://github.com/riverrun/comeonin">リポジトリ</a> を見るとそのまんまパスワードをハッシュ化してくれるライブラリだとわかります。</div>
+<div class="line"><tt class="docutils literal">mix deps.get</tt> で追加できたらモデルでこいつを使うように変更してやります。</div>
 <div class="line"><br /></div>
 </div>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
@@ -271,38 +151,221 @@
 <span class="code-line">19</span>
 <span class="code-line">20</span>
 <span class="code-line">21</span>
-<span class="code-line">22</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h1&gt;New User&lt;/h1&gt;</span></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="k">if</span> <span class="vi">@changeset</span><span class="o">.</span><span class="n">action</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;alert alert-danger&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    &lt;p&gt;Oops, something went wrong! Please check the errors below.&lt;/p&gt;</span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">model</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span> <span class="c1"># 更新予定のパラメータカラムを第三引数でとる(?)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:username</span><span class="p">])</span> <span class="c1"># このリストがcastが返すchangesetに存在するか検証</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:username</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">max</span><span class="p">:</span> <span class="mi">20</span><span class="p">)</span></span>
+<span class="code-line"><span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@changeset</span><span class="p">,</span> <span class="n">user_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">),</span> <span class="n">fn</span> <span class="n">f</span> <span class="o">-&gt;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">text_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">error_tag</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:name</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">text_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Username&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">error_tag</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:username</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">password_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Password&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">error_tag</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:password</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
-<span class="code-line"><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">submit</span> <span class="s2">&quot;Create User&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;btn, btn-primary&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
-<span class="code-line"><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">registration_changeset</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">model</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">changeset</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:password</span><span class="p">])</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:password</span><span class="p">])</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">validate_length</span><span class="p">(</span><span class="ss">:password</span><span class="p">,</span> <span class="ss">min</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="ss">max</span><span class="p">:</span> <span class="mi">100</span><span class="p">)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">put_pass_hash</span><span class="p">()</span></span>
+<span class="code-line"><span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kd">defp</span> <span class="n">put_pass_hash</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="k">case</span> <span class="n">changeset</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">%</span><span class="nc">Ecto.Changeset</span><span class="p">{</span><span class="ss">valid?</span><span class="p">:</span> <span class="no">true</span><span class="p">,</span> <span class="ss">changes</span><span class="p">:</span> <span class="p">%{</span><span class="ss">password</span><span class="p">:</span> <span class="n">pass</span><span class="p">}}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">put_change</span><span class="p">(</span><span class="n">changeset</span><span class="p">,</span> <span class="ss">:password_hash</span><span class="p">,</span> <span class="nc">Comeonin.Bcrypt</span><span class="o">.</span><span class="n">hashpwsalt</span><span class="p">(</span><span class="n">pass</span><span class="p">))</span></span>
+<span class="code-line">    <span class="bp">_</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">changeset</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">error_tag/2</tt> 関数は <tt class="docutils literal">view</tt> の <tt class="docutils literal">error_helpers.ex</tt> に定義されている関数です。</div>
+<div class="line"><tt class="docutils literal">Ecto</tt> の最新版を使っているので書籍と若干異なっています。新しい方の <tt class="docutils literal">Ecto</tt> では <tt class="docutils literal">cast/4</tt> は推奨されなくなっているようです。</div>
+<div class="line">なので、 <a class="reference external" href="http://www.phoenixframework.org/docs/ecto-models">Phoenixのガイド</a> とか、 <a class="reference external" href="https://hexdocs.pm/ecto/Ecto.Changeset.html">Ectoのドキュメント</a> とかを見て適当に修正してます。（このやり方でいいか不安ですが・・・）</div>
+<div class="line">また、 <tt class="docutils literal">:empty</tt> もWarningになるので、空のハッシュに変えています。</div>
+<div class="line">ついでに <tt class="docutils literal">create</tt> アクションで <tt class="docutils literal">User.changeset</tt> の部分を <tt class="docutils literal">User.registration_changeset</tt> に変更します。</div>
+<div class="line">ここまでやってMacだとOKでしたが、Windowsだとエラーになりました。</div>
 <div class="line"><br /></div>
 </div>
 </div>
-<div class="section" id="changeset">
-<h2>Changesetについて</h2>
+<div class="section" id="windows-comeonin">
+<h2>Windowsでのエラー（comeonin）</h2>
 <div class="line-block">
-<div class="line">このchapterの最後に <tt class="docutils literal">changeset</tt> について触れられています。</div>
+<div class="line">Windowsから <tt class="docutils literal">comeonin</tt> を使おうとするとコンパイルを促すエラーが出るので <a class="reference external" href="https://github.com/riverrun/comeonin/wiki/Requirements">ここ</a> を参考にコンパイルします。</div>
+<div class="line">ちなみにVisualStudioインストールしてあったので最下部付近にあるVSインストール済みの場合の方法を取っています。</div>
+</div>
+<ol class="arabic simple">
+<li>VSに付属している開発者コマンドプロンプトを起動します。</li>
+<li>開発者コマンドプロンプト上で以下のコマンドを実行しておきます。</li>
+</ol>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>&gt; vcvarsall.bat amd64</span>
+</pre></div>
+</td></tr></table><ol class="arabic simple">
+<li><tt class="docutils literal">vcvarsall.bat</tt> にパスが通ってない場合は、適当にフルパスで指定すればいいと思います。これを行わなくてもコンパイル自体は出来ますが、実行時にエラーになりました。（ <tt class="docutils literal">vcvarsall.bat</tt> については <a class="reference external" href="https://msdn.microsoft.com/ja-jp/library/x4d2c09s.aspx">MSDN</a> ）</li>
+<li>本プロジェクト（ <tt class="docutils literal">rumbl</tt> ）のディレクトリまで移動して以下のコマンドを実行します。</li>
+</ol>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl &gt; mix deps.compile</span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">自分の環境ではこれでうまくいきました。</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="plug">
+<h2>Plugについて</h2>
+<div class="line-block">
+<div class="line"><tt class="docutils literal">Plug</tt> を使ってログイン機能を作る前に <tt class="docutils literal">Plug</tt> についてちょっと掘ります。</div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal">Plug</tt> にはモジュールプラグと関数プラグの二種類が存在する。</li>
+<li>モジュールプラグは名前の通り幾つかの関数を集めたモジュールのプラグ</li>
+<li>関数プラグは関数名をアトムとして指定したプラグ</li>
+</ul>
+<div class="line-block">
+<div class="line">ログイン機能としてモジュールプラグを作成します。</div>
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id4">
+<h3>モジュールプラグ</h3>
+<div class="line-block">
+<div class="line">モジュールプラグとして設定するモジュールには <tt class="docutils literal">init/1</tt> 関数と <tt class="docutils literal">call/2</tt> 関数が必要とされます。</div>
+<div class="line">以下は何もしないモジュールプラグの例です。</div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">NothingPlug</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">opts</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_opts</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">call</tt> 関数の引数を見るとわかりますが、モジュールプラグは <tt class="docutils literal">conn</tt> を変換するようです。</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="plug-conn-conn">
+<h3>Plug.Connについて(conn)</h3>
+<div class="line-block">
+<div class="line"><tt class="docutils literal">Plug.Conn</tt> が持つフィールドについて見てみます。</div>
+<div class="line">書籍の方には色々書いてありますが割愛します。 <a class="reference external" href="https://hexdocs.pm/plug/Plug.Conn.html">Plug.Connの公式ドキュメント</a> を参照して下さい。ここではリクエストフィールドが持つものだけを見てみます。</div>
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal">host</tt></dt>
+<dd><p class="first last">リクエストのホスト名 ex) www.pragprog.com</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal">method</tt></dt>
+<dd><p class="first last">リクエストのWebメソッド（GETとかPOSTとか）</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal">path_info</tt></dt>
+<dd><p class="first last">パスを分割したリスト</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal">req_headers</tt></dt>
+<dd><p class="first last">リクエストヘッダ</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><tt class="docutils literal">scheme</tt></dt>
+<dd><p class="first last">プロトコル（httpとか）</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="line-block">
+<div class="line">Webのリクエスト周りに関係するものが存在していることがわかります。</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>認証プラグの実装</h3>
+<div class="line-block">
+<div class="line">やっと認証用のプラグを実装します。</div>
+<div class="line"><tt class="docutils literal">controllers/auth.ex</tt> を以下の内容で実装します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Auth</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">import</span> <span class="nc">Plug.Conn</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># キーワードリストから:repoの箇所の値を取得する</span></span>
+<span class="code-line">    <span class="c1"># 無ければexception(つまりは必須)</span></span>
+<span class="code-line">    <span class="nc">Keyword</span><span class="o">.</span><span class="n">fetch!</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="ss">:repo</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">repo</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user_id</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:user_id</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">=</span> <span class="n">user_id</span> <span class="o">&amp;&amp;</span> <span class="n">repo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span></span>
+<span class="code-line">    <span class="c1"># assignでconnを変更する(importされた関数)</span></span>
+<span class="code-line">    <span class="c1"># これによって:current_userがコントローラやビューで使えるようになる</span></span>
+<span class="code-line">    <span class="n">assign</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:current_user</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">コメント通りなので余り言うことはないです。</div>
+<div class="line"><tt class="docutils literal">init</tt> で <tt class="docutils literal">repo</tt> を取得してそれが <tt class="docutils literal">conn</tt> の第二引数に渡されるようです。セッションにあるユーザIDからユーザを取得しています。</div>
+<div class="line">パイプラインの流れの一部として処理してほしいので <tt class="docutils literal">router.ex</tt> を以下のように変更します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">pipeline</span> <span class="ss">:browser</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">plug</span> <span class="ss">:accepts</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;html&quot;</span><span class="p">]</span></span>
+<span class="code-line">  <span class="n">plug</span> <span class="ss">:fetch_session</span></span>
+<span class="code-line">  <span class="n">plug</span> <span class="ss">:fetch_flash</span></span>
+<span class="code-line">  <span class="n">plug</span> <span class="ss">:protect_from_forgery</span></span>
+<span class="code-line">  <span class="n">plug</span> <span class="ss">:put_secure_browser_headers</span></span>
+<span class="code-line">  <span class="n">plug</span> <span class="nc">Rumbl.Auth</span><span class="p">,</span> <span class="ss">repo</span><span class="p">:</span> <span class="nc">Rumbl.Repo</span> <span class="c1"># 追加</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="id6">
+<h3>アクセス制限の実装</h3>
+<div class="line-block">
+<div class="line"><tt class="docutils literal">Plug</tt> は出来たのでアクセス制限とログインを作ります。ログインしない限りは <tt class="docutils literal">:index</tt> アクションと <tt class="docutils literal">:show</tt> アクションにアクセス出来ないようにします。</div>
+<div class="line"><tt class="docutils literal">user_controller.ex</tt> を以下のように変更します。</div>
 <div class="line"><br /></div>
 </div>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
@@ -324,46 +387,354 @@
 <span class="code-line">17</span>
 <span class="code-line">18</span>
 <span class="code-line">19</span>
-<span class="code-line">20</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>1<span class="o">)</span>&gt; <span class="nv">changeset</span> <span class="o">=</span> Rumbl.User.changeset<span class="o">(</span>%Rumbl.User<span class="o">{</span>username: <span class="s2">&quot;eric&quot;</span><span class="o">})</span></span>
-<span class="code-line"><span class="c1">#Ecto.Changeset&lt;action: nil, changes: %{},</span></span>
-<span class="code-line"> errors: <span class="o">[</span>name: <span class="o">{</span><span class="s2">&quot;can&#39;t be blank&quot;</span>, <span class="o">[</span>validation: :required<span class="o">]}]</span>,</span>
-<span class="code-line"> data: <span class="c1">#Rumbl.User&lt;&gt;, valid?: false&gt;</span></span>
-<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; changeset</span>
-<span class="code-line"><span class="c1">#Ecto.Changeset&lt;action: nil, changes: %{},</span></span>
-<span class="code-line"> errors: <span class="o">[</span>name: <span class="o">{</span><span class="s2">&quot;can&#39;t be blank&quot;</span>, <span class="o">[</span>validation: :required<span class="o">]}]</span>,</span>
-<span class="code-line"> data: <span class="c1">#Rumbl.User&lt;&gt;, valid?: false&gt;</span></span>
-<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; import Ecto.Changeset</span>
-<span class="code-line">Ecto.Changeset</span>
-<span class="code-line">iex<span class="o">(</span>4<span class="o">)</span>&gt; changeset.changes</span>
-<span class="code-line">%<span class="o">{}</span></span>
-<span class="code-line">iex<span class="o">(</span>5<span class="o">)</span>&gt; <span class="nv">changeset</span> <span class="o">=</span> put_change<span class="o">(</span>changeset, :username, <span class="s2">&quot;ericmj&quot;</span><span class="o">)</span></span>
-<span class="code-line"><span class="c1">#Ecto.Changeset&lt;action: nil, changes: %{username: &quot;ericmj&quot;},</span></span>
-<span class="code-line"> errors: <span class="o">[</span>name: <span class="o">{</span><span class="s2">&quot;can&#39;t be blank&quot;</span>, <span class="o">[</span>validation: :required<span class="o">]}]</span>,</span>
-<span class="code-line"> data: <span class="c1">#Rumbl.User&lt;&gt;, valid?: false&gt;</span></span>
-<span class="code-line">iex<span class="o">(</span>6<span class="o">)</span>&gt; changeset.changes</span>
-<span class="code-line">%<span class="o">{</span>username: <span class="s2">&quot;ericmj&quot;</span><span class="o">}</span></span>
-<span class="code-line">iex<span class="o">(</span>7<span class="o">)</span>&gt; get_change<span class="o">(</span>changeset, :username<span class="o">)</span></span>
-<span class="code-line"><span class="s2">&quot;ericmj&quot;</span></span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserController</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">...</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="k">case</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="c1"># 構造体connのhaltedメンバのパターンマッチによる振り分け</span></span>
+<span class="code-line">      <span class="p">%</span><span class="nc">Plug.Conn</span><span class="p">{</span><span class="ss">halted</span><span class="p">:</span> <span class="no">true</span><span class="p">}</span> <span class="o">=</span> <span class="n">conn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">conn</span></span>
+<span class="code-line">      <span class="n">conn</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">users</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">)</span></span>
+<span class="code-line">        <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="ss">users</span><span class="p">:</span> <span class="n">users</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line">  <span class="n">...</span></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># Plugで追加したassignの呼び出しが可能かどうか</span></span>
+<span class="code-line">    <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">current_user</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">    <span class="k">else</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">put_flash</span><span class="p">(</span><span class="ss">:error</span><span class="p">,</span> <span class="s2">&quot;You must be logged in to access that page&quot;</span><span class="p">)</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">redirect</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="n">page_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">))</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">halt</span><span class="p">()</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
 </pre></div>
 </td></tr></table><div class="line-block">
-<div class="line">これを見ると <tt class="docutils literal">changeset</tt> はバリデーション以外にも変更をの追跡と保持を行っていることがわかります。</div>
+<div class="line">先程の <tt class="docutils literal">Plug</tt> で変更した値を <tt class="docutils literal">authenticate/1</tt> 関数で使っています。また、 <tt class="docutils literal">:index</tt> アクションのアクセス時に <tt class="docutils literal">authenticate</tt> 関数で認証済みかチェック掛けています。</div>
 <div class="line"><br /></div>
 </div>
 </div>
-<div class="section" id="id6">
-<h2>まとめ</h2>
+<div class="section" id="authenticate">
+<h3><tt class="docutils literal">authenticate</tt> の関数プラグ化</h3>
 <div class="line-block">
-<div class="line">簡単なDB操作を行いました。今回はテンプレート周りはおまけだったように思います。</div>
-<div class="line">何かしらフレームワーク触ったことあればそんなに違和感はなく使えると思います。</div>
-<div class="line">ずっと <tt class="docutils literal">changeset</tt> が謎だったんですが、少し理解できたと思います。</div>
-<div class="line">基本的なところは結構網羅されてきたんじゃないかと思いますのでサクサク行きたいです。</div>
+<div class="line"><tt class="docutils literal">user_controller.ex</tt> の <tt class="docutils literal">Rumbl.Web</tt> の直下のあたりに以下を追加します。</div>
 <div class="line"><br /></div>
 </div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">plug</span> <span class="ss">:authenticate</span> <span class="ow">when</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="p">]</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">また、 <tt class="docutils literal">index</tt> アクションを <tt class="docutils literal">case</tt> 文を使う以前のものに戻しておきます。 <tt class="docutils literal">authenticate</tt> 関数も以下のように2引数にしておきます。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defp</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_opts</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="c1"># Plugで追加したassignの呼び出しが可能かどうか</span></span>
+<span class="code-line">  <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">current_user</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span></span>
+<span class="code-line">  <span class="k">else</span></span>
+<span class="code-line">    <span class="n">conn</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">put_flash</span><span class="p">(</span><span class="ss">:error</span><span class="p">,</span> <span class="s2">&quot;You must be logged in to access that page&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">redirect</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="n">page_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">))</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">halt</span><span class="p">()</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">_opts</tt> を追加しただけです。関数 <tt class="docutils literal">Plug</tt> 化したためです。 <tt class="docutils literal">Plug</tt> をマクロ展開したときの例が出てますが割愛します。</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>ログインの実装</h3>
+<div class="line-block">
+<div class="line">認証までしか無いので実際のログイン処理を実装します。取り敢えず <tt class="docutils literal">create</tt> アクションでユーザが作成された時に自動でログインするようにしてみます。</div>
+<div class="line">先程作った <tt class="docutils literal">auth.ex</tt> に以下の関数を追加します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">login</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">conn</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">assign</span><span class="p">(</span><span class="ss">:current_user</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">put_session</span><span class="p">(</span><span class="ss">:user_id</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></span>
+<span class="code-line">  <span class="o">|&gt;</span> <span class="n">configure_session</span><span class="p">(</span><span class="ss">renew</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span> <span class="c1"># セッションキーとかを新しくしている(セキュリティのため)</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">次に <tt class="docutils literal">create</tt> アクションでこの関数を呼び出すようにしてやります。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">create</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&quot;user&quot;</span> <span class="o">=&gt;</span> <span class="n">user_params</span><span class="p">})</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">changeset</span> <span class="o">=</span> <span class="nc">User</span><span class="o">.</span><span class="n">registration_changeset</span><span class="p">(%</span><span class="nc">User</span><span class="p">{},</span> <span class="n">user_params</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">case</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">user</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">conn</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="nc">Rumbl.Auth</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="c1"># ユーザを作成したらログイン</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">put_flash</span><span class="p">(</span><span class="ss">:info</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> created!&quot;</span><span class="p">)</span></span>
+<span class="code-line">      <span class="o">|&gt;</span> <span class="n">redirect</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="n">user_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">))</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">changeset</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;new.html&quot;</span><span class="p">,</span> <span class="ss">changeset</span><span class="p">:</span> <span class="n">changeset</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">これで完了です。</div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>ログイン画面の実装</h3>
+<div class="line-block">
+<div class="line">ここまででログインするための素材は揃ったので、ログイン/ログアウト画面を作ります。今まで作ったものの合わせ技なので一気に行きます。</div>
+<div class="line"><tt class="docutils literal">session_controller.ex</tt> を実装します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.SessionController</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:controller</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">new</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">_</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;new.html&quot;</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">create</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&quot;session&quot;</span> <span class="o">=&gt;</span> <span class="p">%{</span><span class="s2">&quot;username&quot;</span> <span class="o">=&gt;</span> <span class="n">user</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span> <span class="o">=&gt;</span> <span class="n">pass</span><span class="p">}})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="k">case</span> <span class="nc">Rumbl.Auth</span><span class="o">.</span><span class="n">login_by_username_add_pass</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">pass</span><span class="p">,</span> <span class="ss">repo</span><span class="p">:</span> <span class="nc">Repo</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">conn</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">conn</span></span>
+<span class="code-line">        <span class="o">|&gt;</span> <span class="n">put_flash</span><span class="p">(</span><span class="ss">:info</span><span class="p">,</span> <span class="s2">&quot;Welcome back!&quot;</span><span class="p">)</span></span>
+<span class="code-line">        <span class="o">|&gt;</span> <span class="n">redirect</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="n">page_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">))</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_reason</span><span class="p">,</span> <span class="n">conn</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">conn</span></span>
+<span class="code-line">        <span class="o">|&gt;</span> <span class="n">put_flash</span><span class="p">(</span><span class="ss">:error</span><span class="p">,</span> <span class="s2">&quot;Invalid username/password combination&quot;</span><span class="p">)</span></span>
+<span class="code-line">        <span class="o">|&gt;</span> <span class="n">render</span><span class="p">(</span><span class="s2">&quot;new.html&quot;</span><span class="p">)</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">delete</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">_</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">conn</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Rumbl.Auth</span><span class="o">.</span><span class="n">logout</span><span class="p">()</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">redirect</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span> <span class="n">page_path</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">))</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line"><tt class="docutils literal">session_view.ex</tt> も作っておきます。内容は割愛します。関数などは定義しなくて良いです。</div>
+<div class="line"><tt class="docutils literal">router.ex</tt> も上で作った <tt class="docutils literal">session_controller.ex</tt> 用に追加しておきます。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">scope</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="nc">Rumbl</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">pipe_through</span> <span class="ss">:browser</span> <span class="c1"># Use the default browser stacks.</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">get</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:index</span></span>
+<span class="code-line">  <span class="n">resources</span> <span class="s2">&quot;/users&quot;</span><span class="p">,</span> <span class="nc">UserController</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="p">]</span></span>
+<span class="code-line">  <span class="n">resources</span> <span class="s2">&quot;/sessions&quot;</span><span class="p">,</span> <span class="nc">SessionController</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">:delete</span><span class="p">]</span> <span class="c1"># 追加</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">usernameとpasswordでログインするための関数とログアウト用の関数を <tt class="docutils literal">auth.ex</tt> に用意しておきます。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">...</span></span>
+<span class="code-line"><span class="kn">import</span> <span class="nc">Comeonin.Bcrypt</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">checkpw</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="ss">dummy_checkpw</span><span class="p">:</span> <span class="mi">0</span><span class="p">]</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="n">...</span></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">logout</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">configure_session</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="ss">drop</span><span class="p">:</span> <span class="no">true</span><span class="p">)</span></span>
+<span class="code-line"><span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">login_by_username_add_pass</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">given_pass</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="n">repo</span> <span class="o">=</span> <span class="nc">Keyword</span><span class="o">.</span><span class="n">fetch!</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="ss">:repo</span><span class="p">)</span></span>
+<span class="code-line">  <span class="n">user</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_by</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="n">username</span><span class="p">)</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="c1"># 複数の値で分岐しているためcaseではなくcond(caseは与えられた1つの値に対する分岐)</span></span>
+<span class="code-line">  <span class="k">cond</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">&amp;&amp;</span> <span class="n">checkpw</span><span class="p">(</span><span class="n">given_pass</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">password_hash</span><span class="p">)</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">login</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">user</span><span class="p">)}</span></span>
+<span class="code-line">    <span class="n">user</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:unauthorized</span><span class="p">,</span> <span class="n">conn</span><span class="p">}</span></span>
+<span class="code-line">    <span class="no">true</span> <span class="o">-&gt;</span></span>
+<span class="code-line">      <span class="n">dummy_checkpw</span><span class="p">()</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">,</span> <span class="n">conn</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">ログイン画面用のテンプレートも作ります。まず <tt class="docutils literal">session/new.html.eex</tt> を以下のように実装します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h1&gt;Login&lt;/h1&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@conn</span><span class="p">,</span> <span class="n">session_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:create</span><span class="p">),</span> <span class="o">[</span><span class="ss">as</span><span class="p">:</span> <span class="ss">:session</span><span class="o">]</span><span class="p">,</span> <span class="n">fn</span> <span class="n">f</span><span class="o">-&gt;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">text_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Username&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;form-group&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">password_input</span> <span class="n">f</span><span class="p">,</span> <span class="ss">:password</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s2">&quot;Password&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;form-control&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">submit</span> <span class="s2">&quot;Log in&quot;</span><span class="p">,</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;btn btn-primary&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">最後に今まで作ったもののリンクを表示します。 <tt class="docutils literal">layout/app.html.eex</tt> を以下のように変更します。</div>
+<div class="line"><br /></div>
+</div>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;header class=&quot;header&quot;&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;ol class=&quot;breadcrumb text-right&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;!-- assignsで突っ込んだものが使えている --&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="k">if</span> <span class="vi">@current_user</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">      &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="vi">@current_user</span><span class="o">.</span><span class="n">username</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;li&gt;</span></span>
+<span class="code-line"><span class="x">        </span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Log out&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">session_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:delete</span><span class="p">,</span> <span class="vi">@current_user</span><span class="p">),</span></span>
+<span class="code-line">                            <span class="nb">method</span><span class="p">:</span> <span class="s2">&quot;delete&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">      &lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%</span> <span class="k">else</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">      &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Register&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">user_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:new</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Log in&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">session_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:new</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;/ol&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;span class=&quot;logo&quot;&gt;&lt;/span&gt;</span></span>
+<span class="code-line"><span class="x">&lt;/header&gt;</span></span>
+</pre></div>
+</td></tr></table><div class="line-block">
+<div class="line">これでOKなはずです。</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id9">
+<h2>まとめ</h2>
+<ul class="simple">
+<li><tt class="docutils literal">Plug.Conn</tt> を使ったセッションやコネクションの管理はスマートだし中身が分かればわかりやすいと思いました。関数の引数に毎回 <tt class="docutils literal">conn</tt> が出てきちゃいますが・・・</li>
+<li>本のおかげかもしれませんが余りブラックボックスな部分を残さないよう理解出来ている感があるのが良いです。</li>
+<li>関数型だけあってかロジックを関数毎に分離しているのがとても良かったです。書いてて理解し易い気がします。</li>
+</ul>
+<p>1記事がやたらと長くなりましたが実験ということで・・・</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その6</a>
+                <p class="uk-article-meta"><time datetime="2017-01-11" itemprop="datePublished">2017-01-11(水)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその6</p>
+                <p>その6です。 実際にDBを操作するところからです。 新規ユーザ生成処理 Rumbl.UserController に以下の関数を実装します。 1 2 3 4def new(conn, _params) do changeset = User.changeset(%User{}) render conn, "new.html", changeset: changeset end changeset 周りとかが謎めいていますが一旦置いときます。単に自分が今理解してないだけですが・・・ DBの操作とそれ以外の検証とかエラーとかセキュリティとかを分離するのに役立つっぽいです。 user.ex...</p>
+                <a href="https://zonuko.github.io/posts/2017/01/11/programming-phoenix6/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">

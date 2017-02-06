@@ -73,20 +73,16 @@
 
 
             <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その16</a>
-                <p class="uk-article-meta"><time datetime="2017-02-04" itemprop="datePublished">2017-02-04(土)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/#disqus_thread" itemprop="discussionUrl"></a></p>
+                <a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その17</a>
+                <p class="uk-article-meta"><time datetime="2017-02-06" itemprop="datePublished">2017-02-06(月)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/#disqus_thread" itemprop="discussionUrl"></a></p>
 </p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその16</p>
-                <section itemprop="articleBody"><p>その16です。 <tt class="docutils literal">Channel</tt> の続きからですが、コメント管理するモデルの作成からです。</p>
-<div class="section" id="id1">
-<h2>モデルの作成</h2>
-<p>いつものコマンドからモデルを作成&amp;マイグレーションします。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl $ mix phoenix.gen.model Annotation annotations body:text at:integer user_id:references:users video_id:references:videos</span>
-<span class="code-line">rumbl $ mix ecto.migrate</span>
-</pre></div>
-</td></tr></table><p>完了したら <tt class="docutils literal">user.ex</tt> と <tt class="docutils literal">video.ex</tt> に <tt class="docutils literal">has_many :annotations, Rumbl.Annotation</tt> を追加しておきます。
-作成したらモデルを使うようにしてやります。 <tt class="docutils literal">video_channel.ex</tt> を以下のように変更します。</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその17</p>
+                <section itemprop="articleBody"><p>その17です。ここから <tt class="docutils literal">chapter11</tt> です。
+<tt class="docutils literal">OTP</tt> で簡単なアプリを作ります。次の章にそれをアンブレラプロジェクトの下に置きます。</p>
+<div class="section" id="counter">
+<h2>Counterアプリの作成</h2>
+<p>はじめに素朴な <tt class="docutils literal">send</tt> と <tt class="docutils literal">receive</tt> を使ったカウンターアプリを作ります。</p>
+<p><tt class="docutils literal">lib/rumbl/counter.ex</tt> を実装します。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -120,48 +116,42 @@
 <span class="code-line">31</span>
 <span class="code-line">32</span>
 <span class="code-line">33</span>
-<span class="code-line">34</span>
-<span class="code-line">35</span>
-<span class="code-line">36</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.VideoChannel</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:channel</span></span>
+<span class="code-line">34</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Counter</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="c1"># listenにメッセージを送信する</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">inc</span><span class="p">(</span><span class="n">pid</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="n">send</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:inc</span><span class="p">)</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">dec</span><span class="p">(</span><span class="n">pid</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="n">send</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:dec</span><span class="p">)</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">&lt;&gt;</span> <span class="n">video_id</span><span class="p">,</span> <span class="n">_params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:video_id</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">video_id</span><span class="p">))}</span></span>
+<span class="code-line">  <span class="c1"># listenで保持されている状態を取得する</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">val</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">timeout</span> <span class="p">\\</span> <span class="mi">5000</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># プロセスにリファレンスという形でマークを付ける</span></span>
+<span class="code-line">    <span class="c1"># リクエストに対してレスポンスを紐付ける同期処理</span></span>
+<span class="code-line">    <span class="n">ref</span> <span class="o">=</span> <span class="n">make_ref</span><span class="p">()</span></span>
+<span class="code-line">    <span class="n">send</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="p">{</span><span class="ss">:val</span><span class="p">,</span> <span class="n">self</span><span class="p">(),</span> <span class="n">ref</span><span class="p">})</span></span>
+<span class="code-line">    <span class="k">receive</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="p">{</span><span class="o">^</span><span class="n">ref</span><span class="p">,</span> <span class="n">val</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="n">val</span></span>
+<span class="code-line">    <span class="k">after</span></span>
+<span class="code-line">      <span class="n">timeout</span> <span class="o">-&gt;</span> <span class="n">exit</span><span class="p">(</span><span class="ss">:timeout</span><span class="p">)</span></span>
+<span class="code-line">    <span class="k">end</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="c1"># 最初に入ってきてuserを取得後各関数に処理をディスパッチする</span></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">handle_in</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">user</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nc">Rumbl.User</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span></span>
-<span class="code-line">    <span class="n">handle_in</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span></span>
+<span class="code-line">  <span class="c1"># エントリポイント</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">start_link</span><span class="p">(</span><span class="n">initial_val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">spawn_link</span><span class="p">(</span><span class="k">fn</span> <span class="o">-&gt;</span> <span class="n">listen</span><span class="p">(</span><span class="n">initial_val</span><span class="p">)</span> <span class="k">end</span><span class="p">)}</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">handle_in</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">changeset</span> <span class="o">=</span></span>
-<span class="code-line">      <span class="n">user</span></span>
-<span class="code-line">      <span class="o">|&gt;</span> <span class="n">build_assoc</span><span class="p">(</span><span class="ss">:annotations</span><span class="p">,</span> <span class="ss">video_id</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">video_id</span><span class="p">)</span></span>
-<span class="code-line">      <span class="o">|&gt;</span> <span class="nc">Rumbl.Annotation</span><span class="o">.</span><span class="n">changeset</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="k">case</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">annotation</span><span class="p">}</span> <span class="o">-&gt;</span></span>
-<span class="code-line">        <span class="c1"># 接続しているクライアント全てにブロードキャストする</span></span>
-<span class="code-line">        <span class="c1"># ユーザが任意のメッセージを送れないようにparamsを分解する</span></span>
-<span class="code-line">        <span class="n">broadcast!</span> <span class="n">socket</span><span class="p">,</span> <span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="p">%{</span></span>
-<span class="code-line">          <span class="ss">id</span><span class="p">:</span> <span class="n">annotation</span><span class="o">.</span><span class="n">id</span><span class="p">,</span></span>
-<span class="code-line">          <span class="ss">user</span><span class="p">:</span> <span class="nc">Rumbl.UserView</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;user.json&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">user</span><span class="p">:</span> <span class="n">user</span><span class="p">}),</span></span>
-<span class="code-line">          <span class="ss">body</span><span class="p">:</span> <span class="n">annotation</span><span class="o">.</span><span class="n">body</span><span class="p">,</span></span>
-<span class="code-line">          <span class="ss">at</span><span class="p">:</span> <span class="n">annotation</span><span class="o">.</span><span class="n">at</span></span>
-<span class="code-line">        <span class="p">}</span></span>
-<span class="code-line">        <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span></span>
-<span class="code-line"></span>
-<span class="code-line">      <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">changeset</span><span class="p">}</span> <span class="o">-&gt;</span></span>
-<span class="code-line">        <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="p">%{</span><span class="ss">errors</span><span class="p">:</span> <span class="n">changeset</span><span class="p">}},</span> <span class="n">socket</span><span class="p">}</span></span>
+<span class="code-line">  <span class="c1"># 無限ループでval状態を保持する</span></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">listen</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="k">receive</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="ss">:inc</span> <span class="o">-&gt;</span> <span class="n">listen</span><span class="p">(</span><span class="n">val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></span>
+<span class="code-line">      <span class="ss">:dec</span> <span class="o">-&gt;</span> <span class="n">listen</span><span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></span>
+<span class="code-line">      <span class="p">{</span><span class="ss">:val</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">ref</span><span class="p">}</span> <span class="o">-&gt;</span></span>
+<span class="code-line">        <span class="n">send</span> <span class="n">sender</span><span class="p">,</span> <span class="p">{</span><span class="n">ref</span><span class="p">,</span> <span class="n">val</span><span class="p">}</span></span>
+<span class="code-line">        <span class="n">listen</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></span>
 <span class="code-line">    <span class="k">end</span></span>
 <span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">handle_in/3</tt> 関数と <tt class="docutils literal">handle_in/4</tt> 関数を追加しました。 <tt class="docutils literal">user</tt> を必ず取得してから次の処理に移行するように
-しています。</p>
-<p>この中で <tt class="docutils literal">UserVide.render</tt> 関数を使っているのでそちらも <tt class="docutils literal">user_view.ex</tt> に実装します。</p>
+</td></tr></table><p>以下で動作を確かめられます。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -175,99 +165,29 @@
 <span class="code-line">11</span>
 <span class="code-line">12</span>
 <span class="code-line">13</span>
-<span class="code-line">14</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.UserView</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:view</span></span>
-<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.User</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">first_name</span><span class="p">(%</span><span class="nc">User</span><span class="p">{</span><span class="ss">name</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">name</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">render</span><span class="p">(</span><span class="s2">&quot;user.json&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">user</span><span class="p">:</span> <span class="n">user</span><span class="p">})</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">%{</span><span class="ss">id</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">}</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
+<span class="code-line">14</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; <span class="o">{</span>:ok, pid<span class="o">}</span> <span class="o">=</span> Counter.start_link<span class="o">(</span>0<span class="o">)</span></span>
+<span class="code-line"><span class="o">{</span>:ok, <span class="c1">#PID&lt;0.259.0&gt;}</span></span>
+<span class="code-line">iex&gt; pid</span>
+<span class="code-line"><span class="c1">#PID&lt;0.259.0&gt;</span></span>
+<span class="code-line">iex&gt; Counter.inc<span class="o">(</span>pid<span class="o">)</span></span>
+<span class="code-line">:inc</span>
+<span class="code-line">iex&gt; Counter.val<span class="o">(</span>pid<span class="o">)</span></span>
+<span class="code-line">1</span>
+<span class="code-line">iex&gt; Counter.dec<span class="o">(</span>pid<span class="o">)</span></span>
+<span class="code-line">:dec</span>
+<span class="code-line">iex&gt; Counter.dec<span class="o">(</span>pid<span class="o">)</span></span>
+<span class="code-line">:dec</span>
+<span class="code-line">iex&gt; Counter.val<span class="o">(</span>pid<span class="o">)</span></span>
+<span class="code-line">-1</span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">render</tt> 関数を追加しました。普通の <tt class="docutils literal">render</tt> 関数は第一引数にテンプレート名を受けますが、
-jsonを受けるようにして作りました。</p>
+</td></tr></table><p><tt class="docutils literal">start_link</tt> 関数でプロセスを開始します。これは <tt class="docutils literal">listen</tt> 関数の再帰呼び出しによって無限ループになっています。
+<tt class="docutils literal">listen</tt> 関数によって保存される状態はPIDによって識別されるため <tt class="docutils literal">inc</tt> 関数や <tt class="docutils literal">dec</tt> 、 <tt class="docutils literal">val</tt> 関数
+にそのPIDを与えています。</p>
+<p>次に素朴な非同期通信から <tt class="docutils literal">OTP</tt> の <tt class="docutils literal">GenServer</tt> を使ってみます。</p>
 </div>
-<div class="section" id="id2">
-<h2>コメントの時系列順表示</h2>
-<p><tt class="docutils literal">annotation</tt> の永続化は行ったので、以下を行います。</p>
-<ul class="simple">
-<li>永続化されたコメントを取り出して表示する処理</li>
-<li>クリックしたときに投稿した時間に動画を飛ばす処理</li>
-</ul>
-<p><tt class="docutils literal">video_channel.ex</tt> の <tt class="docutils literal">join</tt> 関数を以下のように変更します。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</span>
-<span class="code-line">19</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kn">alias</span> <span class="nc">Rumbl.AnnotationView</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="kd">def</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">&lt;&gt;</span> <span class="n">video_id</span><span class="p">,</span> <span class="n">_params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">video_id</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">video_id</span><span class="p">)</span></span>
-<span class="code-line">  <span class="n">video</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="nc">Rumbl.Video</span><span class="p">,</span> <span class="n">video_id</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">annotations</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span></span>
-<span class="code-line">    <span class="c1"># videoに紐づくannotationsを取得</span></span>
-<span class="code-line">    <span class="n">from</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">assoc</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="ss">:annotations</span><span class="p">),</span></span>
-<span class="code-line">      <span class="ss">order_by</span><span class="p">:</span> <span class="p">[</span><span class="ss">asc</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">at</span><span class="p">,</span> <span class="ss">asc</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">id</span><span class="p">],</span></span>
-<span class="code-line">      <span class="ss">limit</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">preload</span><span class="p">:</span> <span class="p">[</span><span class="ss">:user</span><span class="p">]</span></span>
-<span class="code-line">  <span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">resp</span> <span class="o">=</span> <span class="p">%{</span><span class="ss">annotations</span><span class="p">:</span> <span class="nc">Phoenix.View</span><span class="o">.</span><span class="n">render_many</span><span class="p">(</span><span class="n">annotations</span><span class="p">,</span> <span class="nc">AnnotationView</span><span class="p">,</span> <span class="s2">&quot;annotation.json&quot;</span><span class="p">)}</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="c1"># socket.assignsにvideo_idを保存</span></span>
-<span class="code-line">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">resp</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:video_id</span><span class="p">,</span> <span class="n">video_id</span><span class="p">)}</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><p>接続直後にその <tt class="docutils literal">video</tt> に関連する <tt class="docutils literal">annotation</tt> を取得して送信しています。
-<tt class="docutils literal">Rumbl.AnnotationView</tt> を使っているのでこれも実装します。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.AnnotationView</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:view</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">render</span><span class="p">(</span><span class="s2">&quot;annotation.json&quot;</span><span class="p">,</span> <span class="p">%{</span><span class="ss">annotation</span><span class="p">:</span> <span class="n">ann</span><span class="p">})</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="p">%{</span></span>
-<span class="code-line">      <span class="ss">id</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">id</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">body</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">body</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">at</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">at</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">user</span><span class="p">:</span> <span class="n">render_one</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="nc">Rumbl.UserView</span><span class="p">,</span> <span class="s2">&quot;user.json&quot;</span><span class="p">)</span></span>
-<span class="code-line">    <span class="p">}</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><p><tt class="docutils literal">render_many</tt> や <tt class="docutils literal">render_one</tt> 見たいな関数は
-<a class="reference external" href="https://hexdocs.pm/phoenix/Phoenix.View.html#functions">公式ドキュメント</a> を参考にすればわかると思います。</p>
-<p>これに伴い、 <tt class="docutils literal">join</tt> した時のクライアントサイドコードも変更しておく必要があります。</p>
+<div class="section" id="counterotp">
+<h2>CounterアプリのOTP化</h2>
+<p><tt class="docutils literal">Counter</tt> を <tt class="docutils literal">OTP</tt> を使ったものにしてみます。</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
 <span class="code-line"> 2</span>
 <span class="code-line"> 3</span>
@@ -299,263 +219,200 @@ jsonを受けるようにして作りました。</p>
 <span class="code-line">29</span>
 <span class="code-line">30</span>
 <span class="code-line">31</span>
-<span class="code-line">32</span>
-<span class="code-line">33</span>
-<span class="code-line">34</span>
-<span class="code-line">35</span>
-<span class="code-line">36</span>
-<span class="code-line">37</span>
-<span class="code-line">38</span>
-<span class="code-line">39</span>
-<span class="code-line">40</span>
-<span class="code-line">41</span>
-<span class="code-line">42</span>
-<span class="code-line">43</span>
-<span class="code-line">44</span>
-<span class="code-line">45</span>
-<span class="code-line">46</span>
-<span class="code-line">47</span>
-<span class="code-line">48</span>
-<span class="code-line">49</span>
-<span class="code-line">50</span>
-<span class="code-line">51</span>
-<span class="code-line">52</span>
-<span class="code-line">53</span>
-<span class="code-line">54</span>
-<span class="code-line">55</span>
-<span class="code-line">56</span>
-<span class="code-line">57</span>
-<span class="code-line">58</span>
-<span class="code-line">59</span>
-<span class="code-line">60</span>
-<span class="code-line">61</span>
-<span class="code-line">62</span>
-<span class="code-line">63</span>
-<span class="code-line">64</span>
-<span class="code-line">65</span>
-<span class="code-line">66</span>
-<span class="code-line">67</span>
-<span class="code-line">68</span>
-<span class="code-line">69</span>
-<span class="code-line">70</span>
-<span class="code-line">71</span>
-<span class="code-line">72</span>
-<span class="code-line">73</span>
-<span class="code-line">74</span>
-<span class="code-line">75</span>
-<span class="code-line">76</span>
-<span class="code-line">77</span>
-<span class="code-line">78</span>
-<span class="code-line">79</span>
-<span class="code-line">80</span>
-<span class="code-line">81</span>
-<span class="code-line">82</span>
-<span class="code-line">83</span>
-<span class="code-line">84</span>
-<span class="code-line">85</span>
-<span class="code-line">86</span>
-<span class="code-line">87</span>
-<span class="code-line">88</span>
-<span class="code-line">89</span>
-<span class="code-line">90</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kr">import</span> <span class="nx">Player</span> <span class="nx">from</span> <span class="s2">&quot;./player&quot;</span></span>
+<span class="code-line">32</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Counter</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">GenServer</span></span>
 <span class="code-line"></span>
-<span class="code-line"><span class="kd">let</span> <span class="nx">Video</span> <span class="o">=</span> <span class="p">{</span></span>
-<span class="code-line"><span class="p">...</span></span>
-<span class="code-line">    <span class="nx">onReady</span><span class="p">(</span><span class="nx">videoId</span><span class="p">,</span> <span class="nx">socket</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">msgContainer</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-container&quot;</span><span class="p">);</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">msgInput</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-input&quot;</span><span class="p">);</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">postButton</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;msg-submit&quot;</span><span class="p">);</span></span>
-<span class="code-line">        <span class="c1">// トピックの識別</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">vidChannel</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">channel</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">+</span> <span class="nx">videoId</span><span class="p">);</span></span>
+<span class="code-line">  <span class="c1"># listenにメッセージを送信する</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">inc</span><span class="p">(</span><span class="n">pid</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:inc</span><span class="p">)</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">dec</span><span class="p">(</span><span class="n">pid</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:dec</span><span class="p">)</span></span>
 <span class="code-line"></span>
-<span class="code-line">        <span class="nx">postButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">            <span class="kd">let</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">msgInput</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="nx">at</span><span class="o">:</span> <span class="nx">Player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">()</span> <span class="p">};</span></span>
-<span class="code-line">            <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="nx">payload</span><span class="p">)</span></span>
-<span class="code-line">                <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">));</span></span>
-<span class="code-line">            <span class="nx">msgInput</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span></span>
-<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">val</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># 値が返ってくるのを待つ必要があるため同期呼び出し</span></span>
+<span class="code-line">    <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:val</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">        <span class="c1">// サーバーからのプッシュイベントを受け取るイベントハンドラを設定</span></span>
-<span class="code-line">        <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">            <span class="k">this</span><span class="p">.</span><span class="nx">renderAnnotation</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">resp</span><span class="p">);</span></span>
-<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">start_link</span><span class="p">(</span><span class="n">initial_val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="bp">__MODULE__</span><span class="p">,</span> <span class="n">initial_val</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">        <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">            <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span></span>
-<span class="code-line">            <span class="kd">let</span> <span class="nx">seconds</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-seek&quot;</span><span class="p">)</span> <span class="o">||</span></span>
-<span class="code-line">                <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-seek&quot;</span><span class="p">);</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">initial_val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">initial_val</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">seconds</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span><span class="p">;</span> <span class="p">}</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">handle_cast</span><span class="p">(</span><span class="ss">:inc</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">            <span class="nx">Player</span><span class="p">.</span><span class="nx">seekTo</span><span class="p">(</span><span class="nx">seconds</span><span class="p">);</span></span>
-<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">handle_cast</span><span class="p">(</span><span class="ss">:dec</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">val</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"></span>
-<span class="code-line">        <span class="c1">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span></span>
-<span class="code-line">        <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">join</span><span class="p">()</span></span>
-<span class="code-line">            <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="nx">resp</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">                <span class="k">this</span><span class="p">.</span><span class="nx">scheduleMessages</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">annotations</span><span class="p">)</span></span>
-<span class="code-line">            <span class="p">})</span></span>
-<span class="code-line">            <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reason</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;join failed&quot;</span><span class="p">,</span> <span class="nx">reason</span><span class="p">));</span></span>
-<span class="code-line">    <span class="p">},</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="nx">esc</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">div</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span></span>
-<span class="code-line">        <span class="nx">div</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="nx">str</span><span class="p">));</span></span>
-<span class="code-line">        <span class="k">return</span> <span class="nx">div</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">;</span></span>
-<span class="code-line">    <span class="p">},</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="nx">renderAnnotation</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="p">{</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">at</span> <span class="p">})</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">template</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span></span>
-<span class="code-line"></span>
-<span class="code-line">        <span class="nx">template</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="sb">`</span></span>
-<span class="code-line"><span class="sb">        &lt;a href=&quot;#&quot; data-seek=&quot;</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">esc</span><span class="p">(</span><span class="nx">at</span><span class="p">)</span><span class="si">}</span><span class="sb">&quot;&gt;</span></span>
-<span class="code-line"><span class="sb">            [</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">formatTime</span><span class="p">(</span><span class="nx">at</span><span class="p">)</span><span class="si">}</span><span class="sb">]</span></span>
-<span class="code-line"><span class="sb">            &lt;b&gt;</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">esc</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">username</span><span class="p">)</span><span class="si">}</span><span class="sb">&lt;/b&gt;: </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">esc</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span><span class="si">}</span><span class="sb"></span></span>
-<span class="code-line"><span class="sb">        &lt;/a&gt;</span></span>
-<span class="code-line"><span class="sb">        `</span><span class="p">;</span></span>
-<span class="code-line"></span>
-<span class="code-line">        <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">template</span><span class="p">);</span></span>
-<span class="code-line">        <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">scrollTop</span> <span class="o">=</span> <span class="nx">msgContainer</span><span class="p">.</span><span class="nx">scrollHeight</span><span class="p">;</span></span>
-<span class="code-line">    <span class="p">},</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="nx">scheduleMessages</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">annotations</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="nx">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">            <span class="kd">let</span> <span class="nx">ctime</span> <span class="o">=</span> <span class="nx">Player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">();</span></span>
-<span class="code-line">            <span class="kd">let</span> <span class="nx">remaining</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">renderAtTime</span><span class="p">(</span><span class="nx">annotations</span><span class="p">,</span> <span class="nx">ctime</span><span class="p">,</span> <span class="nx">msgContainer</span><span class="p">);</span></span>
-<span class="code-line">            <span class="k">this</span><span class="p">.</span><span class="nx">scheduleMessages</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">remaining</span><span class="p">);</span></span>
-<span class="code-line">        <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span></span>
-<span class="code-line">    <span class="p">},</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="nx">renderAtTime</span><span class="p">(</span><span class="nx">annotations</span><span class="p">,</span> <span class="nx">seconds</span><span class="p">,</span> <span class="nx">msgContainer</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="k">return</span> <span class="nx">annotations</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">ann</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">            <span class="k">if</span> <span class="p">(</span><span class="nx">ann</span><span class="p">.</span><span class="nx">at</span> <span class="o">&gt;</span> <span class="nx">seconds</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">                <span class="c1">// コメントした時間以降で無ければ表示しない</span></span>
-<span class="code-line">                <span class="k">return</span> <span class="kc">true</span><span class="p">;</span></span>
-<span class="code-line">            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span></span>
-<span class="code-line">                <span class="c1">// 表示してリストから除外する</span></span>
-<span class="code-line">                <span class="k">this</span><span class="p">.</span><span class="nx">renderAnnotation</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">ann</span><span class="p">);</span></span>
-<span class="code-line">                <span class="k">return</span> <span class="kc">false</span><span class="p">;</span></span>
-<span class="code-line">            <span class="p">}</span></span>
-<span class="code-line">        <span class="p">});</span></span>
-<span class="code-line">    <span class="p">},</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="nx">formatTime</span><span class="p">(</span><span class="nx">at</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">date</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span></span>
-<span class="code-line">        <span class="nx">date</span><span class="p">.</span><span class="nx">setSeconds</span><span class="p">(</span><span class="nx">at</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span></span>
-<span class="code-line">        <span class="k">return</span> <span class="nx">date</span><span class="p">.</span><span class="nx">toISOString</span><span class="p">().</span><span class="nx">substr</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span></span>
-<span class="code-line">    <span class="p">}</span></span>
-<span class="code-line"><span class="p">}</span></span>
-<span class="code-line"></span>
-<span class="code-line"><span class="kr">export</span> <span class="k">default</span> <span class="nx">Video</span><span class="p">;</span></span>
-</pre></div>
-</td></tr></table><p>何かいっぱい追加しましたが、大したことはしていないです。</p>
-<ul class="simple">
-<li><tt class="docutils literal">join</tt> 時にリストで受け取るコメント一覧を保持</li>
-<li><tt class="docutils literal">renderAtTime</tt> 関数で投稿時間を過ぎていたらレンダリングする</li>
-<li>コメントをクリックしたら時間のところに動画をシークするイベント追加</li>
-</ul>
-<p>こんなところでしょうか。</p>
-</div>
-<div class="section" id="id4">
-<h2>切断処理の実装</h2>
-<p>切断処理を適切にハンドリングするようにします。
-現状では切断後そのまま再接続すると同じコメントがかぶってしまったりするケースがあります。
-これを回避するために最後に参照した <tt class="docutils literal">annotation</tt> のidを保持しておいて、再接続後はそれ以降のものを取得するようにします。</p>
-<p>はじめにクライアント側で最後に取得したコメントのIDを保持するように変更します。 <tt class="docutils literal">video.js</tt> を修正します。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</span>
-<span class="code-line">19</span>
-<span class="code-line">20</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="p">...</span></span>
-<span class="code-line"><span class="c1">// サーバーからのプッシュイベントを受け取るイベントハンドラを設定</span></span>
-<span class="code-line"><span class="nx">vidChannel</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;new_annotation&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">    <span class="c1">// 投稿したものが最新のIDなので保持する</span></span>
-<span class="code-line">    <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">last_seen_id</span> <span class="o">=</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span></span>
-<span class="code-line">    <span class="k">this</span><span class="p">.</span><span class="nx">renderAnnotation</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">resp</span><span class="p">);</span></span>
-<span class="code-line"><span class="p">});</span></span>
-<span class="code-line"><span class="p">...</span></span>
-<span class="code-line"><span class="c1">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span></span>
-<span class="code-line"><span class="nx">vidChannel</span><span class="p">.</span><span class="nx">join</span><span class="p">()</span></span>
-<span class="code-line">    <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="nx">resp</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
-<span class="code-line">        <span class="kd">let</span> <span class="nx">ids</span> <span class="o">=</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">annotations</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">ann</span> <span class="o">=&gt;</span> <span class="nx">ann</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span></span>
-<span class="code-line">        <span class="k">if</span> <span class="p">(</span><span class="nx">ids</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span></span>
-<span class="code-line">            <span class="c1">// 再生したコメントの最後のものを取得</span></span>
-<span class="code-line">            <span class="nx">vidChannel</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">last_seen_id</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(...</span><span class="nx">ids</span><span class="p">);</span></span>
-<span class="code-line">        <span class="p">}</span></span>
-<span class="code-line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">vidChannel</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">last_seen_id</span><span class="p">);</span></span>
-<span class="code-line">        <span class="k">this</span><span class="p">.</span><span class="nx">scheduleMessages</span><span class="p">(</span><span class="nx">msgContainer</span><span class="p">,</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">annotations</span><span class="p">)</span></span>
-<span class="code-line">    <span class="p">})</span></span>
-<span class="code-line">    <span class="p">.</span><span class="nx">receive</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="nx">reason</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;join failed&quot;</span><span class="p">,</span> <span class="nx">reason</span><span class="p">));</span></span>
-</pre></div>
-</td></tr></table><p>最後に取得したコメントIDを <tt class="docutils literal">last_seen_id</tt> を <tt class="docutils literal">params</tt> のパラメータとして保持します。
-<tt class="docutils literal">vidChannel.params</tt> は最初から用意されており、自動でサーバー側にも送信されるパラメータです。</p>
-<p><tt class="docutils literal">last_seen_id</tt> を使うように <tt class="docutils literal">video_channel.ex</tt> の <tt class="docutils literal">join</tt> 関数を変更します。</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</span>
-<span class="code-line">16</span>
-<span class="code-line">17</span>
-<span class="code-line">18</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;videos:&quot;</span> <span class="o">&lt;&gt;</span> <span class="n">video_id</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="n">last_seen_id</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;last_seen_id&quot;</span><span class="p">]</span> <span class="o">||</span> <span class="mi">0</span></span>
-<span class="code-line">  <span class="n">video_id</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">video_id</span><span class="p">)</span></span>
-<span class="code-line">  <span class="n">video</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="nc">Rumbl.Video</span><span class="p">,</span> <span class="n">video_id</span><span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">annotations</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">all</span><span class="p">(</span></span>
-<span class="code-line">    <span class="c1"># videoに紐づくannotationsを取得</span></span>
-<span class="code-line">    <span class="n">from</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">assoc</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="ss">:annotations</span><span class="p">),</span></span>
-<span class="code-line">      <span class="ss">where</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="o">^</span><span class="n">last_seen_id</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">order_by</span><span class="p">:</span> <span class="p">[</span><span class="ss">asc</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">at</span><span class="p">,</span> <span class="ss">asc</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">id</span><span class="p">],</span></span>
-<span class="code-line">      <span class="ss">limit</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span></span>
-<span class="code-line">      <span class="ss">preload</span><span class="p">:</span> <span class="p">[</span><span class="ss">:user</span><span class="p">]</span></span>
-<span class="code-line">  <span class="p">)</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">resp</span> <span class="o">=</span> <span class="p">%{</span><span class="ss">annotations</span><span class="p">:</span> <span class="nc">Phoenix.View</span><span class="o">.</span><span class="n">render_many</span><span class="p">(</span><span class="n">annotations</span><span class="p">,</span> <span class="nc">AnnotationView</span><span class="p">,</span> <span class="s2">&quot;annotation.json&quot;</span><span class="p">)}</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">resp</span><span class="p">,</span> <span class="n">assign</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="ss">:video_id</span><span class="p">,</span> <span class="n">video_id</span><span class="p">)}</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">(</span><span class="ss">:val</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">val</span><span class="p">}</span></span>
+<span class="code-line">  <span class="k">end</span></span>
 <span class="code-line"><span class="k">end</span></span>
 </pre></div>
-</td></tr></table><p><tt class="docutils literal">join</tt> 関数内では、 <tt class="docutils literal">params</tt> を引数で受け取り <tt class="docutils literal">Map</tt> などのように使えます。
-但し、パラメータが渡されていない場合は <tt class="docutils literal">nil</tt> になるのでチェックを掛けています。</p>
-<p>これで切断後の再接続用処理が実装出来ました。</p>
+</td></tr></table><p><tt class="docutils literal">GenServer</tt> を使ったものに変更しました。大分すっきりしました。
+同期処理の <tt class="docutils literal">handle_call</tt> は値を返すことを期待するため <tt class="docutils literal">{:reply, val, val}</tt> を返しています。
+非同期処理の <tt class="docutils literal">handle_cast</tt> は値を返さない非同期処理なので <tt class="docutils literal">{:noreply, val ± 1}</tt> としています。</p>
+<p>また、 <tt class="docutils literal">OTP</tt> 化しましたので元の <tt class="docutils literal">Rumbl</tt> アプリに組み込んでみます。 <tt class="docutils literal">lib/rumbl.ex</tt> をちょっと変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span></span>
+<span class="code-line">  <span class="c1"># Start the Ecto repository</span></span>
+<span class="code-line">  <span class="n">supervisor</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">,</span> <span class="p">[]),</span></span>
+<span class="code-line">  <span class="c1"># Start the endpoint when the application starts</span></span>
+<span class="code-line">  <span class="n">supervisor</span><span class="p">(</span><span class="nc">Rumbl.Endpoint</span><span class="p">,</span> <span class="p">[]),</span></span>
+<span class="code-line">  <span class="c1"># Start your own worker by calling: Rumbl.Worker.start_link(arg1, arg2, arg3)</span></span>
+<span class="code-line">  <span class="n">worker</span><span class="p">(</span><span class="nc">Rumbl.Counter</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">]),</span> <span class="c1"># 追加</span></span>
+<span class="code-line"><span class="p">]</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">Rumbl</tt> アプリ起動時にワーカーとして <tt class="docutils literal">Counter</tt> を起動するように追加しました。
+ワーカーとして追加することで <tt class="docutils literal">start_link</tt> が自動で呼び出され、第二引数のものを引数として起動します。</p>
 </div>
-<div class="section" id="id5">
+<div class="section" id="id1">
+<h2>クラッシュ時の動作</h2>
+<p>せっかく <tt class="docutils literal">Supervisor Tree</tt> に <tt class="docutils literal">Counter</tt> を追加してみたので、クラッシュさせたときの動作も見てみます。</p>
+<p><tt class="docutils literal">counter.ex</tt> をクラッシュさせるようにしてみます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">initial_val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="c1"># :tickメッセージを1000ミリ秒後に自分自身に送信</span></span>
+<span class="code-line">  <span class="nc">Process</span><span class="o">.</span><span class="n">send_after</span><span class="p">(</span><span class="n">self</span><span class="p">(),</span> <span class="ss">:tick</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span></span>
+<span class="code-line">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">initial_val</span><span class="p">}</span></span>
+<span class="code-line"><span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="c1"># valが0以下になったらわざとクラッシュさせる</span></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="ss">:tick</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">when</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="k">raise</span> <span class="s2">&quot;boom!&quot;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="c1"># send_afterで自分自身に送られたものを受け取る</span></span>
+<span class="code-line"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="ss">:tick</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&quot;tick </span><span class="si">#{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span></span>
+<span class="code-line">  <span class="nc">Process</span><span class="o">.</span><span class="n">send_after</span><span class="p">(</span><span class="n">self</span><span class="p">(),</span> <span class="ss">:tick</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span></span>
+<span class="code-line">  <span class="p">{</span><span class="ss">:noreply</span><span class="p">,</span> <span class="n">val</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>以下のような表示がコンソールにされます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex&gt; tick 5</span>
+<span class="code-line">iex&gt; tick 4</span>
+<span class="code-line">iex&gt; tick 3</span>
+<span class="code-line">iex&gt; tick 2</span>
+<span class="code-line">iex&gt; tick 1</span>
+<span class="code-line">iex&gt; <span class="o">[</span>error<span class="o">]</span> GenServer <span class="c1">#PID&lt;0.348.0&gt; terminating</span></span>
+<span class="code-line">** <span class="o">(</span>RuntimeError<span class="o">)</span> boom!</span>
+<span class="code-line">    <span class="o">(</span>rumbl<span class="o">)</span> lib/rumbl/counter.ex:38: Rumbl.Counter.handle_info/2</span>
+<span class="code-line">    <span class="o">(</span>stdlib<span class="o">)</span> gen_server.erl:615: :gen_server.try_dispatch/4</span>
+<span class="code-line">    <span class="o">(</span>stdlib<span class="o">)</span> gen_server.erl:681: :gen_server.handle_msg/5</span>
+<span class="code-line">    <span class="o">(</span>stdlib<span class="o">)</span> proc_lib.erl:240: :proc_lib.init_p_do_apply/3</span>
+<span class="code-line">Last message: :tick</span>
+<span class="code-line">State: 0</span>
+<span class="code-line">iex&gt; tick 5</span>
+</pre></div>
+</td></tr></table><p>デクリメントされ0以下になったときにプロセスがクラッシュしていることがわかります。
+さらに、自動で与えていた初期値で再起動しています。</p>
+</div>
+<div class="section" id="id2">
+<h2>クラッシュ時の各戦略について</h2>
+<p><tt class="docutils literal">worker</tt> の再起動戦略は以下の設定が可能です。 <tt class="docutils literal">worker</tt> の第三引数として <tt class="docutils literal">restart: :permanent</tt> のような形式で指定します。</p>
+<ul class="simple">
+<li><tt class="docutils literal">:permanent</tt> : デフォルトの戦略。上記のような挙動をする。</li>
+<li><tt class="docutils literal">:temporary</tt> : クラッシュ時に再起動しない。</li>
+<li><tt class="docutils literal">:transient</tt> : 正常終了以外でプロセスが終了した時に再起動を行う。</li>
+</ul>
+<p>また、 <tt class="docutils literal">supervisor</tt> の監視戦略は以下のようなものがあります。</p>
+<ul class="simple">
+<li><tt class="docutils literal">:one_for_one</tt> : 子プロセスがクラッシュすると <tt class="docutils literal">Supervisor</tt> はそのプロセスだけを再起動する。</li>
+<li><tt class="docutils literal">:one_for_all</tt> : 子プロセス全てを終了して再起動する。</li>
+<li><tt class="docutils literal">:rest_for_one</tt> : 終了した子プロセスにつながるプロセスのみ全て終了後再起動する。</li>
+<li><tt class="docutils literal">:simple_one_for_one</tt> : 基本的には <tt class="docutils literal">:one_for_one</tt> だが、プロセスを動的に監視する必要がある場合に使う。 <tt class="docutils literal">Supervisor</tt> に一つの子のみ定義する必要がある。</li>
+</ul>
+</div>
+<div class="section" id="agent">
+<h2>Agentについて</h2>
+<p>今まで書いてきた <tt class="docutils literal">GenServer</tt> は <tt class="docutils literal">Agent</tt> を使うともっと短く書けます。コンソールで試してみます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>iex<span class="o">(</span>1<span class="o">)</span>&gt; import Agent</span>
+<span class="code-line">Agent</span>
+<span class="code-line">iex<span class="o">(</span>2<span class="o">)</span>&gt; <span class="o">{</span>:ok, agent<span class="o">}</span> <span class="o">=</span> start_link fn -&gt; <span class="m">5</span> end, name: MyAgent</span>
+<span class="code-line"><span class="o">{</span>:ok, <span class="c1">#PID&lt;0.351.0&gt;}</span></span>
+<span class="code-line">iex<span class="o">(</span>3<span class="o">)</span>&gt; update MyAgent, <span class="p">&amp;</span><span class="o">(</span><span class="p">&amp;</span><span class="m">1</span> + 1<span class="o">)</span></span>
+<span class="code-line">:ok</span>
+<span class="code-line">iex<span class="o">(</span>4<span class="o">)</span>&gt; update MyAgent, <span class="p">&amp;</span><span class="o">(</span><span class="p">&amp;</span><span class="m">1</span> + 1<span class="o">)</span></span>
+<span class="code-line">:ok</span>
+<span class="code-line">iex<span class="o">(</span>5<span class="o">)</span>&gt; get MyAgent, <span class="p">&amp;</span><span class="o">(</span><span class="p">&amp;</span>1<span class="o">)</span></span>
+<span class="code-line">7</span>
+<span class="code-line">iex<span class="o">(</span>6<span class="o">)</span>&gt; stop MyAgent</span>
+<span class="code-line">:ok</span>
+</pre></div>
+</td></tr></table><p>また、 <tt class="docutils literal">OTP</tt> は <tt class="docutils literal">start_link</tt> で開始時に <tt class="docutils literal">:name</tt> オプションでプロセスにPID以外の名前をつけることが出来ます。
+<tt class="docutils literal">update</tt> 関数で状態を変更出来、 <tt class="docutils literal">get</tt> 関数で状態を取得できます。
+見てわかるように <tt class="docutils literal">Agent</tt> は状態の保持に特化したものです。実際には中身で <tt class="docutils literal">GenServer</tt> が呼ばれるようです。</p>
+<p>このように <tt class="docutils literal">GenServer</tt> 上の構成物になっているものの中の一つとして <tt class="docutils literal">Phoenix.Channel</tt> があります。</p>
+</div>
+<div class="section" id="id3">
 <h2>まとめ</h2>
 <ul class="simple">
-<li>サーバー側とクライアント側で任意のパラメータを共有するときは <tt class="docutils literal">params</tt> を使う</li>
+<li>プロセスを起動するには <tt class="docutils literal">GenServer</tt> を使う。</li>
+<li>プロセスの戦略は <tt class="docutils literal">worker</tt> 自身の設定と <tt class="docutils literal">children</tt> に対する <tt class="docutils literal">supervisor</tt> の監視戦略で行う。</li>
+<li><tt class="docutils literal">Agent</tt> は <tt class="docutils literal">GenServer</tt> の状態管理特化の抽象化。</li>
+<li><tt class="docutils literal">Phoenix.Channel</tt> も <tt class="docutils literal">Agent</tt> 同様に <tt class="docutils literal">GenServer</tt> の抽象化。</li>
 </ul>
-<p>何か新しいことがあったというよりは今まで習ったものを <tt class="docutils literal">JavaScript</tt> とか <tt class="docutils literal">Elixir</tt> から上手いこと使う感じでした。</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/#disqus_thread"></a>
+                <a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/#disqus_thread"></a>
                 <hr class="uk-article-divider">
             </article>
+
+
+        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
+                <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その16</a>
+                <p class="uk-article-meta"><time datetime="2017-02-04" itemprop="datePublished">2017-02-04(土)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/#disqus_thread" itemprop="discussionUrl"></a></p>
+</p>
+                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその16</p>
+                <p>その16です。 Channel の続きからですが、コメント管理するモデルの作成からです。 モデルの作成 いつものコマンドからモデルを作成&マイグレーションします。 1 2rumbl $ mix phoenix.gen.model Annotation annotations body:text at:integer user_id:references:users video_id:references:videos rumbl $ mix ecto.migrate 完了したら user.ex と video.ex に has_many :annotations, Rumbl.Annotation を追加しておきます。 作成したらモデルを使うようにしてやります。 video_channel.ex を以下のように変更します。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 <span...</p>
+                <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/">Read More</a>
+                <hr class="uk-article-divider">
+        </article>
 
 
         <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
@@ -642,17 +499,6 @@ jsonを受けるようにして作りました。</p>
                 <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその8</p>
                 <p>その8です。 ここからchapter6です。 Ecto をコードジェネレータを色々探るみたいです。 コードジェネレータの利用 早速コードジェネレータを使ってみます。 rumbl ビデオにコメントを付けられるアプリなので Video 周りが色々と必要そうです。 Video 周りのものはコードジェネレータにおまかせしてみます。以下のコマンドを入力します。 1rumbl $ mix phoenix.gen.html Video videos user_id:references:users url:string title:string description:text モデル名の複数形とかモジュール名とかフィールドの型情報とかを与えてやっています。 マイグレーションの前に下準備を行います。 認証処理は共有で使いたいので user_controller.ex にあった authenticate/2 関数は auth.ex に外出して置きます。 1 2 3 4 5 <span...</p>
                 <a href="https://zonuko.github.io/posts/2017/01/21/programming-phoenix8/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その7</a>
-                <p class="uk-article-meta"><time datetime="2017-01-19" itemprop="datePublished">2017-01-19(木)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその7</p>
-                <p>その7です。 ここからchapter5です。認証周りをやるらしいです。 パスワードのハッシュ化 まずはパスワードのハッシュ化を行います。必要なライブラリをインストールするために mix.exs に以下のように追記を行います。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 ... def application do [mod: {Rumbl, []}, applications<span...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/19/programming-phoenix7/">Read More</a>
                 <hr class="uk-article-divider">
         </article>
 
