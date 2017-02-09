@@ -1,29 +1,34 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="ja" class="no-js lt-ie9 lt-ie8 lt-ie7" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/Blog"> <![endif]-->
-<!--[if IE 7]>         <html lang="ja" class="no-js lt-ie9 lt-ie8" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/Blog"> <![endif]-->
-<!--[if IE 8]>         <html lang="ja" class="no-js lt-ie9" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/Blog"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="ja" class="no-js" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/Blog"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html lang="ja" class="no-js lt-ie9 lt-ie8 lt-ie7" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <![endif]-->
+<!--[if IE 7]>         <html lang="ja" class="no-js lt-ie9 lt-ie8" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <![endif]-->
+<!--[if IE 8]>         <html lang="ja" class="no-js lt-ie9" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="ja" class="no-js" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <!--<![endif]-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>ぞぬこBLOG</title>
+<title>Programming Phoenix勉強その18</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="好きな趣味とか技術とかを書き散らすブログ">
+<meta name="description" content="Programming Phoenixって本を読むその18">
 <link rel="shortcut icon" href="https://zonuko.github.io/favicon.ico" type="image/vnd.microsoft.icon">
 <meta name="author" content="zonuko">
 <meta name="copyright" content="zonuko">
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:site" content="@nuhera" />
 <meta property="og:site_name" content="ぞぬこBLOG" />
-<meta property="og:title" content="ぞぬこBLOG" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://zonuko.github.io" />
-<meta name="twitter:url" content="https://zonuko.github.io" />
-<meta itemprop="name" content="ぞぬこBLOG" />
-<meta itemprop="url" content="https://zonuko.github.io"/>
-<meta property="og:description" content="好きな趣味とか技術とかを書き散らすブログ" />
-<meta name="twitter:description" content="好きな趣味とか技術とかを書き散らすブログ" />
-<meta itemprop="description" content="好きな趣味とか技術とかを書き散らすブログ" />
+
+<meta property="og:title" content="Programming phoenix勉強その18" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/" />
+<meta name="twitter:title" content="Programming phoenix勉強その18" />
+<meta name="twitter:url" content="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/" />
+<meta itemprop="url" content="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/" />
+<meta property="og:description" content="Programming Phoenixって本を読むその18" />
+<meta name="twitter:description" content="Programming Phoenixって本を読むその18" />
+<meta property="og:article:published_time" content="2017-02-09" />
+<meta property="og:article:author" content="zonuko" >
+<meta property="og:article:tag" content="Elixir">
+<meta property="og:article:tag" content="Phoenix">
+
 <link href="https://zonuko.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="ぞぬこBLOG ATOM Feed"/>
 <link href='//fonts.googleapis.com/css?family=Open+Sans:800italic' rel='stylesheet' type='text/css'>
 <link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
@@ -62,15 +67,47 @@
 
     <div class="uk-grid" data-uk-grid-margin>
 
-<div class="uk-width-medium-4-5">
+<!--
+<div class="mg-container-social uk-width-medium-1-10 uk-hidden-small">
+	
+    <div class="uk-panel" id="mg-panel-social">
+        <ul class="uk-nav uk-nav-side">
+            <li>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;" taget="_blank" class="uk-button"><i class="uk-icon-facebook-square"></i> Share</a>
+            </li>
+            <li>
+            <a href="https://twitter.com/intent/tweet?text=Programming%20Phoenix%E5%8B%89%E5%BC%B7%E3%81%9D%E3%81%AE18&url=https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/&via=nuhera" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="uk-button" target="_blank"><i class="uk-icon-twitter"></i> Tweet</a>
+            </li>
+            <li>
+            <a href="https://plus.google.com/share?url=https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" target="_blank" class="uk-button"><i class="uk-icon-google-plus-square"></i> Share</a>
+            </li>
+        </ul>
+    </div>
+   
+</div>
+ -->
 
+<div class="uk-width-medium-7-10">
 
-            <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その18</a>
-                <p class="uk-article-meta"><time datetime="2017-02-09" itemprop="datePublished">2017-02-09(木)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその18</p>
-                <section itemprop="articleBody"><p>その18です。実際に <tt class="docutils literal">OTP</tt> を使ったアプリを <tt class="docutils literal">Rumbl</tt> に組み込みます。</p>
+    <article class="uk-article">
+        <h1 class="uk-heading-large uk-article-title" itemprop="name">Programming Phoenix勉強その18</h1>
+        <p class="uk-article-meta"><time datetime="2017-02-09" itemprop="datePublished">2017-02-09(木)</time> in <a href="https://zonuko.github.io/category/programming.html">programming</a>, <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/#disqus_thread" itemprop="discussionUrl"></a></p>
+
+        <div class="share-btn hatena"></div>
+        <div class="share-btn share-btn-sub tweet"></div>
+        <div class="share-btn-last facebook_like"></div>
+
+        <script>
+        $(function () {
+            $('.hatena').socialbutton('hatena');
+            $('.tweet').socialbutton('twitter', {button: 'horizontal'});
+            $('.facebook_like').socialbutton('facebook_like', {button: 'button_count'});
+        });
+        </script>
+        
+
+        <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその18</p>
+        <section itemprop="articleBody"><p>その18です。実際に <tt class="docutils literal">OTP</tt> を使ったアプリを <tt class="docutils literal">Rumbl</tt> に組み込みます。</p>
 <div class="section" id="infosys">
 <h2>InfoSysアプリの追加</h2>
 <p><tt class="docutils literal">WolframAlpha</tt> のようなサービスを利用して動画の再生中に何かしらの質問をすると何か答えが返ってくるAPI
@@ -663,113 +700,29 @@
 <p>色々でてきて処理を追うのが大変でした。 <tt class="docutils literal">IO.inspect</tt> とかでメッセージの表示順とかを見ると分かりやすいかもしれません。</p>
 </div>
 </section>
-                <a href="https://zonuko.github.io/posts/2017/02/09/programming-phoenix18/#disqus_thread"></a>
-                <hr class="uk-article-divider">
-            </article>
+        <hr class="uk-article-divider">
+    </article>
+    
+    <!-- related article(customize) -->
+    <div>Related article</div>
+    <ul>
+        <li><a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/">Programming Phoenix勉強その17</a></li>
+    </ul>
 
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'zonuko-blog'; // required: replace example with your forum shortname
 
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その17</a>
-                <p class="uk-article-meta"><time datetime="2017-02-06" itemprop="datePublished">2017-02-06(月)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその17</p>
-                <p>その17です。ここから chapter11 です。 OTP で簡単なアプリを作ります。次の章にそれをアンブレラプロジェクトの下に置きます。 Counterアプリの作成 はじめに素朴な send と receive を使ったカウンターアプリを作ります。 lib/rumbl/counter.ex を実装します。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34defmodule Rumbl.Counter do <span...</p>
-                <a href="https://zonuko.github.io/posts/2017/02/06/programming-phoenix17/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その16</a>
-                <p class="uk-article-meta"><time datetime="2017-02-04" itemprop="datePublished">2017-02-04(土)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその16</p>
-                <p>その16です。 Channel の続きからですが、コメント管理するモデルの作成からです。 モデルの作成 いつものコマンドからモデルを作成&マイグレーションします。 1 2rumbl $ mix phoenix.gen.model Annotation annotations body:text at:integer user_id:references:users video_id:references:videos rumbl $ mix ecto.migrate 完了したら user.ex と video.ex に has_many :annotations, Rumbl.Annotation を追加しておきます。 作成したらモデルを使うようにしてやります。 video_channel.ex を以下のように変更します。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 <span...</p>
-                <a href="https://zonuko.github.io/posts/2017/02/04/programming-phoenix16/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/02/03/programming-phoenix15/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その15</a>
-                <p class="uk-article-meta"><time datetime="2017-02-03" itemprop="datePublished">2017-02-03(金)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/02/03/programming-phoenix15/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその15</p>
-                <p>その15です。ここからChapter10の Channel です。Phoenixの目玉機能の一つな気もするので楽しみです。 Channelについて ステートを持つ双方向通信である ステートフルなので Cookie などを意識しなくて良い トピックと呼ばれる単位で各会話は管理される 各々の会話はプロセスで管理され、一つがバグっても他に影響を与えないし、並列性も持つ クライアント側はES6(ES2015)で記述する 実装するにあたりクライアントとサーバーで以下3つを意識する 接続と切断 メッセージの送信 メッセージの受信 クライアントサイドの実装 というわけで、ES6でクライアントサイドから実装していきます。まず video.js を作成します。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23import Player from "./player" let Video = {...</p>
-                <a href="https://zonuko.github.io/posts/2017/02/03/programming-phoenix15/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その14</a>
-                <p class="uk-article-meta"><time datetime="2017-01-31" itemprop="datePublished">2017-01-31(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその14</p>
-                <p>その14です。その13の続きです。追加した Slug をURLに使ってアクセスできるようにします。 URLのカスタマイズ URLを単なるID指定から id + 先程作成した slug でアクセスできるようにします。 Phoenix.Param を impl することでカスタマイズ可能です。 1 2 3 4 5defimpl Phoenix.Param, for: Rumbl.Video do def to_param(%{slug: slug, id: id}) do "#{id}-<span...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/31/programming-phoenix14/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その13</a>
-                <p class="uk-article-meta"><time datetime="2017-01-30" itemprop="datePublished">2017-01-30(月)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその13</p>
-                <p>その13です。ここからPart2です。ここから機能をちゃんと整備します。 ビデオに対してリアルタイムコメントを付けられるように ビデオを再生可能に をやっていくようです。はじめにビデオを再生可能にしていきます。 視聴用ページ作成 投稿されたビデオを見るためのページを作ります。いつものを作るのでソースのみ提示します。 app.html.eex に投稿一覧表示用メニューを付けます。 1 2 3 4 5 6 7 8 9 10 11... <body> <div class="container"> <header class="header"> <ol class="breadcrumb text-right"> <!-- assignsで突っ込んだものが使えている -->...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その12</a>
-                <p class="uk-article-meta"><time datetime="2017-01-29" itemprop="datePublished">2017-01-29(日)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその12</p>
-                <p>その12です。テストの続きです。ビュー周りのテストからです。 テンプレートのテスト 何個か前の章でやったようにテンプレートのレンダリングも単なる関数なので簡単にテスト可能です。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28defmodule Rumbl.VideoViewTest do use Rumbl.ConnCase, async: true import Phoenix.View test <span...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/28/programming-phoenix11/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その11</a>
-                <p class="uk-article-meta"><time datetime="2017-01-28" itemprop="datePublished">2017-01-28(土)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/28/programming-phoenix11/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその11</p>
-                <p>その11です。chapter8です。テストですよ 環境が test になるのでChapter7でやったWindows用コンパイルをやっておきます。細かい部分は省きます。 1rumbl> set "MIX_ENV=test" && mix deps.compile テスト用に自動生成されるコードについて テストを実行する前に自動生成された video_controller_test.exs を削除しておきます。 conn_case.ex を見るとテストの初期設定がかいてあるっぽいです。ちなみに最新版だと書籍のやつと大分違います。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30defmodule...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/28/programming-phoenix11/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その10</a>
-                <p class="uk-article-meta"><time datetime="2017-01-24" itemprop="datePublished">2017-01-24(火)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその10</p>
-                <p>その10です。 chapter7の続きです。 Ecto.Queryの利用 前のChapterで調べた Ecto.Query を利用して Category にソート用の query と取得用の query を生成できる関数を用意します。 1 2 3 4 5 6 7def alphabetical(query) do from c in query, order_by: c.name end def names_and_ids(<span...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/24/programming-phoenix10/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-
-        <article class="uk-article" itemtype="http://schema.org/BlogPosting" itemscope="itemscope" itemprop="blogPost">
-                <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/" class="uk-article-title uk-link-muted" itemprop="name">Programming Phoenix勉強その9</a>
-                <p class="uk-article-meta"><time datetime="2017-01-22" itemprop="datePublished">2017-01-22(日)</time> • <a href="https://zonuko.github.io/category/programming.html">programming</a> • <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/#disqus_thread" itemprop="discussionUrl"></a></p>
-</p>
-                <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその9</p>
-                <p>その9です。 ここからchapter7です。 Ecto の続きっぽいです。 videoのカテゴリー追加 ビデオにカテゴリーを付けられるようにします。ジェネレータを使って category モデルを生成します。ついでに色々準備もします。 以下のコマンドを実行します。 1rumbl $ mix phoenix.gen.model Category categories name:string 出来上がったマイグレーションファイルを編集します。 NOT NULL 制約とか付けます。 1 2 3 4 5 6 7 8 9 10 11 12 13defmodule Rumbl.Repo.Migrations.CreateCategory <span...</p>
-                <a href="https://zonuko.github.io/posts/2017/01/22/programming-phoenix9/">Read More</a>
-                <hr class="uk-article-divider">
-        </article>
-
-    <ul class="uk-pagination">
-        <li class="uk-active"><span>1</span></li>
-<li><a href="https://zonuko.github.io/index2.html"><i class="uk-icon-angle-double-right"></i></a></li><li><a href="https://zonuko.github.io/index2.html">2</a></li>    </ul>
-
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 </div>
 
         <div class="uk-width-medium-1-5 uk-hidden-small">
@@ -784,7 +737,7 @@
                 <ul class="uk-nav uk-nav-side">
                     <li class="uk-nav-header">Categories</li>
                     <li ><a href="https://zonuko.github.io/category/misc.html">misc</a></li>
-                    <li ><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
+                    <li class="uk-active"><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
                     <li class="uk-nav-header">Pages</li>
 
                     <li >
@@ -863,7 +816,7 @@
         <ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
             <li class="uk-nav-header">Categories</li>
             <li ><a href="https://zonuko.github.io/category/misc.html">misc</a></li>
-            <li ><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
+            <li class="uk-active"><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
             <li class="uk-nav-header">Pages</li>
             <li >
                 <a href="https://zonuko.github.io/pages/about.html">About</a>
