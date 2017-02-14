@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="ja" class="no-js lt-ie9 lt-ie8 lt-ie7" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <![endif]-->
+<!--[if IE 7]>         <html lang="ja" class="no-js lt-ie9 lt-ie8" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <![endif]-->
+<!--[if IE 8]>         <html lang="ja" class="no-js lt-ie9" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="ja" class="no-js" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/BlogPosting"> <!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Programming Phoenix勉強その13</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Programming Phoenixって本を読むその13">
+<link rel="shortcut icon" href="https://zonuko.github.io/favicon.ico" type="image/vnd.microsoft.icon">
+<meta name="author" content="zonuko">
+<meta name="copyright" content="zonuko">
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@nuhera" />
+<meta property="og:site_name" content="ぞぬこBLOG" />
+
+<meta property="og:title" content="Programming phoenix勉強その13" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" />
+<meta name="twitter:title" content="Programming phoenix勉強その13" />
+<meta name="twitter:url" content="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" />
+<meta itemprop="url" content="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" />
+<meta property="og:description" content="Programming Phoenixって本を読むその13" />
+<meta name="twitter:description" content="Programming Phoenixって本を読むその13" />
+<meta property="og:article:published_time" content="2017-01-30" />
+<meta property="og:article:author" content="zonuko" >
+<meta property="og:article:tag" content="Elixir">
+<meta property="og:article:tag" content="Phoenix">
+
+<link href="https://zonuko.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="ぞぬこBLOG ATOM Feed"/>
+<link href='//fonts.googleapis.com/css?family=Open+Sans:800italic' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/uikit/2.23.0/css/uikit.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/uikit/2.23.0/css/components/search.min.css">
+<link rel="stylesheet" href="https://zonuko.github.io/theme/css/tipuesearch.css">
+<link rel="stylesheet" href="https://zonuko.github.io/theme/css/solarized.css">
+<link rel="stylesheet" href="https://zonuko.github.io/theme/css/main.css">
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/uikit/2.23.0/js/uikit.min.js"></script>
+<script src="https://zonuko.github.io/theme/js/jquery.socialbutton-1.9.1.min.js"></script>
+</head>
+<body>
+<!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+<header class=" mg-header uk-navbar uk-navbar-attached">
+
+    <div class="uk-container uk-container-center">
+
+        <a class="mg-brand uk-navbar-brand uk-hidden-small" href="https://zonuko.github.io">ぞぬこBLOG</a>
+        <div class="mg-tagline uk-navbar-content uk-hidden-small">黒魔術師になりたいブログ</div>
+        <a class="uk-navbar-toggle uk-visible-small" href="#mg-offcanvas" data-uk-offcanvas></a>
+        <a class="mg-brand uk-navbar-brand uk-navbar-center uk-visible-small" href="https://zonuko.github.io">ぞぬこBLOG</a>
+
+    </div>
+</header>
+
+<main class="mg-main">
+
+<div class="uk-container uk-container-center">
+
+    <div class="uk-grid" data-uk-grid-margin>
+
+<!--
+<div class="mg-container-social uk-width-medium-1-10 uk-hidden-small">
+	
+    <div class="uk-panel" id="mg-panel-social">
+        <ul class="uk-nav uk-nav-side">
+            <li>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;" taget="_blank" class="uk-button"><i class="uk-icon-facebook-square"></i> Share</a>
+            </li>
+            <li>
+            <a href="https://twitter.com/intent/tweet?text=Programming%20Phoenix%E5%8B%89%E5%BC%B7%E3%81%9D%E3%81%AE13&url=https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/&via=nuhera" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" class="uk-button" target="_blank"><i class="uk-icon-twitter"></i> Tweet</a>
+            </li>
+            <li>
+            <a href="https://plus.google.com/share?url=https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" target="_blank" class="uk-button"><i class="uk-icon-google-plus-square"></i> Share</a>
+            </li>
+        </ul>
+    </div>
+   
+</div>
+ -->
+
+<div class="uk-width-medium-7-10">
+
+    <article class="uk-article">
+        <h1 class="uk-heading-large uk-article-title" itemprop="name">Programming Phoenix勉強その13</h1>
+        <p class="uk-article-meta"><time datetime="2017-01-30" itemprop="datePublished">2017-01-30(月)</time> in <a href="https://zonuko.github.io/category/programming.html">programming</a>, <br class="uk-visible-small"><i class="uk-icon-comment"></i> <a href="https://zonuko.github.io/posts/2017/01/30/programming-phoenix13/#disqus_thread" itemprop="discussionUrl"></a></p>
+
+        <div class="share-btn hatena"></div>
+        <div class="share-btn share-btn-sub tweet"></div>
+        <div class="share-btn-last facebook_like"></div>
+
+        <script>
+        $(function () {
+            $('.hatena').socialbutton('hatena');
+            $('.tweet').socialbutton('twitter', {button: 'horizontal'});
+            $('.facebook_like').socialbutton('facebook_like', {button: 'button_count'});
+        });
+        </script>
+        
+
+        <p class="uk-article-lead" itemprop="description">Programming Phoenixって本を読むその13</p>
+        <section itemprop="articleBody"><p>その13です。ここからPart2です。ここから機能をちゃんと整備します。</p>
+<ul class="simple">
+<li>ビデオに対してリアルタイムコメントを付けられるように</li>
+<li>ビデオを再生可能に</li>
+</ul>
+<p>をやっていくようです。はじめにビデオを再生可能にしていきます。</p>
+<div class="section" id="id1">
+<h2>視聴用ページ作成</h2>
+<p>投稿されたビデオを見るためのページを作ります。いつものを作るのでソースのみ提示します。
+<tt class="docutils literal">app.html.eex</tt> に投稿一覧表示用メニューを付けます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">...</span></span>
+<span class="code-line"><span class="x">&lt;body&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;container&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;header class=&quot;header&quot;&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;ol class=&quot;breadcrumb text-right&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;!-- assignsで突っ込んだものが使えている --&gt;</span></span>
+<span class="code-line"><span class="x">        </span><span class="cp">&lt;%=</span> <span class="k">if</span> <span class="vi">@current_user</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">          &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="vi">@current_user</span><span class="o">.</span><span class="n">username</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">          &lt;li&gt;</span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;My Videos&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">video_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:index</span><span class="p">)</span> <span class="cp">%&gt;</span><span class="x">&lt;/li&gt;</span></span>
+<span class="code-line"><span class="x">          &lt;li&gt;</span></span>
+<span class="code-line"><span class="x">...</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">watch_controller.ex</tt> を作成します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.WatchController</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:controller</span></span>
+<span class="code-line">  <span class="kn">alias</span> <span class="nc">Rumbl.Video</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">show</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&quot;id&quot;</span> <span class="o">=&gt;</span> <span class="n">id</span><span class="p">})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">video</span> <span class="o">=</span> <span class="nc">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p">(</span><span class="nc">Video</span><span class="p">,</span> <span class="n">id</span><span class="p">)</span></span>
+<span class="code-line">    <span class="n">render</span> <span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;show.html&quot;</span><span class="p">,</span> <span class="ss">video</span><span class="p">:</span> <span class="n">video</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">wathc/show.html.eex</tt> を作成します。コメント入力欄がある唯のページです。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">&lt;h2&gt;</span><span class="cp">&lt;%=</span> <span class="vi">@video</span><span class="o">.</span><span class="n">title</span> <span class="cp">%&gt;</span><span class="x">&lt;/h2&gt;</span></span>
+<span class="code-line"><span class="x">&lt;div class=&quot;row&quot;&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;col-sm-7&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">content_tag</span> <span class="ss">:div</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="s2">&quot;video&quot;</span><span class="p">,</span></span>
+<span class="code-line">          <span class="ss">data</span><span class="p">:</span> <span class="o">[</span><span class="nb">id</span><span class="p">:</span> <span class="vi">@video</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="ss">player_id</span><span class="p">:</span> <span class="n">player_id</span><span class="p">(</span><span class="vi">@video</span><span class="p">)</span><span class="o">]</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">    </span><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;div class=&quot;col-sm-5&quot;&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;div class=&quot;panel panel-default&quot;&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;div class=&quot;panel-heading&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;h3 class=&quot;panel-title&quot;&gt;Annotations&lt;/h3&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;div id=&quot;msg-container&quot; class=&quot;panel-body annotations&quot;&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;div class=&quot;panel-footer&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;textarea id=&quot;msg-input&quot;</span></span>
+<span class="code-line"><span class="x">                  rows=&quot;3&quot;</span></span>
+<span class="code-line"><span class="x">                  class=&quot;form-control&quot;</span></span>
+<span class="code-line"><span class="x">                  placeholder=&quot;Comment...&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;/textarea&gt;</span></span>
+<span class="code-line"><span class="x">        &lt;button id=&quot;msg-submit&quot; class=&quot;btn btn-primary form-control&quot;</span></span>
+<span class="code-line"><span class="x">            type=&quot;submit&quot;&gt;</span></span>
+<span class="code-line"><span class="x">          Post</span></span>
+<span class="code-line"><span class="x">        &lt;/button&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">    &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">  &lt;/div&gt;</span></span>
+<span class="code-line"><span class="x">&lt;/div&gt;</span></span>
+</pre></div>
+</td></tr></table><p>上記テンプレート内で <tt class="docutils literal">player_id/1</tt> という関数を使っているので <tt class="docutils literal">watch_view.ex</tt> を実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.WatchView</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:view</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">player_id</span><span class="p">(</span><span class="n">video</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="sx">~r{^.*(?:youtu\.be/|\w+/|v=)(?&lt;id&gt;[^</span><span class="err">#</span><span class="sx">&amp;?]*)}</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">Regex</span><span class="o">.</span><span class="n">named_captures</span><span class="p">(</span><span class="n">video</span><span class="o">.</span><span class="n">url</span><span class="p">)</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">get_in</span><span class="p">([</span><span class="s2">&quot;id&quot;</span><span class="p">])</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>正規表現を使って投稿されたYouTubeのURLに対してパラメータ部分のみを取り出しています。
+<tt class="docutils literal">router.ex</tt> に <tt class="docutils literal">/</tt> スコープに <tt class="docutils literal">get <span class="pre">&quot;/watch/:id&quot;,</span> WatchController, :show</tt> を追加しておきます。</p>
+<p>最後に、ビデオ一覧画面にウォッチ画面へのリンクボタンを作成します。 <tt class="docutils literal">video/index.html.eex</tt> に以下を追加します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="x">...</span></span>
+<span class="code-line"><span class="x">&lt;tbody&gt;</span></span>
+<span class="code-line"><span class="x">  </span><span class="cp">&lt;%=</span> <span class="k">for</span> <span class="n">video</span> <span class="o">&lt;-</span> <span class="vi">@videos</span> <span class="k">do</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">    &lt;tr&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">user_id</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">url</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">title</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"><span class="x">      &lt;td&gt;</span><span class="cp">&lt;%=</span> <span class="n">video</span><span class="o">.</span><span class="n">description</span> <span class="cp">%&gt;</span><span class="x">&lt;/td&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="x">      &lt;td class=&quot;text-right&quot;&gt;</span></span>
+<span class="code-line"><span class="x">        </span><span class="cp">&lt;%=</span> <span class="n">link</span> <span class="s2">&quot;Watch&quot;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="n">watch_path</span><span class="p">(</span><span class="vi">@conn</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="n">video</span><span class="p">),</span> <span class="ss">class</span><span class="p">:</span> <span class="s2">&quot;btn btn-default btn-xs&quot;</span> <span class="cp">%&gt;</span><span class="x"></span></span>
+<span class="code-line"><span class="x">...</span></span>
+</pre></div>
+</td></tr></table><p>これで準備は完了です。次からJavaScript側のコードを作成します。</p>
+</div>
+<div class="section" id="id2">
+<h2>視聴用ページ作成</h2>
+<p>最初にPhoenixでのJavaScriptのビルド周りについて触れられています。</p>
+<ul class="simple">
+<li>ビルドツールは <tt class="docutils literal">Brunch</tt> がデフォルト</li>
+<li><tt class="docutils literal">Brunch</tt> の設定はデフォルトでES6になっている</li>
+<li><tt class="docutils literal">Brunch</tt> を使わないように変えることも可能。プロジェクト作成時に <tt class="docutils literal"><span class="pre">--no-Brunch</span></tt> オプションを与えると最初から除ける。</li>
+<li><tt class="docutils literal">web/static/js</tt> 以下にあるファイルをすべて <tt class="docutils literal">app.js</tt> にまとめる</li>
+<li>staticファイルの読み込みは <tt class="docutils literal"><span class="pre">static_path(&#64;conn,</span> &quot;/js/app.js&quot;)</tt> で行う</li>
+<li>モジュールシステムを利用しないライブラリは <tt class="docutils literal">web/static/vendor</tt> に追加する<ul>
+<li>公式ドキュメントによると <tt class="docutils literal">bower</tt> で入れたものはこっちに配備されるっぽい？</li>
+</ul>
+</li>
+</ul>
+<p>というわけでJavaScript周りを実装します。 <tt class="docutils literal">static/js/player.js</tt> を以下の通り実装します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">let</span> <span class="nx">Player</span> <span class="o">=</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">player</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">init</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">player</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="nb">window</span><span class="p">.</span><span class="nx">onYouTubeIframeAPIReady</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="k">this</span><span class="p">.</span><span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">player</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">);</span></span>
+<span class="code-line">        <span class="p">};</span></span>
+<span class="code-line">        <span class="kd">let</span> <span class="nx">youtubeScriptTag</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// APIの読み込み APIが読み込まれるとonYouTubeIframeAPIReady関数が自動で呼ばれる</span></span>
+<span class="code-line">        <span class="nx">youtubeScriptTag</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;//www.youtube.com/iframe_api&quot;</span><span class="p">;</span></span>
+<span class="code-line">        <span class="nb">document</span><span class="p">.</span><span class="nx">head</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">youtubeScriptTag</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="nx">onReady</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">this</span><span class="p">.</span><span class="nx">player</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">YT</span><span class="p">.</span><span class="nx">Player</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="nx">height</span><span class="o">:</span> <span class="s2">&quot;360&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">width</span><span class="o">:</span> <span class="s2">&quot;420&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">videoId</span><span class="o">:</span> <span class="nx">playerId</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">events</span><span class="o">:</span> <span class="p">{</span></span>
+<span class="code-line">                <span class="s2">&quot;onReady&quot;</span><span class="o">:</span> <span class="p">(</span><span class="nx">event</span> <span class="o">=&gt;</span> <span class="nx">onReady</span><span class="p">(</span><span class="nx">event</span><span class="p">)),</span></span>
+<span class="code-line">                <span class="s2">&quot;onStateChange&quot;</span><span class="o">:</span> <span class="p">(</span><span class="nx">event</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">))</span></span>
+<span class="code-line">            <span class="p">}</span></span>
+<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{},</span></span>
+<span class="code-line">    <span class="nx">getCurrentTime</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span> <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span> <span class="p">}</span></span>
+<span class="code-line"><span class="p">};</span></span>
+<span class="code-line"><span class="kr">export</span> <span class="k">default</span> <span class="nx">Player</span><span class="p">;</span></span>
+</pre></div>
+</td></tr></table><p>YouTubeのAPIを読み込んでいます。本筋から外れてしまうので割愛します。文法がES2015形式なので昔のJavaScriptとはちょっと変わっています。</p>
+<p>ソースを作っただけでは読み込んでくれないので <tt class="docutils literal">static/js/app.js</tt> を以下のように変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="p">...</span></span>
+<span class="code-line"><span class="kr">import</span> <span class="nx">Player</span> <span class="nx">from</span> <span class="s2">&quot;./player&quot;</span><span class="p">;</span></span>
+<span class="code-line"><span class="kd">let</span> <span class="nx">video</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">);</span></span>
+<span class="code-line"><span class="k">if</span><span class="p">(</span><span class="nx">video</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">Player</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">video</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">video</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-player-id&quot;</span><span class="p">),</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;player ready!&quot;</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">});</span></span>
+<span class="code-line"><span class="p">}</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">import</tt> 文もES2015の文法だったと記憶してます。これも特に言うことはありません。</p>
+<p>こんな感じで実装して実行したあと、 <tt class="docutils literal">priv/static/js/app.js</tt> を見に行くとソースがまとめられていることがわかります。
+抜粋して載せてみます。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</span>
+<span class="code-line">32</span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">var</span> <span class="nx">Player</span> <span class="o">=</span> <span class="p">{</span></span>
+<span class="code-line">    <span class="nx">player</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">init</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">plyerId</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span></span>
+<span class="code-line"></span>
+<span class="code-line">        <span class="nb">window</span><span class="p">.</span><span class="nx">onYouTubeIframeAPIReady</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="nx">_this</span><span class="p">.</span><span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="nx">onReadby</span><span class="p">);</span></span>
+<span class="code-line">        <span class="p">};</span></span>
+<span class="code-line">        <span class="kd">var</span> <span class="nx">youtubeScriptTag</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;script&quot;</span><span class="p">);</span></span>
+<span class="code-line">        <span class="c1">// APIの読み込み APIが読み込まれるとonYouTubeIframeAPIReady関数が自動で呼ばれる</span></span>
+<span class="code-line">        <span class="nx">youtubeScriptTag</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s2">&quot;//www.youtube.com/iframe_api&quot;</span><span class="p">;</span></span>
+<span class="code-line">        <span class="nb">document</span><span class="p">.</span><span class="nx">head</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">youtubeScriptTag</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">onIframeReady</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onIframeReady</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="nx">playerId</span><span class="p">,</span> <span class="nx">_onReady</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="kd">var</span> <span class="nx">_this2</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span></span>
+<span class="code-line"></span>
+<span class="code-line">        <span class="k">this</span><span class="p">.</span><span class="nx">player</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">YT</span><span class="p">.</span><span class="nx">Player</span><span class="p">(</span><span class="nx">domId</span><span class="p">,</span> <span class="p">{</span></span>
+<span class="code-line">            <span class="nx">height</span><span class="o">:</span> <span class="s2">&quot;360&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">width</span><span class="o">:</span> <span class="s2">&quot;420&quot;</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">videoId</span><span class="o">:</span> <span class="nx">playerId</span><span class="p">,</span></span>
+<span class="code-line">            <span class="nx">events</span><span class="o">:</span> <span class="p">{</span></span>
+<span class="code-line">                <span class="s2">&quot;onReady&quot;</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onReady</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">                    <span class="k">return</span> <span class="nx">_onReady</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span></span>
+<span class="code-line">                <span class="p">},</span></span>
+<span class="code-line">                <span class="s2">&quot;onStateChange&quot;</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">                    <span class="k">return</span> <span class="nx">_this2</span><span class="p">.</span><span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span></span>
+<span class="code-line">                <span class="p">}</span></span>
+<span class="code-line">            <span class="p">}</span></span>
+<span class="code-line">        <span class="p">});</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">onPlayerStateChange</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">onPlayerStateChange</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{},</span></span>
+<span class="code-line">    <span class="nx">getCurrentTime</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">getCurrentTime</span><span class="p">()</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">getCurrentTime</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">},</span></span>
+<span class="code-line">    <span class="nx">seekTo</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span><span class="p">)</span> <span class="p">{</span></span>
+<span class="code-line">        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">player</span><span class="p">.</span><span class="nx">seekTo</span><span class="p">(</span><span class="nx">millsec</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span></span>
+<span class="code-line">    <span class="p">}</span></span>
+<span class="code-line"><span class="p">};</span></span>
+<span class="code-line"><span class="nx">exports</span><span class="p">.</span><span class="k">default</span> <span class="o">=</span> <span class="nx">Player</span><span class="p">;</span></span>
+<span class="code-line"><span class="p">});</span></span>
+</pre></div>
+</td></tr></table></div>
+<div class="section" id="id3">
+<h2>スラッグの追加</h2>
+<p>各ビデオを任意のURLでアクセス出来るように <tt class="docutils literal">Slug</tt> を付けます。</p>
+<p><tt class="docutils literal">mix ecto.gen.migration add_slug_to_video</tt> を実行後以下のようにマイグレーションファイルを変更します。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
+<span class="code-line">2</span>
+<span class="code-line">3</span>
+<span class="code-line">4</span>
+<span class="code-line">5</span>
+<span class="code-line">6</span>
+<span class="code-line">7</span>
+<span class="code-line">8</span>
+<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.AddSlugToVideo</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">alter</span> <span class="n">table</span><span class="p">(</span><span class="ss">:videos</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">add</span> <span class="ss">:slug</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p>出来たらマイグレーションを実行後、 <tt class="docutils literal">video.ex</tt> で新たに追加された <tt class="docutils literal">slug</tt> カラムを使うようにします。</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
+<span class="code-line"> 2</span>
+<span class="code-line"> 3</span>
+<span class="code-line"> 4</span>
+<span class="code-line"> 5</span>
+<span class="code-line"> 6</span>
+<span class="code-line"> 7</span>
+<span class="code-line"> 8</span>
+<span class="code-line"> 9</span>
+<span class="code-line">10</span>
+<span class="code-line">11</span>
+<span class="code-line">12</span>
+<span class="code-line">13</span>
+<span class="code-line">14</span>
+<span class="code-line">15</span>
+<span class="code-line">16</span>
+<span class="code-line">17</span>
+<span class="code-line">18</span>
+<span class="code-line">19</span>
+<span class="code-line">20</span>
+<span class="code-line">21</span>
+<span class="code-line">22</span>
+<span class="code-line">23</span>
+<span class="code-line">24</span>
+<span class="code-line">25</span>
+<span class="code-line">26</span>
+<span class="code-line">27</span>
+<span class="code-line">28</span>
+<span class="code-line">29</span>
+<span class="code-line">30</span>
+<span class="code-line">31</span>
+<span class="code-line">32</span>
+<span class="code-line">33</span>
+<span class="code-line">34</span>
+<span class="code-line">35</span>
+<span class="code-line">36</span>
+<span class="code-line">37</span>
+<span class="code-line">38</span>
+<span class="code-line">39</span>
+<span class="code-line">40</span>
+<span class="code-line">41</span>
+<span class="code-line">42</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Video</span> <span class="k">do</span></span>
+<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:model</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="n">schema</span> <span class="s2">&quot;videos&quot;</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:url</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:string</span></span>
+<span class="code-line">    <span class="n">field</span> <span class="ss">:slug</span><span class="p">,</span> <span class="ss">:string</span> <span class="c1"># 追加</span></span>
+<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:user</span><span class="p">,</span> <span class="nc">Rumbl.User</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">belongs_to</span> <span class="ss">:category</span><span class="p">,</span> <span class="nc">Rumbl.Category</span></span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="n">timestamps</span><span class="p">()</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="na">@doc</span> <span class="sh">&quot;&quot;&quot;</span></span>
+<span class="code-line"><span class="sh">  Builds a changeset based on the `struct` and `params`.</span></span>
+<span class="code-line"><span class="sh">  &quot;&quot;&quot;</span></span>
+<span class="code-line">  <span class="kd">def</span> <span class="n">changeset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">params</span> <span class="p">\\</span> <span class="p">%{})</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">struct</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">cast</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">[</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">,</span> <span class="ss">:category_id</span><span class="p">])</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">validate_required</span><span class="p">([</span><span class="ss">:url</span><span class="p">,</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="p">])</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">slugify_title</span><span class="p">()</span> <span class="c1"># タイトルをSlugに変換</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="n">assoc_constraint</span><span class="p">(</span><span class="ss">:category</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">slugify_title</span><span class="p">(</span><span class="n">changeset</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="c1"># タイトルからSlugを作成する</span></span>
+<span class="code-line">    <span class="c1"># changesetを弄るだけで変更予定データの追加などが出来ている</span></span>
+<span class="code-line">    <span class="k">if</span> <span class="n">title</span> <span class="o">=</span> <span class="n">get_change</span><span class="p">(</span><span class="n">changeset</span><span class="p">,</span> <span class="ss">:title</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">      <span class="n">put_change</span><span class="p">(</span><span class="n">changeset</span><span class="p">,</span> <span class="ss">:slug</span><span class="p">,</span> <span class="n">slugify</span><span class="p">(</span><span class="n">title</span><span class="p">))</span></span>
+<span class="code-line">    <span class="k">else</span></span>
+<span class="code-line">      <span class="n">changeset</span></span>
+<span class="code-line">    <span class="k">end</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="kd">defp</span> <span class="n">slugify</span><span class="p">(</span><span class="n">str</span><span class="p">)</span> <span class="k">do</span></span>
+<span class="code-line">    <span class="n">str</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">downcase</span><span class="p">()</span></span>
+<span class="code-line">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sx">~r/[^\w-]+/u</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span></span>
+<span class="code-line">  <span class="k">end</span></span>
+<span class="code-line"><span class="k">end</span></span>
+</pre></div>
+</td></tr></table><p><tt class="docutils literal">get_change</tt> や <tt class="docutils literal">put_change</tt> などを使うことで、変更が <tt class="docutils literal">changeset</tt> の中だけで収まってくれています。</p>
+</div>
+<div class="section" id="id4">
+<h2>まとめ</h2>
+<ul class="simple">
+<li><tt class="docutils literal">JavaScript</tt> のビルドツールのデフォルトは <tt class="docutils literal">Brunch</tt></li>
+<li><tt class="docutils literal">JavaScript</tt> の書式はデフォルトでES2015(ES6)形式</li>
+<li>static系統のファイルは <tt class="docutils literal">web/static/*</tt> に色々おいていくとよしなにしてくれる</li>
+</ul>
+<p>全体的にクライアントサイドって感じでした。</p>
+</div>
+</section>
+        <hr class="uk-article-divider">
+    </article>
+    
+    <!-- related article(customize) -->
+    <div>Related article</div>
+    <ul>
+        <li><a href="https://zonuko.github.io/posts/2017/01/29/programming-phoenix12/">Programming Phoenix勉強その12</a></li>
+    </ul>
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'zonuko-blog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+        <div class="uk-width-medium-1-5 uk-hidden-small">
+
+            <div class="uk-panel uk-panel-box">
+                <form class="uk-search" action="search.html" data-uk-search>
+                    <input class="uk-search-field tipue_search" type="search" name="q" id="tipue_search_input" autocomplete="off" placeholder="Search...">
+                </form>
+            </div>
+
+            <div class="uk-panel uk-panel-box">
+                <ul class="uk-nav uk-nav-side">
+                    <li class="uk-nav-header">Categories</li>
+                    <li ><a href="https://zonuko.github.io/category/misc.html">misc</a></li>
+                    <li class="uk-active"><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
+                    <li class="uk-nav-header">Pages</li>
+
+                    <li >
+                        <a href="https://zonuko.github.io/pages/about.html">About</a>
+                    </li>
+
+
+                    <li class="uk-nav-divider"></li>
+                    <li ><a href="https://zonuko.github.io/archives.html">Archives</a></li>
+                </ul>
+            </div>
+
+            <div class="uk-panel uk-panel-box">
+                <h3 class="uk-panel-title">Receive Updates</h3>
+                <a rel="alternate" type="application/atom+xml" href="https://zonuko.github.io/feeds/all.atom.xml" class="mg-feed"><i class="uk-icon-rss uk-icon-medium"></i> ATOM</a>
+            </div>
+
+            <div class="uk-panel uk-panel-box">
+                <h3 class="uk-panel-title">Contacts</h3>
+                <a class="mg-icon-link" href="https://github.com/zonuko">
+                    <i class="uk-icon-github uk-icon-medium"></i>
+                </a>
+                <a class="mg-icon-link" href="https://bitbucket.org/y_fujiwara/">
+                    <i class="uk-icon-bitbucket uk-icon-medium"></i>
+                </a>
+                <a class="mg-icon-link" href="https://twitter.com/nuhera">
+                    <i class="uk-icon-twitter uk-icon-medium"></i>
+                </a>
+                <a class="mg-icon-link" href="https://twitter.com/zonuko">
+                    <i class="uk-icon-twitter uk-icon-medium"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+
+<footer class="mg-footer">
+    <div class="uk-container uk-container-center uk-text-center">
+
+        <div class="mg-icons-small uk-subnav uk-visible-small">
+            <li><a rel="alternate" type="application/atom+xml" href="https://zonuko.github.io/feeds/all.atom.xml" class="uk-icon-button uk-icon-rss"></a></li>
+            <li>
+                <a href="https://github.com/zonuko" class="uk-icon-button uk-icon-github"></a>
+            </li>
+            <li>
+                <a href="https://bitbucket.org/y_fujiwara/" class="uk-icon-button uk-icon-bitbucket"></a>
+            </li>
+            <li>
+                <a href="https://twitter.com/nuhera" class="uk-icon-button uk-icon-twitter"></a>
+            </li>
+            <li>
+                <a href="https://twitter.com/zonuko" class="uk-icon-button uk-icon-twitter"></a>
+            </li>
+        </div>
+
+        <div class="mg-author uk-panel">
+            <p></p>
+
+            <p>Powered by <a href="http://blog.getpelican.com">Pelican</a>.<br class="uk-visible-small"> Theme <a href="https://github.com/lucachr/pelican-mg">mg</a> by <a href="https://github.com/lucachr">Luca Chiricozzi</a>.</p>
+        </div>
+    </div>
+</footer>
+
+<div id="mg-offcanvas" class="uk-offcanvas">
+    <div class="uk-offcanvas-bar">
+
+        <form class="uk-search" action="search.html" data-uk-search>
+            <input class="uk-search-field" type="search" name="q" id="tipue_search_input" autocomplete="off" placeholder="Search...">
+        </form>
+
+        <ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
+            <li class="uk-nav-header">Categories</li>
+            <li ><a href="https://zonuko.github.io/category/misc.html">misc</a></li>
+            <li class="uk-active"><a href="https://zonuko.github.io/category/programming.html">programming</a></li>
+            <li class="uk-nav-header">Pages</li>
+            <li >
+                <a href="https://zonuko.github.io/pages/about.html">About</a>
+            </li>
+
+
+            <li class="uk-nav-divider"></li>
+            <li><a href="https://zonuko.github.io/">Archives</a></li>
+        </ul>
+    </div>
+</div>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/uikit/2.23.0/js/components/search.min.js"></script>
+<script src="https://zonuko.github.io/theme/js/tipuesearch_set.js"></script>
+<script src="https://zonuko.github.io/theme/js/tipuesearch.js"></script>
+<script src="https://zonuko.github.io/theme/js/jquery.sticky-kit.js"></script>
+<script src="https://zonuko.github.io/theme/js/plugins.js"></script>
+<script src="https://zonuko.github.io/theme/js/main-search.js"></script>
+<script type="text/javascript">
+/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+var disqus_shortname = 'zonuko-blog'; // required: replace example with your forum shortname
+
+/* * * DON'T EDIT BELOW THIS LINE * * */
+(function () {
+ var s = document.createElement('script'); s.async = true;
+ s.type = 'text/javascript';
+ s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+ (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+ }());
+</script>
+
+<script>
+(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+                                                        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+ e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+ e.src='//www.google-analytics.com/analytics.js';
+ r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-89443473-1');ga('send','pageview');
+</script>
+
+</body>
+</html>
