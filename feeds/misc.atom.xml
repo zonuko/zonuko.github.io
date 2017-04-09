@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>ぞぬこBLOG</title><link href="https://zonuko.github.io/" rel="alternate"></link><link href="https://zonuko.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://zonuko.github.io/</id><updated>2016-12-25T21:50:00+09:00</updated><entry><title>ブログ書くことにした</title><link href="https://zonuko.github.io/posts/2016/12/25/my-first-article/" rel="alternate"></link><published>2016-12-25T21:50:00+09:00</published><updated>2016-12-25T21:50:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2016-12-25:posts/2016/12/25/my-first-article/</id><summary type="html">&lt;p&gt;大した理由は無いけど色々あってブログを書くことにしました。&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>ぞぬこBLOG - misc</title><link href="https://zonuko.github.io/" rel="alternate"></link><link href="https://zonuko.github.io/feeds/misc.atom.xml" rel="self"></link><id>https://zonuko.github.io/</id><updated>2016-12-25T21:50:00+09:00</updated><entry><title>ブログ書くことにした</title><link href="https://zonuko.github.io/posts/2016/12/25/my-first-article/" rel="alternate"></link><published>2016-12-25T21:50:00+09:00</published><updated>2016-12-25T21:50:00+09:00</updated><author><name>zonuko</name></author><id>tag:zonuko.github.io,2016-12-25:/posts/2016/12/25/my-first-article/</id><summary type="html">&lt;p class="first last"&gt;ブログ書くことにした&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;大した理由は無いけど色々あってブログを書くことにしました。&lt;/p&gt;
 &lt;div class="section" id="id2"&gt;
 &lt;h2&gt;動機&lt;/h2&gt;
 &lt;p&gt;始めようと思った理由は以下のような感じです。&lt;/p&gt;
@@ -66,4 +67,4 @@
 &lt;/div&gt;
 &lt;p&gt;PS. 何故か社内Redmineとかも丁寧語になってしまう現象が・・・&lt;/p&gt;
 &lt;/div&gt;
-</summary><category term="misc"></category></entry></feed>
+</content><category term="misc"></category></entry></feed>
