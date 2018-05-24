@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>Programming Phoenix勉強その5 - ぞぬこBLOG</title>
+    <title>社会に出て3年間でやってたこと - ぞぬこBLOG</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -10,21 +10,21 @@
 
     <link href="https://zonuko.github.io/favicon.ico" rel="icon">
 
-<link rel="canonical" href="https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/">
+<link rel="canonical" href="https://zonuko.github.io/posts/2018/05/25/inventory/">
 
         <meta name="author" content="zonuko" />
-        <meta name="keywords" content="Elixir,Phoenix" />
-        <meta name="description" content="Programming Phoenixって本を読むその5" />
+        <meta name="keywords" content="Programming,Career" />
+        <meta name="description" content="キャリアの棚卸しを兼ねてやってきたことをざっくりまとめてみる" />
 
         <meta property="og:site_name" content="ぞぬこBLOG" />
         <meta property="og:type" content="article"/>
-        <meta property="og:title" content="Programming Phoenix勉強その5"/>
-        <meta property="og:url" content="https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/"/>
-        <meta property="og:description" content="Programming Phoenixって本を読むその5"/>
-        <meta property="article:published_time" content="2017-01-09" />
-            <meta property="article:section" content="programming" />
-            <meta property="article:tag" content="Elixir" />
-            <meta property="article:tag" content="Phoenix" />
+        <meta property="og:title" content="社会に出て3年間でやってたこと"/>
+        <meta property="og:url" content="https://zonuko.github.io/posts/2018/05/25/inventory/"/>
+        <meta property="og:description" content="キャリアの棚卸しを兼ねてやってきたことをざっくりまとめてみる"/>
+        <meta property="article:published_time" content="2018-05-25" />
+            <meta property="article:section" content="music" />
+            <meta property="article:tag" content="Programming" />
+            <meta property="article:tag" content="Career" />
             <meta property="article:author" content="zonuko" />
 
     <meta name="twitter:card" content="summary">
@@ -44,8 +44,8 @@
 
 
 
-        <link href="https://zonuko.github.io/feeds/programming.atom.xml" type="application/atom+xml" rel="alternate"
-              title="ぞぬこBLOG programming ATOM Feed"/>
+        <link href="https://zonuko.github.io/feeds/music.atom.xml" type="application/atom+xml" rel="alternate"
+              title="ぞぬこBLOG music ATOM Feed"/>
 
 </head>
 <body>
@@ -72,10 +72,10 @@
                         <li >
                             <a href="https://zonuko.github.io/category/misc.html">Misc</a>
                         </li>
-                        <li >
+                        <li class="active">
                             <a href="https://zonuko.github.io/category/music.html">Music</a>
                         </li>
-                        <li class="active">
+                        <li >
                             <a href="https://zonuko.github.io/category/programming.html">Programming</a>
                         </li>
             </ul>
@@ -100,10 +100,10 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/"
+                    <a href="https://zonuko.github.io/posts/2018/05/25/inventory/"
                        rel="bookmark"
-                       title="Permalink to Programming Phoenix勉強その5">
-                        Programming Phoenix勉強その5
+                       title="Permalink to 社会に出て3年間でやってたこと">
+                        社会に出て3年間でやってたこと
                     </a>
                 </h1>
             </header>
@@ -113,7 +113,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2017-01-09T17:52:00+09:00"> 2017-01-09(月)</time>
+        <i class="fa fa-calendar"></i><time datetime="2018-05-25T00:12:00+09:00"> 2018-05-25(金)</time>
     </span>
 
 
@@ -121,172 +121,187 @@
 
 
 <span class="label label-default">Tags</span>
-	<a href="https://zonuko.github.io/tag/elixir.html">Elixir</a>
+	<a href="https://zonuko.github.io/tag/programming.html">Programming</a>
         /
-	<a href="https://zonuko.github.io/tag/phoenix.html">Phoenix</a>
+	<a href="https://zonuko.github.io/tag/career.html">Career</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <div class="line-block">
-<div class="line">その5です。ここからChapter4です。</div>
-<div class="line"><tt class="docutils literal">Ecto</tt> を使って独自実装してた <tt class="docutils literal">Repository</tt> を <tt class="docutils literal">Postgres</tt> に置き換えていきます。</div>
-<div class="line">まず <tt class="docutils literal">lib/rumbl/repo.ex</tt> をもとに戻します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Repo</span><span class="p">,</span> <span class="ss">otp_app</span><span class="p">:</span> <span class="ss">:rumbl</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">さらに <tt class="docutils literal">lib/rumbl.ex</tt> でコメントアウトした部分をもとに戻します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="c1"># Start the Ecto repository</span></span>
-<span class="code-line"><span class="n">supervisor</span><span class="p">(</span><span class="nc">Rumbl.Repo</span><span class="p">,</span> <span class="p">[]),</span> <span class="c1"># ここのコメントアウトを戻す</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">まだ <tt class="docutils literal">mix ecto.create</tt> をしてなければしておきます。</div>
-<div class="line"><br /></div>
-</div>
-<div class="section" id="model">
-<h2>modelの実装</h2>
-<div class="line-block">
-<div class="line">次に <tt class="docutils literal">model</tt> の実装を行います。</div>
-<div class="line"><tt class="docutils literal">web/model/user.ex</tt> を以下の内容で実装します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.User</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Rumbl.Web</span><span class="p">,</span> <span class="ss">:model</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="n">schema</span> <span class="s2">&quot;users&quot;</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:password</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">virtual</span><span class="p">:</span> <span class="no">true</span></span>
-<span class="code-line">    <span class="n">field</span> <span class="ss">:password_hash</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">timestamps</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">ActiveRecord</tt> 使ったことがあればそんなに違和感なく受け入れられると思います。</div>
-<div class="line"><tt class="docutils literal">:virtual</tt> オプションは値として受け取るが、DBには保存しない値です。</div>
-<div class="line">ここまで行って起動してみたら以下のような警告が出ました。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>warning: variable <span class="s2">&quot;timestamps&quot;</span> does not exist and is being expanded to <span class="s2">&quot;timestamps()&quot;</span>,</span>
-<span class="code-line">please use parentheses to remove the ambiguity or change the variable name</span>
-<span class="code-line">  web/models/user.ex:10</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">timestamps</tt> が変数なのか <tt class="docutils literal">timestamps/0</tt> の関数呼び出しか曖昧だと言われてるようです。</div>
-<div class="line">今回は <tt class="docutils literal">timestamps/0</tt> の呼び出しなので <tt class="docutils literal">timestamps</tt> の部分を <tt class="docutils literal">timestamps()</tt> にすると警告がでなくなります。 <a class="reference external" href="http://www.phoenixframework.org/docs/ecto-models">ここらへん</a> を参考にしました。</div>
-<div class="line"><br /></div>
-<div class="line">最後に <tt class="docutils literal">web/web.ex</tt> の <tt class="docutils literal">model</tt> 関数を以下のように変更します。</div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</span>
-<span class="code-line">4</span>
-<span class="code-line">5</span>
-<span class="code-line">6</span>
-<span class="code-line">7</span>
-<span class="code-line">8</span>
-<span class="code-line">9</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">def</span> <span class="n">model</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="k">quote</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="kn">use</span> <span class="nc">Ecto.Schema</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto</span></span>
-<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto.Changeset</span></span>
-<span class="code-line">    <span class="kn">import</span> <span class="nc">Ecto.Query</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="p">[</span><span class="ss">from</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="ss">from</span><span class="p">:</span> <span class="mi">2</span><span class="p">]</span> <span class="c1"># only以下を追加</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table></div>
-<div class="section" id="db">
-<h2>DBのマイグレーション</h2>
-<div class="line-block">
-<div class="line">DB側にもテーブルとかを作る必要があるので以下のコマンドを実行します。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line">1</span>
-<span class="code-line">2</span>
-<span class="code-line">3</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span>rumbl $ mix ecto.gen.migration create_user</span>
-<span class="code-line">* creating priv/repo/migrations</span>
-<span class="code-line">* creating priv/repo/migrations/20170108070642_create_user.exs</span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line">生成された <tt class="docutils literal"><span class="pre">priv/repo/migrations/{日付}_create_user.exs</span></tt> ファイルを以下のように変更します。</div>
-<div class="line">これもRailsやったことあれば説明不要だと思います。</div>
-<div class="line"><br /></div>
-</div>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="code-line"> 1</span>
-<span class="code-line"> 2</span>
-<span class="code-line"> 3</span>
-<span class="code-line"> 4</span>
-<span class="code-line"> 5</span>
-<span class="code-line"> 6</span>
-<span class="code-line"> 7</span>
-<span class="code-line"> 8</span>
-<span class="code-line"> 9</span>
-<span class="code-line">10</span>
-<span class="code-line">11</span>
-<span class="code-line">12</span>
-<span class="code-line">13</span>
-<span class="code-line">14</span>
-<span class="code-line">15</pre></div></td><td class="code"><div class="highlight"><pre><span class="code-line"><span></span><span class="kd">defmodule</span> <span class="nc">Rumbl.Repo.Migrations.CreateUser</span> <span class="k">do</span></span>
-<span class="code-line">  <span class="kn">use</span> <span class="nc">Ecto.Migration</span></span>
-<span class="code-line"></span>
-<span class="code-line">  <span class="kd">def</span> <span class="n">change</span> <span class="k">do</span></span>
-<span class="code-line">    <span class="n">create</span> <span class="n">table</span><span class="p">(</span><span class="ss">:users</span><span class="p">)</span> <span class="k">do</span></span>
-<span class="code-line">      <span class="n">add</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line">      <span class="n">add</span> <span class="ss">:username</span><span class="p">,</span> <span class="ss">:string</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="no">false</span></span>
-<span class="code-line">      <span class="n">add</span> <span class="ss">:password_hash</span><span class="p">,</span> <span class="ss">:string</span></span>
-<span class="code-line"></span>
-<span class="code-line">      <span class="n">timestamps</span><span class="p">()</span></span>
-<span class="code-line">    <span class="k">end</span></span>
-<span class="code-line"></span>
-<span class="code-line">    <span class="n">create</span> <span class="n">unique_index</span><span class="p">(</span><span class="ss">:users</span><span class="p">,</span> <span class="p">[</span><span class="ss">:username</span><span class="p">])</span></span>
-<span class="code-line">  <span class="k">end</span></span>
-<span class="code-line"><span class="k">end</span></span>
-</pre></div>
-</td></tr></table><div class="line-block">
-<div class="line"><tt class="docutils literal">mix ecto.migrate</tt> でマイグレーションを実行します。</div>
-<div class="line"><br /></div>
-</div>
-</div>
+                <p>題名の通りなんですが、まとめてみます。Twitterとかで個人的に勉強したことは出してても、
+業務のために勉強した事とか出してなかったので、まとめておこうと思います。</p>
+<p>ただし、実際に何作ったかとかは結構パブリックな感じでは出せない
+ものがあるので技術とか個人的な勉強とかだけにしとこうと思います。</p>
 <div class="section" id="id2">
-<h2>まとめ</h2>
-<div class="line-block">
-<div class="line"><tt class="docutils literal">Model</tt> 周りの話でした。O/Rマッパー使ったことあればあまり違和感なく受け入れられそうでした。</div>
-<div class="line">関係ないですけど、基本的な部分終わったらガンガン飛ばしていこうと思います。亀のようなペースだと全然おわらないので。</div>
+<h2>お仕事で使ったもの(順不同)</h2>
+<ul class="simple">
+<li>React.js(2年くらい？)<ul>
+<li>WebGIS絡みのプロジェクトで利用</li>
+<li>Fluxの類は入れなかったので苦労する面もあった<ul>
+<li>バケツリレーはやっぱり誰でも悩むんだなぁとか</li>
+<li>ただ、色々合って入れなくてよかったなと思う面もあるので一長一短</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>TypeScript(2年強)<ul>
+<li>React.jsかVue.jsと組わせて使ってた</li>
+<li>個人的にはかなり好き<ul>
+<li>C#っぽい書きっぷりとか、型の柔軟性とか</li>
+<li>事前にF#とか関数型勉強してた事もあって型については結構調べてても楽しかったです。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Vue.js(半年弱くらい)<ul>
+<li>React.jsのあとに使いました。結構好きです。</li>
+<li>Angularも短期間ですがやってましたが、ReactとAngularの間くらいの感じで結構好きです<ul>
+<li>用意されている機能もちょうどいい塩梅だと感じてます</li>
+<li>FluxなしのReactほどカオスにならず、Angularほど大掛かりでも無い印象</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Angular(一週間くらい)<ul>
+<li>めちゃくちゃ突発で、直前に言われて2日で勉強してくるみたいな無理をしたやつです</li>
+<li>結構大掛かりな感じなフレームワークだなという印象<ul>
+<li>双方向バインディング人類には早くない？とか</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>C#(2.5年くらい？)<ul>
+<li>DLLの作成からASP.NET MVCでのWebアプリ作成まで色々使いました<ul>
+<li>CLI使って結構頑張るとC++と連携とか色々出来て楽しいです</li>
+</ul>
+</li>
+<li>言語としてはかなりいい出来だと思ってます。LINQがかなり良いです</li>
+</ul>
+</li>
+<li>Java(合計すると半年くらい？)<ul>
+<li>主にWebアプリで利用</li>
+<li>PlayFrameworkとかSpringFrameworkとセットで使ってます</li>
+<li>C#のあとに触れたので色々違和感が・・・</li>
+</ul>
+</li>
+<li>C++(これも合計で半年くらい？)<ul>
+<li>デスクトップアプリ作るのに使ってました</li>
+<li>dll、libとかかなり複雑でした。libに二種類あるとか最初はめっちゃ混乱</li>
+<li>ガッツリオブジェクト指向で作られているプロジェクトでデザインパターンを積極的に入れていることを売りにしているプロジェクトだったので、
+OOPに関しての知見とか知識は勉強させてもらいました</li>
+</ul>
+</li>
+<li>Ruby(1年弱)<ul>
+<li>Railsと一緒に使ってました</li>
+<li>PHPから移行したプロジェクトで結構苦労しました</li>
+<li>動的型付け + OOPはちゃんと作らないとカオスだと言うことを学んでしまった・・・</li>
+</ul>
+</li>
+<li>Python(1年くらい)<ul>
+<li>正確に言うと社会に出てからの物ではないです</li>
+<li>大学院の研究でアルゴリズムの検証とか実験に使ってました</li>
+<li>言語としてはかなり好きな方です。押し付けてくるシンタックスとか仕様が割りと好きです</li>
+<li>あとは社内のお遊びプロジェクトで画像を集めるのに使ったりとか</li>
+<li>1,2を争うぐらい好きな言語。プログラミングの楽しさを教えてくれた言語です</li>
+</ul>
+</li>
+<li>その他(めっちゃ短期間だけ触ったもの。細かい説明は割愛)<ul>
+<li>PHP</li>
+<li>Go</li>
+<li>C</li>
+</ul>
+</li>
+</ul>
 </div>
+<div class="section" id="id3">
+<h2>個人的な勉強</h2>
+<ul class="simple">
+<li>Clojure(勉強開始からだと半年ちょい？)<ul>
+<li>最初はLISP系言語敬遠してたんですが、全く違う物勉強したくなって触りました</li>
+<li>Pythonと同じくらい好きです<ul>
+<li>好きな理由が上手く言えない。なんとなく言語の思想を押し付けてくるところだとは思ってますが<ul>
+<li>Simple Made Easyだとか、連想配列の分配束縛とか辺りにそういうの感じてるのかなぁとか思います</li>
+<li><a class="reference external" href="http://eed3si9n.com/ja/simplicity-matters">シンプルさの必要性</a> とかは結構読み返しました</li>
+</ul>
+</li>
+<li>シンタックスレベルで思想を押し付けてくるのはPythonとも若干共通している気がしなくもないです。Clojureのほうが柔軟だとは思いますが</li>
+</ul>
+</li>
+<li>作ったものは過去のブログ参照ってことで</li>
+</ul>
+</li>
+<li>Elixir<ul>
+<li>これ自体は出たばっかりの頃にインストールだけしてみたりしてたものです。多分学生時代です</li>
+<li>社会に出てちょっとしてセミナーとかで見かけたのでちょっと真面目にやってみるかって思ってやってみた感じです<ul>
+<li>Programming ElixirとProgramming Phoenixとか読んでました</li>
+<li>Programming Phoenixについて過去のブログ参照です</li>
+</ul>
+</li>
+<li>アクターモデルとかについては勉強になりました。並行処理とか余りちゃんと勉強してなかったんですが勉強になります</li>
+<li>シンタックスがRuby風味なのは今となっては正直余り好きではないです</li>
+<li><a class="reference external" href="https://bitbucket.org/y_fujiwara/elixir-tutorial/src/default/">https://bitbucket.org/y_fujiwara/elixir-tutorial/src/default/</a></li>
+<li><a class="reference external" href="https://bitbucket.org/y_fujiwara/programming-phoenix/src/master/">https://bitbucket.org/y_fujiwara/programming-phoenix/src/master/</a></li>
+<li><a class="reference external" href="https://gitlab.com/y-fujiwara/gemini">https://gitlab.com/y-fujiwara/gemini</a><ul>
+<li>Phoenix、TS、React、Fluxでチャット作ろうとしてガワだけ作って止まっちゃってるやつ</li>
+<li>結局チャット自体はClojureの方で満足してしまっている・・・</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>その他(チュートリアル程度だったり、本一冊読んだ程度だったり)<ul>
+<li>F#<ul>
+<li>プログラミングの基礎がOCamlで書いてあったのでF#でもイケるっしょって思ってやってました</li>
+<li>言語自体は結構好きでしたが、何故か余り深入りしませんでした</li>
+<li>実践 F# 関数型プログラミング入門とかも取り寄せして読んだりしてました。再販してほしい</li>
+<li><a class="reference external" href="https://bitbucket.org/y_fujiwara/metro-network/src/master/">https://bitbucket.org/y_fujiwara/metro-network/src/master/</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Rust<ul>
+<li>完全にチュートリアルしかやってません<ul>
+<li>C++の経験だけ合ったので比較対象としてはかなり有意義でした</li>
+<li>所有権とか余り意識してなかったのでそこら辺は勉強になりました</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Elm<ul>
+<li>これもチュートリアルだけです</li>
+<li>正直難しかったです。Haskellあまり習得もしてないので尚更</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>その他読んでよかった本とか</h2>
+<ul class="simple">
+<li>プログラミン言語の基礎概念<ul>
+<li><a class="reference external" href="https://bitbucket.org/y_fujiwara/copl/src/master/">https://bitbucket.org/y_fujiwara/copl/src/master/</a></li>
+<li>途中までやって力尽きたリポジトリ</li>
+</ul>
+</li>
+<li>カイゼンジャーニー</li>
+<li>なぜオブジェクト指向で作るのか</li>
+<li>プロになるためのWeb技術入門</li>
+<li>シングルページWebアプリケーション</li>
+<li>JavaScript: the Good Parts<ul>
+<li>上の二冊はクライアント側実装するときに勉強した本。個人的にはバイブル</li>
+</ul>
+</li>
+<li>etc...</li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h2>まとめ</h2>
+<p>個人的な好き嫌いで言うと Clojure = Python &gt; TypeScript &gt; C# &gt; Ruby &gt; Java って感じですかね。</p>
+<p>まとめてみると色々触ってるなぁと思います。なんかWebクライアントサイド結構やっているように思われがちな気がしてます。
+向き不向きは置いておいて、正直いうと余りクライアント側好みではないです。</p>
+<p>今と言うか今後しばらくClojureやっていると思います。最近色々考えなきゃなぁと思うこともあるのでうごいていこうかなとか。
+なんか3年も立つと1年目のときには考えもしなかったこと考えてしまうなと感慨深い今日このごろです。</p>
 </div>
 
             </div>
             <!-- /.entry-content -->
-<section class="well" id="related-posts">
-    <h4>Related Posts:</h4>
-    <ul>
-        <li><a href="https://zonuko.github.io/posts/2017/01/07/programming-phoenix4/">Programming Phoenix勉強その4</a></li>
-    </ul>
-</section>
     <hr />
     <!-- AddThis Button BEGIN -->
     <div class="addthis_toolbox addthis_default_style">
@@ -303,8 +318,8 @@
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'zonuko-blog'; // required: replace example with your forum shortname
 
-                    var disqus_identifier = 'programming-phoenix5';
-                var disqus_url = 'https://zonuko.github.io/posts/2017/01/09/programming-phoenix5/';
+                    var disqus_identifier = 'inventory';
+                var disqus_url = 'https://zonuko.github.io/posts/2018/05/25/inventory/';
 
             var disqus_config = function () {
                 this.language = "ja";
