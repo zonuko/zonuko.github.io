@@ -1,0 +1,89 @@
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      {% if title %}
+        {{title}} | {{site.title}}
+      {% else %}
+        {{site.title}}
+      {% endif %}
+    </title>
+    <meta name="description" content="{{ description or site.description }}">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="{{ site.title }}">
+    <link rel="alternate" href="/feed.json" type="application/json" title="{{ site.title }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>{{ site.title }}</strong>
+      </a>
+
+      <ul class="navbar-links">
+      {%- for entry in search.pages("menu.visible=true", "menu.order") %}
+        <li>
+          <a href="{{ entry.data.url }}"{% if entry.data.url == url %} aria-current="page"{% endif %}>
+            {{ entry.data.menu.title or entry.data.title }}
+          </a>
+        </li>
+      {%- endfor %}
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="{{ bodyClass }}">
+      <div class="main-content">
+        {{ content | safe }}
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                  {%- for post in search.pages("type=posts", "date=desc", 5) %}
+                    <li><a href="{{ post.data.url | url(true) }}"/>{{post.data.title}}</a></li>
+                  {%- endfor %}
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  {% for page in search.pages("type=tag", "tag", 10) %}
+                    <li><a href="{{ page.data.url }}" >{{ page.data.tag }}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+            </ul
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: {{ url }} -->
+  </body>
+</html>
