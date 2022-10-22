@@ -17,6 +17,8 @@ site
   .ignore("README.md")
   .copy("img")
   .copy("images")
+  .copy("breaking-blocks", "breaking-blocks")
+  .copy("breaking-blocks/imgs", "breaking-blocks/imgs")
   .copy("favicon.ico")
   .use(postcss())
   .use(date())
