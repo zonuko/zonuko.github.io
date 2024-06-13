@@ -1,0 +1,2417 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>zonukoブログ</title>
+	<subtitle>zonukoが好き勝手なこと書くブログ</subtitle>
+	<link href="https://zonuko.github.io/feed.xml" rel="self"/>
+	<link href="https://zonuko.github.io/"/>
+	
+	<updated>2024-06-13T13:27:20Z</updated>
+	<id>https://zonuko.github.io/</id>
+	<author>
+		<name>zonuko</name>
+		<email>fuji.ys5234あっとgmail.com</email>
+	</author>
+	<entry>
+		<title>blogをdeno製静的サイトジェネレーターlumeに移植した</title>
+		<link href="https://zonuko.github.io/posts/blog-to-lume/"/>
+		<updated>2022-10-21T00:12:00Z</updated>
+		<id>https://zonuko.github.io/posts/blog-to-lume/</id>
+		<content type="html">&lt;p&gt;blogをdeno製静的サイトジェネレーターlumeに移植した
+################################&lt;/p&gt;
+&lt;p&gt;何年ぶりだって感じですが、久々のブログです。
+色々あって(転職したり、病気したり)、なかなかブログ書くって感じでもなかったですが、思い切ってツールごと切り替えたので紹介です。&lt;/p&gt;
+&lt;h1&gt;============================================
+deno製静的サイトジェネレーター「lume」&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;https://lume.land/ &amp;lt;https://lume.land/&amp;gt;&lt;/code&gt;_&lt;/p&gt;
+&lt;p&gt;JavaScript/TypeScriptのランタイムであるdenoでできている静的サイトジェネレーターです。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;自分でレンダリングやファイルローダーカスタマイズできるPlugin機構がある&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;公式のPluginも初めから結構ある&lt;/li&gt;
+&lt;li&gt;検索やタグ機能もプラグインで提供されている(デフォルトインストール済み)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;テンプレートもいくつか対応されている&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Markdown、Nunjucks、Pug、JSXなど&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;denoなのでカスタムプラグインや設定などをTypeScriptで書ける&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;============================================
+既存のブログ記事をlumeに移植する&lt;/h1&gt;
+&lt;p&gt;このブログのマークアップ言語はrestructuredTextで書かれています。拡張子はrstです。
+色々プラグインありますが、rstファイルに対応しているものはないので自分でなんとかしないといけないです。&lt;/p&gt;
+&lt;p&gt;今回は以下の方法で対応しました。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rstのパーサー、レンダラーはRust製のものがあったのでWebAssemblyにしてdenoから扱う&lt;/li&gt;
+&lt;li&gt;上記で作ったものはカスタムプラグインを作ってrstファイルの場合はそちらでレンダリングを行う&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;denoがWeb標準のAPIに準拠しているおかげで、WebAssemblyさえ作れれば割りと拡張性が高いですね。&lt;/p&gt;
+&lt;h1&gt;============================================
+RustでrstをレンダリングするWebAssemblyを作る&lt;/h1&gt;
+&lt;p&gt;WebAssemblyのツールチェインとしては、denoのブログで紹介されている以下を使います。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;https://deno.com/blog/wasmbuild &amp;lt;https://deno.com/blog/wasmbuild&amp;gt;&lt;/code&gt;_&lt;/p&gt;
+&lt;p&gt;内部的にはwasm_bindgenというRustのツールチェインが使われています。rstのレンダリングに使っているcrate(Rustのライブラリ)は以下です。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;https://github.com/flying-sheep/rust-rst &amp;lt;https://github.com/flying-sheep/rust-rst&amp;gt;&lt;/code&gt;_&lt;/p&gt;
+&lt;p&gt;.. code-block:: Rust&lt;/p&gt;
+&lt;p&gt;use rst_parser::parse;
+use rst_renderer::render_html;
+use std::str;
+use wasm_bindgen::prelude::*;&lt;/p&gt;
+&lt;p&gt;#[wasm_bindgen]
+pub fn render_rst(rst: &amp;amp;str, is_standalone: bool) -&amp;gt; Result&amp;lt;String, JsError&amp;gt; {
+let content = rst.replace(&#39;\t&#39;, &amp;quot; &amp;quot;.repeat(8).as_ref());
+let document = match parse(&amp;amp;content) {
+Ok(doc) =&amp;gt; doc,
+Err(e) =&amp;gt; return Err(JsError::new(e.to_string().as_ref())),
+};&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; let mut s = Vec::new();
+ match render_html(&amp;amp;document, &amp;amp;mut s, is_standalone) {
+   Ok(_) =&amp;gt; (),
+   Err(e) =&amp;gt; return Err(JsError::new(e.to_string().as_ref())),
+ }
+ return Ok(str::from_utf8(&amp;amp;s)?.to_string());
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;}&lt;/p&gt;
+&lt;p&gt;#[cfg(test)]
+mod tests {
+const TEST_DOC2: &amp;amp;str = &amp;quot;Programming Phoenix勉強その2
+################################&lt;/p&gt;
+&lt;p&gt;:date: 2016-12-31 00:50
+:tags: Elixir,Phoenix
+:slug: programming-phoenix2
+:related_posts: programming-phoenix1
+:summary: Programming Phoenixって本を読むその2&lt;/p&gt;
+&lt;p&gt;| その2です。
+| その1の続きです。&lt;/p&gt;
+&lt;h1&gt;=========================================
+デフォルトのディレクトリ構成について&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;config&lt;/code&gt; ディレクトリ&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Phoenixの設定ファイル置き場.名前のまま.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;prod.secret.exs&lt;/code&gt; は秘密情報が入っているファイルなので,VCSからは外すこと.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;config.exs&lt;/code&gt; の &lt;code&gt;endpoint&lt;/code&gt; はWebサーバーとアプリケーションの接続の境界部分.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;lib&lt;/code&gt; ディレクトリ&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Supervision treeと,長く起動するプロセスが置かれる.（?,あってるか微妙）&lt;/li&gt;
+&lt;li&gt;DBとのコネクションプールとかのような長く使われるものが置かれるっぽい.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;test&lt;/code&gt; ディレクトリ&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;名前の通りテストが置かれる.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;web&lt;/code&gt; ディレクトリ&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Webアプリに必要な &lt;code&gt;model&lt;/code&gt;, &lt;code&gt;view&lt;/code&gt;, &lt;code&gt;template&lt;/code&gt;, &lt;code&gt;controller&lt;/code&gt; が置かれる.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;==============
+Plugについて&lt;/h1&gt;
+&lt;p&gt;| &lt;code&gt;Plug&lt;/code&gt; ライブラリは接続の統一化のために使われる.
+| &lt;code&gt;Plug&lt;/code&gt; のリポジトリ &lt;code&gt;Plugリポジトリ&lt;/code&gt;_ には以下のように書いてある.&lt;/p&gt;
+&lt;p&gt;::&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   ・ A specification for composable modules between web applications
+   ・ Connection adapters for different web servers in the Erlang VM
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;| なので,各機能のモジュールの仕様の記述と,Erlang VMと各Webサーバーとの接続をやってくれるみたいです.
+| （あまり理解してない感が）
+| 実際にPhoenixが作ってくれる物を見てみます. &lt;code&gt;config/endpoint.exs&lt;/code&gt; を見てみます.&lt;/p&gt;
+&lt;p&gt;.. code-block:: Elixir
+:linenos:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   defmodule Hello.Endpoint do
+     use Phoenix.Endpoint, otp_app: :hello
+
+     socket \&amp;quot;/socket\&amp;quot;, Hello.UserSocket
+
+     # Serve at \&amp;quot;/\&amp;quot; the static files from \&amp;quot;priv/static\&amp;quot; directory.
+     #
+     # You should set gzip to true if you are running phoenix.digest
+     # when deploying your static files in production.
+     plug Plug.Static,
+       at: \&amp;quot;/\&amp;quot;, from: :hello, gzip: false,
+       only: ~w(css fonts images js favicon.ico robots.txt)
+
+     # Code reloading can be explicitly enabled under the
+     # :code_reloader configuration of your endpoint.
+     if code_reloading? do
+       socket \&amp;quot;/phoenix/live_reload/socket\&amp;quot;, Phoenix.LiveReloader.Socket
+       plug Phoenix.LiveReloader
+       plug Phoenix.CodeReloader
+     end
+
+     plug Plug.RequestId
+     plug Plug.Logger
+
+     plug Plug.Parsers,
+       parsers: [:urlencoded, :multipart, :json],
+       pass: [\&amp;quot;*/*\&amp;quot;],
+       json_decoder: Poison
+
+     plug Plug.MethodOverride
+     plug Plug.Head
+
+     # The session will be stored in the cookie and signed,
+     # this means its contents can be read but not tampered with.
+     # Set :encryption_salt if you would also like to encrypt it.
+     plug Plug.Session,
+       store: :cookie,
+       key: \&amp;quot;_hello_key\&amp;quot;,
+       signing_salt: \&amp;quot;zzWE+Yw+\&amp;quot;
+
+     plug Hello.Router
+   end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;| とりあえず &lt;code&gt;plug&lt;/code&gt; ってのがいっぱい出てきています.
+| なんとなく見てると, &lt;code&gt;plug Plug.Static&lt;/code&gt; で静的ファイルについての設定っぽいものが書いてあったり,
+| &lt;code&gt;plug Plug.Logger&lt;/code&gt; とか, &lt;code&gt;plug Plug.Parsers&lt;/code&gt; とかあったりして,Webアプリに必要な設定が書いてあるっぽいなと言う感覚です.
+| ココらへんの一連の &lt;code&gt;plug&lt;/code&gt; は関数のパイプラインとして処理されるようです.
+|&lt;/p&gt;
+&lt;p&gt;.. code-block:: Elixir
+:linenos:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   connection
+   |&amp;gt; Plug.Static.call 
+   |&amp;gt; Plug.RequestId.call  
+   |&amp;gt; Plug.Logger.call 
+   |&amp;gt; Plug.Parsers.call  
+   |&amp;gt; Plug.MethodOverride.call
+   |&amp;gt; Plug.Head.call  
+   |&amp;gt; Plug.Session.call
+   |&amp;gt; Hello.Router.call
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;| ソースに書いた順になってるっぽいです.Servletの設定順ミスってハマった思い出が…
+| ちなみに &lt;code&gt;endpoint&lt;/code&gt; 自体も &lt;code&gt;plug&lt;/code&gt; で,アプリケーション自体は &lt;code&gt;endpoint&lt;/code&gt; で始まり &lt;code&gt;controller&lt;/code&gt; で終わる一連のパイプラインらしい.&lt;/p&gt;
+&lt;h1&gt;================
+Routerについて&lt;/h1&gt;
+&lt;p&gt;| &lt;code&gt;web/router.ex&lt;/code&gt; のソースを見ると,2つのパイプラインがあることがわかる.&lt;/p&gt;
+&lt;p&gt;.. code-block:: Elixir
+:linenos:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   defmodule Hello.Router do
+     use Hello.Web, :router
+
+     pipeline :browser do
+       plug :accepts, [\&amp;quot;html\&amp;quot;]
+       plug :fetch_session
+       plug :fetch_flash
+       plug :protect_from_forgery
+       plug :put_secure_browser_headers
+     end
+
+     pipeline :api do
+       plug :accepts, [\&amp;quot;json\&amp;quot;]
+     end
+
+     scope \&amp;quot;/\&amp;quot;, Hello do
+       pipe_through :browser # Use the default browser stack
+
+       get \&amp;quot;/hello/:name\&amp;quot;, HelloController, :world
+       get \&amp;quot;/\&amp;quot;, PageController, :index
+     end
+
+     # Other scopes may use custom stacks.
+     # scope \&amp;quot;/api\&amp;quot;, Hello do
+     #   pipe_through :api
+     # end
+   end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;browser&lt;/code&gt; パイプライン&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;HTMLのみを受け付ける.&lt;/li&gt;
+&lt;li&gt;セッション管理とか,フラッシュメッセージとか,セキュリティ対策とかを提供してくれるらしい.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;api&lt;/code&gt; パイプライン&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;基本的なJSON API用のパイプライン.JSONのみ受け付ける.&lt;/li&gt;
+&lt;li&gt;XMLにしたいときとかはここ一箇所変更すれば全部変更される.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;| &lt;code&gt;pipe_through&lt;/code&gt; でどのパイプラインを使うか書く.
+| 処理の流れとしては接続を取得→パイプラインを呼び出し→コントローラーを呼び出し.
+| 呼び出し順を纏めると以下になる.&lt;/p&gt;
+&lt;p&gt;.. code-block:: Elixir
+:linenos:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   connection
+   |&amp;gt; endpoint
+   |&amp;gt; router 
+   |&amp;gt; pipeline  
+   |&amp;gt; controller
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;==================
+まとめ&lt;/h1&gt;
+&lt;p&gt;| 今回は,内部的な処理の流れとかおまじない的な部分が何をしてるかの勉強だった感じです.
+| 英語がヘタレ過ぎて自分が理解している意味とあってるか若干の不安が...&lt;/p&gt;
+&lt;h1&gt;リンク&lt;/h1&gt;
+&lt;p&gt;.. Plugリポジトリ link: https://github.com/elixir-lang/plug
+&amp;quot;;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; const TEST_DOC: &amp;amp;str = &amp;quot;About me
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;=================&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;名前&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;y-fujiwara&lt;/li&gt;
+&lt;li&gt;nuhera or zonuko (HN)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;経歴&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;千葉県の私立理系大学院修了(2015/3)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;数理計画の類をやってた。&lt;/li&gt;
+&lt;li&gt;Pythonつかって色々やってた。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;都内のIT企業に就職(2015/4 ～ 今まで)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;メインはC++かC#かJava&lt;/li&gt;
+&lt;li&gt;たまにRubyとかJavaScript&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;Interests&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;アニメ&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;SHOW BY ROCK!!&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;2期円盤マラソン中&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Game&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;STG どれも下手くそ&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;レイストーム&lt;/li&gt;
+&lt;li&gt;ダライアス外伝&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;格闘ゲーム&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;コンボゲーと呼ばれる物&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Music&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ゲームサントラ集め&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Technology&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;業務でつかった物&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Vim&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;修行中&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Python&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Elixir&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Haskell,Rust&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;勉強中・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Elm&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;線形代数&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;プログラミング言語作成&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;将来的に・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;.. image:: /images/DSC_8445.JPG
+:alt: Quicksilver
+&amp;quot;;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; use super::*;
+
+ #[test]
+ fn rst_to_html() {
+   match render_rst(TEST_DOC, false) {
+     Ok(_) =&amp;gt; (),
+     Err(e) =&amp;gt; panic!(&amp;quot;{:?}&amp;quot;, JsValue::from(e).as_string().unwrap()),
+   }
+   assert!(true);
+ }
+
+ #[test]
+ fn rst_to_html2() {
+   match render_rst(TEST_DOC2, false) {
+     Ok(_) =&amp;gt; (),
+     Err(e) =&amp;gt; panic!(&amp;quot;{:?}&amp;quot;, JsValue::from(e).as_string().unwrap()),
+   }
+   assert!(true);
+ }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;}&lt;/p&gt;
+&lt;p&gt;テスト雑ですが、パーサーとかのエラーで落ちないかどうかだけが気になるのでエラーの場合はあえてpanicしてます。最初にビルドしたときにエラーになったシンタックスがいくつかあったのでそこらへんだけ担保したい感じです。&lt;/p&gt;
+&lt;p&gt;deno側は単に即exportして終わりです。deno用にビルドされているだけで、非同期で読み込む必要があるなど、wasmの取り扱い方的には普通にwasm_bindgen使うときとそう変わらないです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: TypeScript&lt;/p&gt;
+&lt;p&gt;export { instantiate } from &amp;quot;./lib/rs_lib.generated.js&amp;quot;;&lt;/p&gt;
+&lt;h1&gt;============================================
+作ったライブラリをlumeのPluginにする&lt;/h1&gt;
+&lt;p&gt;コード見てもらったほうが早いと思います。プラグインの作り方はlumeの公式サイトにあります。&lt;/p&gt;
+&lt;p&gt;.. code-block:: TypeScript&lt;/p&gt;
+&lt;p&gt;import type { Data, DeepPartial, Engine, Helper, Site } from &amp;quot;lume/core.ts&amp;quot;;
+import { merge } from &amp;quot;lume/core/utils.ts&amp;quot;;
+import loader from &amp;quot;lume/core/loaders/text.ts&amp;quot;;
+import { instantiate } from &amp;quot;./rst_render/lib.ts&amp;quot;;&lt;/p&gt;
+&lt;p&gt;export interface Options {
+/** The list of extensions this plugin applies to */
+extensions: string[];&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; /** To modify existing rules or new custom rules */
+ // deno-lint-ignore no-explicit-any
+ rules: Record&amp;lt;string, (...args: any[]) =&amp;gt; any&amp;gt;;
+
+ /** Set `true` append your plugins to the defaults */
+ keepDefaultPlugins: boolean;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;}&lt;/p&gt;
+&lt;p&gt;// Default options
+export const defaults: Options = {
+extensions: [&amp;quot;.rst&amp;quot;],
+rules: {},
+keepDefaultPlugins: false,
+};&lt;/p&gt;
+&lt;p&gt;/** Template engine to render Markdown files */
+export class RstEngine implements Engine {
+#instance:
+| { render_rst: (rst: string, is_standalone: boolean) =&amp;gt; string }
+| null;
+constructor() {
+this.#instance = null;
+}&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; async init() {
+   this.#instance = await instantiate();
+ }
+
+ deleteCache() {}
+
+ render(
+   content: string,
+   _data?: Data,
+   _filename?: string,
+ ): string {
+   if (!this.#instance) {
+     throw new Error(&amp;quot;engine is not inited.&amp;quot;);
+   }
+   return this.#instance.render_rst(content, true);
+ }
+
+ renderInline(content: string): string {
+   if (!this.#instance) {
+     throw new Error(&amp;quot;engine is not inited.&amp;quot;);
+   }
+
+   return this.#instance.render_rst(content, false);
+ }
+
+ renderSync(
+   content: unknown,
+   _data?: Data,
+   _filename?: string,
+ ): string {
+   if (!this.#instance) {
+     throw new Error(&amp;quot;engine is not inited.&amp;quot;);
+   }
+
+   if (typeof content !== &amp;quot;string&amp;quot;) {
+     content = String(content);
+   }
+   return this.#instance.render_rst(content as string, true);
+ }
+
+ addHelper() {}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;}&lt;/p&gt;
+&lt;p&gt;export default function (userOptions?: DeepPartial&lt;Options&gt;) {
+const options = merge(defaults, userOptions);&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; return async function (site: Site) {
+   const engine = new RstEngine();
+   await engine.init();
+   // pugやnunjucksを使ってテンプレート上にhtmlをレンダリングする場合はエンジンの登録が必須なのでやっておく
+   site.loadPages(options.extensions, loader, engine);
+
+   function filter(string: string, inline = false): string {
+     if (inline) {
+       return engine.renderInline(string?.toString() || &amp;quot;&amp;quot;).trim();
+     }
+     return engine.render(string?.toString() || &amp;quot;&amp;quot;).trim();
+   }
+
+   // Register the md filter
+   site.filter(&amp;quot;rst&amp;quot;, filter as Helper, true);
+ };
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;}&lt;/p&gt;
+&lt;p&gt;ポイントは以下です。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;デフォルトエクスポートされる関数を一つ用意する&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;引数はプラグインオプション&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;上記関数はSiteオブジェクトを引数に取る関数をreturnする&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;returnする関数の中でSiteオブジェクトに加工することでレンダリング等を制御できる&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;ちょいと微妙なのが最終的な関数がasyncな点です。戻り値が必要な関数ではないので、おそらく大丈夫とは思います。&lt;/p&gt;
+&lt;h1&gt;============================================
+課題&lt;/h1&gt;
+&lt;p&gt;すべてのrestructuredTextのシンタックスに対応しているわけではないです。
+番号付きリスト等に対応されていません。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;https://github.com/flying-sheep/rust-rst/blob/c2eace26cd421ab773f325264eaae0c4e15e932c/parser/src/rst.pest#L344 &amp;lt;https://github.com/flying-sheep/rust-rst/blob/c2eace26cd421ab773f325264eaae0c4e15e932c/parser/src/rst.pest#L344&amp;gt;&lt;/code&gt;_ 等を見ると、コメントされていてまだ未対応なことがわかります。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;自分でforkして改造する&lt;/li&gt;
+&lt;li&gt;自分でパーサーとか作る&lt;/li&gt;
+&lt;li&gt;Pythonとかを無理やり読み込む(Sphinx直接使うので対応漏れとかがなさそう)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等が考えられますが、今のところ対応してないものに気をつければ読めるものはできるので追々...ということで。&lt;/p&gt;
+&lt;h1&gt;============================================
+まとめ&lt;/h1&gt;
+&lt;p&gt;地味にブログのビルドとかもGitHub Actionsにしたりして書きやすくなったのでちょいちょい復活していきたいです。&lt;/p&gt;
+&lt;p&gt;とはいえ会社でもブログ書いてるので分配に迷います...&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>Clojureで○○画像を集める</title>
+		<link href="https://zonuko.github.io/posts/clojure-crawler/"/>
+		<updated>2018-06-12T22:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/clojure-crawler/</id>
+		<content type="html">&lt;p&gt;Clojureで○○画像を集める
+################################&lt;/p&gt;
+&lt;p&gt;昔、と言っても一年弱ほど前ですがPythonで画像集めしたことがあって、
+Clojureではどうやるんだろうと思ってやってみました。&lt;/p&gt;
+&lt;h1&gt;==================================
+使ったもの&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Enlive&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;テンプレートライブラリっぽいですが、 &lt;code&gt;BeautifulSoup&lt;/code&gt; みたいなことするにはどうしようかとググったら出てきたので使いました。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;==================================
+ソース&lt;/h1&gt;
+&lt;p&gt;そんなに大きいソースでも無いのでいきなり貼っちゃいます。&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(ns crawler.core
+(:require [net.cgrand.enlive-html :as enlive]
+[clojure.edn :as edn]
+[ring.util.codec :refer [url-encode]]
+[clojure.java.io :refer [copy input-stream output-stream]]))&lt;/p&gt;
+&lt;p&gt;;; ここで999エラーが帰ってくる可能性がある
+;; yahooは1時間に400回まで
+(defn get-contents [uri]
+(-&amp;gt; (java.net.URI. uri)
+enlive/html-resource))&lt;/p&gt;
+&lt;p&gt;;; ダウンロードのURL接続は直接もとのサイトに行っているならアクセス制限にかからないはず
+(defn download [{{src :href} :attrs} path]
+(let [bytes (java.io.ByteArrayOutputStream.)]
+(with-open [pic (input-stream src)
+out (output-stream path)]
+(copy pic bytes) ;; URLからメモリにロード
+(.write out (.toByteArray bytes)))))&lt;/p&gt;
+&lt;p&gt;(defn get-by-tagname [uri &amp;amp; tags]
+(let [pics (-&amp;gt; uri
+get-contents
+(enlive/select tags))]
+(if (zero? (count pics))
+nil
+pics)))&lt;/p&gt;
+&lt;p&gt;(defn run []
+(let [config (edn/read-string (slurp &amp;quot;config.edn&amp;quot;))
+org-word (get config &amp;quot;word&amp;quot;)
+words (reduce #(str %1 &amp;quot;+&amp;quot; %2) (first org-word) (rest org-word))
+word (url-encode words)
+org-url (get config &amp;quot;url&amp;quot;)
+dir (get config &amp;quot;dir&amp;quot;)
+b (get config &amp;quot;page&amp;quot;)
+step (get config &amp;quot;step&amp;quot;)]
+(loop [page 1
+max 1
+url (format org-url word b)]
+(if-let [pics (get-by-tagname url :div#ISm :div.gridmodule :div.SeR :p.tb :a)]
+(do
+(doseq [[pic names] (map (fn [p idx] [p idx]) pics (take 20 (iterate inc max)))]
+(download pic (str dir words &amp;quot;-&amp;quot; names &amp;quot;.png&amp;quot;)))
+(Thread/sleep 10000) ;; 10秒間スリープ
+(recur (inc page) (inc (* page step 10)) (format org-url word (inc (* page step 10)))))
+nil))))&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;run&lt;/code&gt; 関数が大きくなっちゃってるのが気になる。&lt;/p&gt;
+&lt;p&gt;基本的にはyahoo画像検索の簡易検索から持ってくることにしてます。
+単純にURLのクエリにページ情報とかが含まれているのでクロールしやすいってだけです。&lt;/p&gt;
+&lt;p&gt;また、設定ファイルを &lt;code&gt;config.edn&lt;/code&gt; として外出しています。&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;{&amp;quot;url&amp;quot; &amp;quot;https://search.yahoo.co.jp/image/search?p=%s&amp;amp;ei=UTF-8&amp;amp;b=%s&amp;quot;
+&amp;quot;word&amp;quot; [&amp;quot;呪怨&amp;quot;]
+&amp;quot;page&amp;quot; 1
+&amp;quot;dir&amp;quot; &amp;quot;pic/&amp;quot;
+&amp;quot;step&amp;quot; 2}&lt;/p&gt;
+&lt;p&gt;保存先のフォルダとか検索語リストだとかを入れてます。1ページ20件と決まっているならstepは不要だったかも。&lt;/p&gt;
+&lt;p&gt;実際動かしてみると呪怨画像が溜まっているのがわかります。&lt;/p&gt;
+&lt;p&gt;.. image:: /images/Crawler.gif
+:alt: Crawler&lt;/p&gt;
+&lt;h1&gt;==================================
+まとめ&lt;/h1&gt;
+&lt;p&gt;yahoo画像検索ではエロ画像は取得できない!&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>そろそろ誕生日だし転職活動しようと思う</title>
+		<link href="https://zonuko.github.io/posts/job-change/"/>
+		<updated>2018-05-30T23:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/job-change/</id>
+		<content type="html">&lt;p&gt;そろそろ誕生日だし転職活動しようと思う
+##########################################################&lt;/p&gt;
+&lt;p&gt;表題の通りです。考えていることととか、何したいかとかつらつらまとめようと思います。
+自分の頭の中の整理も兼ねてます。
+もし今の会社の人が見てたらお目溢しを・・・&lt;/p&gt;
+&lt;p&gt;また、簡単な経歴とかは &lt;code&gt;過去のブログ &amp;lt;https://zonuko.github.io/posts/2018/05/25/inventory&amp;gt;&lt;/code&gt;_ とか &lt;code&gt;About &amp;lt;https://zonuko.github.io/pages/about.html&amp;gt;&lt;/code&gt;_
+とか見てもらえれば良いと思います。&lt;/p&gt;
+&lt;h1&gt;=================
+動機&lt;/h1&gt;
+&lt;p&gt;大きい動機は以下の2つくらいです。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;好きなプログラミング言語でお仕事したい&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;プログラミング言語自体が好き&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;プログラミング言語を勉強するとその時の社会が困っている問題が見えると思っています&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;個人的な趣味は関数型言語だったが多分今のままだと一生チャンス無いと思った&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;また、一つの言語に精通したかったがそれも難しそうだった&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;どんな言語でも精通すると他への使い回しが効くことは、ちょっと長くやった言語でも実感してます&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;今の一番は &lt;code&gt;Clojure&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;30歳になる前に違う世界に行きたい&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;別に今の場所がだめとか言うつもりはなくて、今後60過ぎまでエンジニアやるとして一箇所しか知らないのは怖いと思った&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;なんで怖いと思うんだろうと思ったけど、やっぱり自分が40とかになっても今の会社にいると思えないからな気がする&lt;/li&gt;
+&lt;li&gt;まぁそのときになってあーだこーだやるのは怖いよねって感じかも&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;30すぎると何かが減る気がした&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;まとめるとこの先ずっとプログラマとしてやっていきたいってのが根底にある気がします。&lt;/p&gt;
+&lt;p&gt;結局自分が楽しいことを仕事としてやり続けたいってところかなと。&lt;/p&gt;
+&lt;h1&gt;=================
+出来ること&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;技術周り&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Webアプリはそれなりに経験あります&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;悲しいことに障害対応の経験もあります&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;SPAもどきは良く作ってました&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;セキュリティをサーバー側に任せたいときだけ普通にレンダリング噛ますとか&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;業務で使ってた言語はC#,Ruby(Rails),TypeScript,JavaScript&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一番長いのがTypeScriptでついでC#とRubyって感じですかね&lt;/li&gt;
+&lt;li&gt;代表的なのだけで、他にもほそぼそと使ってたものはあります。そこら編は上に張ったURLで&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;趣味ではClojure,Elixirあたり&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Clojureが一番気に入ってるし、何かと手を動かしてたやつだと思います&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;技術以外&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;設計から実装まで&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;見積もりとかもしてました&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;PL&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;何故か下に新人がつくことが多かったので立場的にはPLやってることが結構有りました&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ただ、開発状況の管理とか、技術面のリーダーみたいなことをしてることのほうが多かったかなと&lt;/li&gt;
+&lt;li&gt;お客様との金銭の相談とかは直接はしてないです&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;=================
+方針&lt;/h1&gt;
+&lt;p&gt;まずは以下の方針で行こうかなぁと&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;遅くても9月までには終わらせる。早ければ早いほどよいと思っています&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;諦めるって選択含めてです&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;企業の探し方はプログラミング言語言語ありき&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Clojure,Python,Elixirって感じの趣味なのでその順で探そうと思います&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;経験を活かすと言うよりもっと難しいこととかやったこと無いことや好きなことしたいって感じですかね&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Rustとかも興味はありますが少なくとも上に上げた言語よりは勉強不足です&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;以下を参考に&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Clojureは &lt;code&gt;これ &amp;lt;https://github.com/athos/japanese-clojure-companies&amp;gt;&lt;/code&gt;_&lt;/li&gt;
+&lt;li&gt;Elixirは &lt;code&gt;こっち &amp;lt;https://github.com/voluntas/japanese-erlang-elixir-companies&amp;gt;&lt;/code&gt;_&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;次に作っているものって感じです&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ただし、派遣があまり好きではないのでそこら辺は最初から度外視します&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;自然に自社開発か受託に&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;toBかtoCもあまり気にしてません&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;強いていえばWebアプリ系の方が経験あるのでそこら辺中心にって感じでしょうか&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;年収は500前後くらいで&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;単純に今交通費とかボーナス全部含めた総支給で420くらいあったので&lt;/li&gt;
+&lt;li&gt;正直年収も今とあまり変わらないのであればそんなにこだわりがないです。もらえる分には貰いたいですが。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;とりあえず都内で&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;立地は北海道から沖縄までどこでもいいんですが、一年前に引っ越したんでもうちょっと関東にいたいなと。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;東京で働きたいみたいな思想とかまだ消耗してるのみたいな思想はないです。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;エージェントを使うつもりは無し&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;普通に転職サイトか企業の採用ページから行こうと思います&lt;/li&gt;
+&lt;li&gt;最近流行りのTwitterはどうしようか迷ってます。一回だけつぶやいて何もなければ終わりって感じが妥当かも&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;=================
+不安&lt;/h1&gt;
+&lt;p&gt;不安と言うか上記を目指す上での見えてる懸念ですかね&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;やりたいことに対する実力不足感&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Clojure,Python,Elixirは個人的に勉強はしてたが仕事で使ってない&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;本当に知見が貯まるときって仕事で使ってハマったりするときだと思うんですよね&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;単純に8時間同じ言語でプログラミング出来るかどうかの違いな気もする&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;一応作ったものはある&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;これに関しては自分の関心度とかモチベーションを見てもらうようにするしか無いと思う&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一応知らないことをモノにするのは自信があるのでそこら辺のアピール次第かも&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;その他の知識不足感&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;代表的なアルゴリズムは少し実装してみたりしてるんですが、昔やったやつだと覚えてなかったり&lt;/li&gt;
+&lt;li&gt;コンピューターサイエンス系の知識は大学の時やってたもだいぶ忘れてきている気がする&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;=================
+まとめ&lt;/h1&gt;
+&lt;p&gt;このページはちょくちょく編集していこうと思います。&lt;/p&gt;
+&lt;p&gt;転職活動するので見た人はよろしゅうお願いします。&lt;/p&gt;
+&lt;p&gt;拾ってやってもいいよって奇特な人もよろしくおねがいします。&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>Professional Clojureメモその1</title>
+		<link href="https://zonuko.github.io/posts/professional-clojure1/"/>
+		<updated>2018-05-27T23:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/professional-clojure1/</id>
+		<content type="html">&lt;p&gt;Professional Clojureメモその1
+################################&lt;/p&gt;
+&lt;p&gt;Profession Clojureって本を買ったのでメモしていこうと思います。&lt;/p&gt;
+&lt;p&gt;.. raw:: html&lt;/p&gt;
+   &lt;div class=&quot;kaerebalink-box&quot; style=&quot;text-align:left;padding-bottom:20px;font-size:small;/zoom: 1;overflow: hidden;&quot;&gt;&lt;div class=&quot;kaerebalink-image&quot; style=&quot;float:left;margin:0 15px 10px 0;&quot;&gt;&lt;a href=&quot;https://www.amazon.co.jp/exec/obidos/ASIN/B01G7S4SGK/zonuko-22/&quot; target=&quot;_blank&quot; &gt;&lt;img src=&quot;https://images-fe.ssl-images-amazon.com/images/I/51PAVy95uvL._SL160_.jpg&quot; style=&quot;border: none;&quot; /&gt;&lt;/a&gt;&lt;/div&gt;&lt;div class=&quot;kaerebalink-info&quot; style=&quot;line-height:120%;/zoom: 1;overflow: hidden;&quot;&gt;&lt;div class=&quot;kaerebalink-name&quot; style=&quot;margin-bottom:10px;line-height:120%&quot;&gt;&lt;a href=&quot;https://www.amazon.co.jp/exec/obidos/ASIN/B01G7S4SGK/zonuko-22/&quot; target=&quot;_blank&quot; &gt;Professional Clojure&lt;/a&gt;&lt;div class=&quot;kaerebalink-powered-date&quot; style=&quot;font-size:8pt;margin-top:5px;font-family:verdana;line-height:120%&quot;&gt;posted with &lt;a href=&quot;http://kaereba.com/&quot; rel=&quot;nofollow&quot; target=&quot;_blank&quot;&gt;カエレバ&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;kaerebalink-detail&quot; style=&quot;margin-bottom:5px;&quot;&gt;Jeremy Anderson,Michael Gaare,Justin Holguín,Nick Bailey,Timothy Pratley Wrox 2016-05-25    &lt;/div&gt;&lt;div class=&quot;kaerebalink-link1&quot; style=&quot;margin-top:10px;&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;booklink-footer&quot; style=&quot;clear: left&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;ちなみに章ごとです。今回は第1章です。&lt;/p&gt;
+&lt;p&gt;第1章ではClojureの関数型の部分についてJavaと比較するような形で書かれています。
+最初は細かく書こうと思ったんですが、思ったよりボリューム満点だったので適当にClojureの部分だけ要約します。&lt;/p&gt;
+&lt;h1&gt;============================================
+再帰&lt;/h1&gt;
+&lt;p&gt;Programming Clojureとか読んでると今更な感もあるんですが、触れられていました。&lt;/p&gt;
+&lt;p&gt;通常の再帰ではスタックがあふれるので、 &lt;code&gt;recur&lt;/code&gt; を使って末尾再帰します。 ただし、 JVMは末尾呼び出し最適化をサポートしてないのでシュミレートしているだけのようです。(&#39;tail call optimazation&#39;とあったので末尾呼び出し最適化としておきます。)&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(defn factorial2 [n]
+(loop [count n acc 1]
+(if (zero? count)
+acc
+(recur (dec count) (* acc count)))))&lt;/p&gt;
+&lt;p&gt;相互再帰は &lt;code&gt;trampoline&lt;/code&gt; でやる感じです。ただし、サンプルでは普通の相互再帰と、 &lt;code&gt;letfn&lt;/code&gt; でローカルに関数を2つ作ってそれを相互再帰する方も紹介されていました。
+普通に相互再帰すると関数呼び出しが &lt;code&gt;trampoline&lt;/code&gt; 付きでの呼び出しになるのが普通に関数呼び出せば良くなるのがメリットみたいです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; 使うときはtrampolineなしで普通に呼べば良い
+(defn my-even? [n]
+(letfn [(e? [n] (if (zero? n) true #(o? (dec n))))
+(o? [n] (if (zero? n) false #(e? (dec n))))]
+(trampoline e? n)))&lt;/p&gt;
+&lt;p&gt;;; trampolineはmy-evenの中に閉じ込められているのでそのまま使える
+(defn my-odd? [n]
+(not (my-even? n)))&lt;/p&gt;
+&lt;h1&gt;============================================
+高階関数&lt;/h1&gt;
+&lt;p&gt;特に発見とかもなかったです。 &lt;code&gt;filter&lt;/code&gt; の例が出ていました。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(def lst [&amp;quot;a&amp;quot; &amp;quot;b&amp;quot; &amp;quot;c&amp;quot; &amp;quot;d&amp;quot;])
+(filter #(= &amp;quot;a&amp;quot; %) lst)&lt;/p&gt;
+&lt;p&gt;それ以外にもコマンドパターンの比較があったりしました。&lt;/p&gt;
+&lt;h1&gt;============================================
+部分適用と合成関数&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;partial&lt;/code&gt; を使った部分適用について触れられています。
+部分適用とかカリー化とか誤用の元なので触れるのに勇気がいる・・・&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(def twice (partial * 2))
+(map twice [1 2 3 4 5])&lt;/p&gt;
+&lt;p&gt;関数の合成の方は &lt;code&gt;comp&lt;/code&gt; で出来ます。評価順は右から左って感じです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; 2足してから2倍する
+(map (comp (partial * 2) (partial + 2)) [1 2 3 4 5])&lt;/p&gt;
+&lt;h1&gt;============================================
+遅延評価&lt;/h1&gt;
+&lt;p&gt;もっと使わないと全然理解が甘い気がしてて恐縮ですが、
+&lt;code&gt;map&lt;/code&gt; とかでも &lt;code&gt;lazy sequence&lt;/code&gt; を返してくる点が触れられています。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; lazy-cat全く覚えてなかった
+;; 素朴な使い方
+(lazy-cat [1 2 3] [4 5 6])&lt;/p&gt;
+&lt;p&gt;;; フィボナッチ ただしプログラミングClojureで紹介されている良くないパターン
+;; map以下では自分自身が常に変更されて計算されていくイメージ
+;; [1 1]のときはmapの引数は[1] [1]となり、2が計算される
+;; 2が分かると[1 1 2]となり[1 1 2]と[1 2]となり3が計算される
+;; 3が分かると[1 1 2 3]となり[1 1 2 3]と[1 2 3]となり5が計算される
+;; 以下無限に続くものがmapの引数となるリスト
+(def fib-seq
+(lazy-cat [1 1] (map + (rest fib-seq) fib-seq)))&lt;/p&gt;
+&lt;h1&gt;============================================
+変更可能な仲間&lt;/h1&gt;
+&lt;h1&gt;Atom&lt;/h1&gt;
+&lt;p&gt;最もシンプルな変更可能な値。協調動作を行わない前提だったり、独立した値に使えるっぽいです。
+一度に複数変更しない場合にのみ使う感じです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; そのまま表示すると#atom[{} 0x755e4715]って感じでセットした値とハッシュ値のセットになる
+(def app-state (atom {}))
+;; swap!で更新する。第二引数の関数をその後の引数を使って実行する
+;; #atom[{:current-user &amp;quot;Jeremy&amp;quot;} 0x755e4715]な感じ
+(swap! app-state assoc :current-user &amp;quot;Jeremy&amp;quot;)
+;; 直接上書き更新する場合はreset!
+;; #atom[{:aaa 1} 0x755e4715]
+(reset! app-state {:aaa 1})
+;; derefか@で中身を取得
+(:aaa @app-state)&lt;/p&gt;
+&lt;h1&gt;Ref&lt;/h1&gt;
+&lt;p&gt;複数値の変更に使うやつです。いわゆるトランザクション。
+ここらへんプログラミングClojureにもあったんですが要復習。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;atom&lt;/code&gt; との比較は割愛&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; refの定義方法はatomと似た感じ
+(def checking (ref {:balance 500}))
+;; 協調動作実験用にもう一つ
+(def savings (ref {:balance 250}))&lt;/p&gt;
+&lt;p&gt;;; dosyncで協調動作
+;; throwされると最初のcommuteは巻き戻される
+;; 更新自体はalterも存在し、こっちは実行順が保証される
+(dosync
+(commute checking assoc :balance 700)
+(throw (Exception. &amp;quot;Oops...&amp;quot;))
+(commute savings assoc :balance 50))&lt;/p&gt;
+&lt;h1&gt;============================================
+Nilの扱い&lt;/h1&gt;
+&lt;p&gt;Nil Punningって日本語にするとどういう感じなんだろう？上手い翻訳が出てこない・・・&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; nilはfalsy
+(if nil &amp;quot;true&amp;quot; &amp;quot;false&amp;quot;)&lt;/p&gt;
+&lt;p&gt;;; firstとかみたいに配列の類いを渡すこと前提にしているものはnil渡すとnilを返す
+;; 単純に想定されているものが来てないので最初の要素とかが無いので
+(first nil) ;; =&amp;gt; nil
+(second nil) ;; =&amp;gt; nil
+(seq? nil) ;; =&amp;gt; false&lt;/p&gt;
+&lt;p&gt;;; 空のリストとかとはnilは違う
+(if &#39;() &amp;quot;true&amp;quot; &amp;quot;false&amp;quot;) ;; =&amp;gt; &amp;quot;true&amp;quot;&lt;/p&gt;
+&lt;p&gt;;; falsyな値としてnilを扱っているのかnilとしてnilを使っているのか要注意
+;; 以下の例はmapを扱う場合にValueとしてnilがあるとKeyが存在しないときに帰ってくるnilを判別が出来ない例
+(:foo {:foo nil :bar &amp;quot;baz&amp;quot;}) ;; =&amp;gt; nil
+(:fooo {:foo nil :bar &amp;quot;baz&amp;quot;}) ;; =&amp;gt; nil
+;; mapはデフォルト値を指定できるのでKeyが無いときはそっちがいい
+(:fooo {:foo nil :bar &amp;quot;baz&amp;quot;} :not-found) ;; =&amp;gt; :not-found&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;(first 1)&lt;/code&gt; はなんでnilじゃないんだろう？&lt;/p&gt;
+&lt;h1&gt;============================================
+オブジェクト指向っぽいやつ&lt;/h1&gt;
+&lt;p&gt;オーバーロードっぽいディスパッチは &lt;code&gt;defmulti&lt;/code&gt; のマルチメソッドでできる&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; 第一引数に与えられた何某かで実際に呼び出されるメソッドが決まる
+(defmulti area (fn [shape &amp;amp; _] shape))&lt;/p&gt;
+&lt;p&gt;;; １つ目が:triangleの場合
+(defmethod area :triangle
+[_ base height]
+(/ (* base height) 2))&lt;/p&gt;
+&lt;p&gt;;; :sqareの場合
+(defmethod area :square
+[_ side]
+(* side side))&lt;/p&gt;
+&lt;p&gt;;; :rectの場合
+(defmethod area :rect
+[_length width]
+(* length width))&lt;/p&gt;
+&lt;p&gt;;; :circleの場合
+(defmethod area :circle
+[_ radius]
+(* radius radius Math/PI))&lt;/p&gt;
+&lt;p&gt;オーバーロードと違ってオブジェクトに紐づくようなメソッドではなく、
+特定の条件から実際の関数がディスパッチされる単なる関数群という感じでしょうか&lt;/p&gt;
+&lt;h1&gt;クラスっぽいやつ&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;deftype&lt;/code&gt; とか &lt;code&gt;defrecord&lt;/code&gt; でクラスが作れる。
+&lt;code&gt;defrecord&lt;/code&gt; の方は普通の連想配列のようにも振る舞える&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(deftype hogehoge [hoge])
+(def h (hogehoge. 100))
+(.hoge h) ;; =&amp;gt; 100
+(:hoge h) ;; =&amp;gt; nil&lt;/p&gt;
+&lt;p&gt;(defrecord foo [bar])
+(def f (foo. 100))
+(.bar f) ;; =&amp;gt; 100
+(:bar f) ;; =&amp;gt; 100&lt;/p&gt;
+&lt;h1&gt;インターフェースぽいやつ&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;interface&lt;/code&gt; っぽいやつとして &lt;code&gt;defprotocol&lt;/code&gt; が紹介されていました。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(defprotocol Shape
+(area [this])
+(perimeter [this]))&lt;/p&gt;
+&lt;p&gt;(defrecord React [width length]
+Shape ;; Shapeプロトコルを実装
+(area [this] (* (:width this) (:length this)))
+(perimeter [this] (+ (* 2 (:width this)) (* 2 (:length this)))))&lt;/p&gt;
+&lt;p&gt;どちらかというとtraitとかに近いのかも？traitの方はちょっとかじった程度ですが。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;defrecord&lt;/code&gt; や &lt;code&gt;deftype&lt;/code&gt; したくないけど特定の &lt;code&gt;Var&lt;/code&gt; になにか処理を付け加えたいとき用に &lt;code&gt;reify&lt;/code&gt; があるっぽいです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; recordやtypeではない単なるVarにprotocolを実装させる
+(def some-shape
+(reify Shape
+(area [this] &amp;quot;Area&amp;quot;)
+(perimeter [this] &amp;quot;I calculate perimeter&amp;quot;)))&lt;/p&gt;
+&lt;h1&gt;============================================
+その他&lt;/h1&gt;
+&lt;p&gt;データの永続性についてとかを木構造を作って紹介されてましたがブログでは割愛します。&lt;/p&gt;
+&lt;p&gt;また、マクロの紹介として &lt;code&gt;defroutes&lt;/code&gt; とかが紹介されていました。
+マクロ自体の説明ではなくて何が出来るかとかそういう話です。&lt;/p&gt;
+&lt;h1&gt;============================================
+まとめ&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;ほとんど復習でしたが、 &lt;code&gt;trampoline&lt;/code&gt; の使い方とか参考になりました。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;honeysql&lt;/code&gt; とか紹介されてたのでそのうち使ってみたいです&lt;/li&gt;
+&lt;/ul&gt;</content>
+	</entry>
+	<entry>
+		<title>社会に出て3年間でやってたこと</title>
+		<link href="https://zonuko.github.io/posts/inventory/"/>
+		<updated>2018-05-25T00:12:00Z</updated>
+		<id>https://zonuko.github.io/posts/inventory/</id>
+		<content type="html">&lt;p&gt;社会に出て3年間でやってたこと
+######################################################&lt;/p&gt;
+&lt;p&gt;題名の通りなんですが、まとめてみます。Twitterとかで個人的に勉強したことは出してても、
+業務のために勉強した事とか出してなかったので、まとめておこうと思います。&lt;/p&gt;
+&lt;p&gt;ただし、実際に何作ったかとかは結構パブリックな感じでは出せないものがあるので技術とか個人的な勉強とかだけにしとこうと思います。&lt;/p&gt;
+&lt;h1&gt;============================================
+お仕事で使ったもの(順不同)&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;React.js(2年くらい？)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;WebGIS絡みのプロジェクトで利用&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Fluxの類は入れなかったので苦労する面もあった&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;バケツリレーはやっぱり誰でも悩むんだなぁとか&lt;/li&gt;
+&lt;li&gt;ただ、色々合って入れなくてよかったなと思う面もあるので一長一短&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;TypeScript(2年強)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;React.jsかVue.jsと組わせて使ってた&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;個人的にはかなり好き&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C#っぽい書きっぷりとか、型の柔軟性とか&lt;/li&gt;
+&lt;li&gt;事前にF#とか関数型勉強してた事もあって型については結構調べてても楽しかったです。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Vue.js(半年弱くらい)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;React.jsのあとに使いました。結構好きです。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Angularも短期間ですがやってましたが、ReactとAngularの間くらいの感じで結構好きです&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;用意されている機能もちょうどいい塩梅だと感じてます&lt;/li&gt;
+&lt;li&gt;FluxなしのReactほどカオスにならず、Angularほど大掛かりでも無い印象&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Angular(一週間くらい)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;めちゃくちゃ突発で、直前に言われて2日で勉強してくるみたいな無理をしたやつです&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;結構大掛かりな感じなフレームワークだなという印象&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;双方向バインディング人類には早くない？とか&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;C#(2.5年くらい？)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;DLLの作成からASP.NET MVCでのWebアプリ作成まで色々使いました&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CLI使って結構頑張るとC++と連携とか色々出来て楽しいです&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;言語としてはかなりいい出来だと思ってます。LINQがかなり良いです&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Java(合計すると半年くらい？)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;主にWebアプリで利用&lt;/li&gt;
+&lt;li&gt;PlayFrameworkとかSpringFrameworkとセットで使ってます&lt;/li&gt;
+&lt;li&gt;C#のあとに触れたので色々違和感が・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;C++(これも合計で半年くらい？)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;デスクトップアプリ作るのに使ってました&lt;/li&gt;
+&lt;li&gt;dll、libとかかなり複雑でした。libに二種類あるとか最初はめっちゃ混乱&lt;/li&gt;
+&lt;li&gt;ガッツリオブジェクト指向で作られているプロジェクトでデザインパターンを積極的に入れていることを売りにしているプロジェクトだったので、
+OOPに関しての知見とか知識は勉強させてもらいました&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Ruby(1年弱)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Railsと一緒に使ってました&lt;/li&gt;
+&lt;li&gt;PHPから移行したプロジェクトで結構苦労しました&lt;/li&gt;
+&lt;li&gt;動的型付け + OOPはちゃんと作らないとカオスだと言うことを学んでしまった・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Python(1年くらい)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;正確に言うと社会に出てからの物ではないです&lt;/li&gt;
+&lt;li&gt;大学院の研究でアルゴリズムの検証とか実験に使ってました&lt;/li&gt;
+&lt;li&gt;言語としてはかなり好きな方です。押し付けてくるシンタックスとか仕様が割りと好きです&lt;/li&gt;
+&lt;li&gt;あとは社内のお遊びプロジェクトで画像を集めるのに使ったりとか&lt;/li&gt;
+&lt;li&gt;1,2を争うぐらい好きな言語。プログラミングの楽しさを教えてくれた言語です&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;その他(めっちゃ短期間だけ触ったもの。細かい説明は割愛)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PHP&lt;/li&gt;
+&lt;li&gt;Go&lt;/li&gt;
+&lt;li&gt;C&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;============================================
+個人的な勉強&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Clojure(勉強開始からだと半年ちょい？)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;最初はLISP系言語敬遠してたんですが、全く違う物勉強したくなって触りました&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pythonと同じくらい好きです&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;好きな理由が上手く言えない。なんとなく言語の思想を押し付けてくるところだとは思ってますが&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Simple Made Easyだとか、連想配列の分配束縛とか辺りにそういうの感じてるのかなぁとか思います&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;シンプルさの必要性 &amp;lt;http://eed3si9n.com/ja/simplicity-matters&amp;gt;&lt;/code&gt;_ とかは結構読み返しました&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;シンタックスレベルで思想を押し付けてくるのはPythonとも若干共通している気がしなくもないです。Clojureのほうが柔軟だとは思いますが&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;作ったものは過去のブログ参照ってことで&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Elixir&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;これ自体は出たばっかりの頃にインストールだけしてみたりしてたものです。多分学生時代です&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;社会に出てちょっとしてセミナーとかで見かけたのでちょっと真面目にやってみるかって思ってやってみた感じです&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Programming ElixirとProgramming Phoenixとか読んでました&lt;/li&gt;
+&lt;li&gt;Programming Phoenixについて過去のブログ参照です&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;アクターモデルとかについては勉強になりました。並行処理とか余りちゃんと勉強してなかったんですが勉強になります&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;シンタックスがRuby風味なのは今となっては正直余り好きではないです&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;https://bitbucket.org/y_fujiwara/elixir-tutorial/src/default/&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;https://bitbucket.org/y_fujiwara/programming-phoenix/src/master/&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;https://gitlab.com/y-fujiwara/gemini&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Phoenix、TS、React、Fluxでチャット作ろうとしてガワだけ作って止まっちゃってるやつ&lt;/li&gt;
+&lt;li&gt;結局チャット自体はClojureの方で満足してしまっている・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;その他(チュートリアル程度だったり、本一冊読んだ程度だったり)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;F#&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;プログラミングの基礎がOCamlで書いてあったのでF#でもイケるっしょって思ってやってました&lt;/li&gt;
+&lt;li&gt;言語自体は結構好きでしたが、何故か余り深入りしませんでした&lt;/li&gt;
+&lt;li&gt;実践 F# 関数型プログラミング入門とかも取り寄せして読んだりしてました。再販してほしい&lt;/li&gt;
+&lt;li&gt;https://bitbucket.org/y_fujiwara/metro-network/src/master/&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Rust&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;完全にチュートリアルしかやってません&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C++の経験だけ合ったので比較対象としてはかなり有意義でした&lt;/li&gt;
+&lt;li&gt;所有権とか余り意識してなかったのでそこら辺は勉強になりました&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Elm&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;これもチュートリアルだけです&lt;/li&gt;
+&lt;li&gt;正直難しかったです。Haskellあまり習得もしてないので尚更&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;============================================
+その他読んでよかった本とか&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;プログラミン言語の基礎概念&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;https://bitbucket.org/y_fujiwara/copl/src/master/&lt;/li&gt;
+&lt;li&gt;途中までやって力尽きたリポジトリ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;カイゼンジャーニー&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;なぜオブジェクト指向で作るのか&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;プロになるためのWeb技術入門&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;シングルページWebアプリケーション&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;JavaScript: the Good Parts&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;上の二冊はクライアント側実装するときに勉強した本。個人的にはバイブル&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;etc...&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;============================================
+まとめ&lt;/h1&gt;
+&lt;p&gt;個人的な好き嫌いで言うと Clojure = Python &amp;gt; TypeScript &amp;gt; C# &amp;gt; Ruby &amp;gt; Java って感じですかね。&lt;/p&gt;
+&lt;p&gt;まとめてみると色々触ってるなぁと思います。なんかWebクライアントサイド結構やっているように思われがちな気がしてます。
+向き不向きは置いておいて、正直いうと余りクライアント側好みではないです。&lt;/p&gt;
+&lt;p&gt;今と言うか今後しばらくClojureやっていると思います。最近色々考えなきゃなぁと思うこともあるのでうごいていこうかなとか。
+なんか3年も立つと1年目のときには考えもしなかったこと考えてしまうなと感慨深い今日このごろです。&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>ClojureでWebアプリ続きの続き(外部APIと連携するchannel)</title>
+		<link href="https://zonuko.github.io/posts/clojure-web3/"/>
+		<updated>2018-05-24T23:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/clojure-web3/</id>
+		<content type="html">&lt;p&gt;ClojureでWebアプリ続きの続き(外部APIと連携するchannel)
+#######################################################&lt;/p&gt;
+&lt;p&gt;真面目に前回で終わりだと思ってたんですが、 &lt;code&gt;core.async&lt;/code&gt; とか調べている内に意欲が・・・&lt;/p&gt;
+&lt;p&gt;今回はWolfram Alphaって言う質問応答サービスを利用してチャットにQAを組み込みます。
+結構前に書いてたProgramming Phoenixで最後の方にやってたやつと似たような感じです。&lt;/p&gt;
+&lt;h1&gt;============================================
+導入&lt;/h1&gt;
+&lt;p&gt;今回は以下を使いました。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[com.stuartsierra/component &amp;quot;0.3.2&amp;quot;]&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;sente&lt;/code&gt; のソケットとAPI問い合わせ用の &lt;code&gt;channel&lt;/code&gt; を管理するためです。ついでに使ってみようってことで。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;また、チャットにて@wolframが最初についているものを対象リクエストとみなします。&lt;/p&gt;
+&lt;h1&gt;============================================
+問い合わせ部分の本体実装&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;channel&lt;/code&gt; で待ち受けてAPIに問い合わせるだけです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(ns earth-clj.wolfram
+(:require [clojure.core.async :refer [go-loop &amp;lt;! &amp;gt;!]]
+[ring.util.codec :as codec]
+[earth-clj.socket :refer [ch-chsk]]
+[clojure.xml :as xml]
+[clojure.zip :as zip]))&lt;/p&gt;
+&lt;p&gt;;; TODO: pipeとかpipelineを使ってch-chskとwolfram-chをつなげる&lt;/p&gt;
+&lt;p&gt;(defonce ^:private app-id &amp;quot;XXXXX-XXXXXXXXX&amp;quot;)&lt;/p&gt;
+&lt;p&gt;(defn- make-url [input]
+(println input)
+(str &amp;quot;http://api.wolframalpha.com/v2/query?appid=&amp;quot;
+app-id
+&amp;quot;&amp;amp;input=&amp;quot;
+(codec/url-encode input)
+&amp;quot;&amp;amp;format=plaintext&amp;quot;))&lt;/p&gt;
+&lt;p&gt;(defn- xml-&amp;gt;data [input]
+(some-&amp;gt; input
+make-url
+xml/parse
+zip/xml-zip
+zip/down
+zip/right
+zip/down
+zip/down
+zip/down
+first))&lt;/p&gt;
+&lt;p&gt;(defn start-wolfram-service [wolfram-ch]
+(go-loop []
+(when-let [{:as ev-msg :keys [ring-req ?data]} (&amp;lt;! wolfram-ch)]
+(&amp;gt;! (:reader ring-req) (assoc ev-msg :?data
+(if-let [ans (xml-&amp;gt;data ?data)]
+ans
+&amp;quot;I have no idea.&amp;quot;)))
+(recur))))&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;go-loop&lt;/code&gt; で待ち受けて何か来たらWolfram Aplhaからxmlもらってくる感じです。
+&lt;code&gt;some-&amp;gt;&lt;/code&gt; とか初めて使いました。
+データが取得出来たらDB登録用の &lt;code&gt;channel&lt;/code&gt; にデータを突っ込みます。&lt;/p&gt;
+&lt;p&gt;また、 &lt;code&gt;xml-zip&lt;/code&gt; 使うと木構造みたいな感じにしてくれるのであとは適当に探索すればよかったので
+それなりに楽でした。(使い方を掴むまでは結構試行錯誤でしたが・・・)&lt;/p&gt;
+&lt;h1&gt;================================
+sente側&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;sente&lt;/code&gt; 側は &lt;code&gt;websocket&lt;/code&gt; を通して来たリクエストに対して、正規表現を使って場合分けするだけです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; 正規表現
+(def ^:private prefix #&amp;quot;(^@wolfram)(.*)&amp;quot;)&lt;/p&gt;
+&lt;p&gt;(defmethod -event-msg-handler
+:chat/post
+[{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+;; nthでも良いけどIndex~の例外が出るのでlastにする
+;; 正規表現的に最大でも3つの要素のvectorになる
+(when-let [msg (last (re-find prefix ?data))]
+(go
+(&amp;gt;! (:qasystem ring-req) (assoc ev-msg :?data msg))))
+(message/add-messages (get-in ring-req [:session :identity]) ?data)
+(msgs-broadcast))&lt;/p&gt;
+&lt;p&gt;;; Wolframから返されるものを待ち受ける
+(defn watch-wolfram-service [watch-ch]
+(go-loop []
+(when-let [{:as ev-msg :keys [ring-req ?data]} (&amp;lt;! watch-ch)]
+(message/add-messages (get-in ring-req [:session :identity]) ?data)
+(msgs-broadcast)
+(recur))))&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;watch-wolfram-service&lt;/code&gt; を &lt;code&gt;component&lt;/code&gt; から起動される関数にしています。
+これはWolfram側から問い合わせが来る &lt;code&gt;go-loop&lt;/code&gt; になってます。&lt;/p&gt;
+&lt;p&gt;結局 &lt;code&gt;channel&lt;/code&gt; をコールバックみたいにしか使えてないのが心残り・・・&lt;/p&gt;
+&lt;h1&gt;============================================
+コンポーネントの実装&lt;/h1&gt;
+&lt;p&gt;ここまで作ったものとサーバーの起動をまとめます。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(ns earth-clj.component
+(:use [org.httpkit.server :only [run-server]])
+(:require [com.stuartsierra.component :as component]
+[taoensso.sente :as sente]
+[clojure.core.async :refer [go-loop &amp;lt;! &amp;gt;! chan] :as async]
+[earth-clj.socket :as socket]
+[earth-clj.wolfram :as wolfram]
+[earth-clj.core :as earth]))&lt;/p&gt;
+&lt;p&gt;;; 基本的には変更可能な状態をコンポーネントに押し込めるイメージ
+;; 単純にrefやatomで持ってたものをrouter_などのローカル変数に押し込める&lt;/p&gt;
+&lt;p&gt;(defrecord Wolfram [qasystem]
+component/Lifecycle
+(start [this]
+(let [wolfram-ch (chan)]
+(println &amp;quot;;; Starting Wolfram Alpha&amp;quot;)
+(wolfram/start-wolfram-service wolfram-ch)
+(assoc this :qasystem wolfram-ch)))
+(stop [this]
+(println &amp;quot;;; Wolfram stopped&amp;quot;)
+(assoc this :qasystem nil)))&lt;/p&gt;
+&lt;p&gt;(defn create-wolfram []
+(map-&amp;gt;Wolfram {}))&lt;/p&gt;
+&lt;p&gt;;; WebSocketコンポーネント
+(defrecord Socket [router]
+component/Lifecycle
+(start [this]
+(if router
+this
+(do (println &amp;quot;;; Starting Chat Socket&amp;quot;)
+(let [router_ (sente/start-server-chsk-router! socket/ch-chsk socket/event-msg-handler)
+read-ch (chan)]
+(socket/watch-wolfram-service read-ch)
+(assoc this :reader read-ch :router router_)))))
+(stop [this]
+(if (not router)
+this
+(do (try (router)                                     ;; router自身が終了用の関数
+(catch Throwable t
+&amp;quot;;; Error when stopping database&amp;quot;))
+(println &amp;quot;;; Database stopped&amp;quot;)
+(assoc this :reader nil :router nil)))))&lt;/p&gt;
+&lt;p&gt;;; Socketコンポーネントの作成用関数
+(defn create-socket []
+(map-&amp;gt;Socket {}))&lt;/p&gt;
+&lt;p&gt;;; requestにQAコンポーネントとその受信用チャネルを追加するミドルウェア
+(defn wrap-app-component [f qa reader]
+(fn [req]
+(f (assoc req :reader reader :qasystem qa))))&lt;/p&gt;
+&lt;p&gt;;; ミドルウェアを適用したringハンドラを返す関数
+(defn make-handler [qa reader]
+(wrap-app-component earth/app qa reader))&lt;/p&gt;
+&lt;p&gt;(defrecord Server [server host port join? router qasystem]
+component/Lifecycle
+(start [this]
+(if server
+this
+(do (println &amp;quot;;; Starting HTTP Server&amp;quot;)
+(let [server (run-server (make-handler (:qasystem qasystem) (:reader router))
+{:host  host
+:port  port
+:join? join?})]
+(assoc this :server server)))))
+(stop [this]
+(if (not server)
+this
+(do (try (server)                                     ;; http-kitの終了
+(catch Throwable t
+(print &amp;quot;;; Error when stopping HTTP server&amp;quot;)))
+(println &amp;quot;;; HTTP server stopped&amp;quot;)
+(assoc this :server nil)))))&lt;/p&gt;
+&lt;p&gt;;; HTTPサーバコンポーネント
+(defn create-http-server [host port join?]
+;; map-&amp;gt;ReacodNameで引数に与えられたMapからレコードを生成する
+(map-&amp;gt;Server {:host host :port port :join? join?}))&lt;/p&gt;
+&lt;p&gt;;; システム作成用関数
+(defn create-system [&amp;amp; {:keys [host port join?]
+:or   {host &amp;quot;localhost&amp;quot; port 4000 join? false}}]
+(component/system-map
+:qasystem (create-wolfram)
+:router (create-socket)
+:server (component/using
+(create-http-server host port join?)
+[:router :qasystem])))&lt;/p&gt;
+&lt;p&gt;使い方が合っているかは謎。
+&lt;code&gt;let&lt;/code&gt; とかで作ったchannelを引数に渡すことで &lt;code&gt;go-loop&lt;/code&gt; を起動してたりします。
+また、 &lt;code&gt;qasystem&lt;/code&gt; と &lt;code&gt;router&lt;/code&gt; は互いに依存してますが、 &lt;code&gt;component/using&lt;/code&gt; でやろうとすると
+怒られたので &lt;code&gt;server&lt;/code&gt; がどちらにも依存しているって形式にしました。&lt;/p&gt;
+&lt;p&gt;あとはリクエストマップに &lt;code&gt;channel&lt;/code&gt; を押し込んでいる部分ですがこれでいいのかかなり微妙な気分ではあります。&lt;/p&gt;
+&lt;h1&gt;============================================
+出来たもの&lt;/h1&gt;
+&lt;p&gt;Twitterにも似たようなの投稿しましたが出来たものは以下みたいなやつです。
+&lt;code&gt;@wolfram qa&lt;/code&gt; でちゃんとした質問なら &lt;code&gt;qa&lt;/code&gt; の回答が自動で帰ってきます。&lt;/p&gt;
+&lt;p&gt;.. image:: /images/Wolfram.gif
+:alt: Quicksilver&lt;/p&gt;
+&lt;h1&gt;============================================
+まとめ&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;component&lt;/code&gt; はPhoenixのUmbrellaに似ていると思った&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;やろうと思えば &lt;code&gt;channel&lt;/code&gt; 同士の依存とかも管理できそう？&lt;/li&gt;
+&lt;li&gt;依存先が落ちたら再起動とか出来るんだろうか&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;core.async&lt;/code&gt; の簡単な使い方が分かった&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;本当は &lt;code&gt;pipeline&lt;/code&gt; とか &lt;code&gt;pipe&lt;/code&gt; とか使いたかったですが上手くいかず。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</content>
+	</entry>
+	<entry>
+		<title>ClojureでWebアプリ続き(WebSocketとチャット)</title>
+		<link href="https://zonuko.github.io/posts/clojure-web2/"/>
+		<updated>2018-05-15T23:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/clojure-web2/</id>
+		<content type="html">&lt;p&gt;ClojureでWebアプリ続き(WebSocketとチャット)
+#############################################&lt;/p&gt;
+&lt;p&gt;単発で終わったと見せかけて続きです。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;WebSocket&lt;/code&gt; 使ってチャットでも作ってみます。
+使うものは &lt;code&gt;sente &amp;lt;https://github.com/ptaoussanis/sente&amp;gt;&lt;/code&gt;_ です。単純にググったら最初の方に出てきたので使ってみます。
+とりあえずシンプルに以下が目標です。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;チャットルームとかは作らずに全員同じチャットルーム&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;要するにサーバーからの通知は必ずブロードキャストで行きます。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;テーブル作ってそこに保存すること(メッセージと、ログインしている場合は発信者のID)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;リプライ機能とかは作らない&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;リポジトリなどは前回とおんなじ&lt;/p&gt;
+&lt;h1&gt;============================================
+導入&lt;/h1&gt;
+&lt;p&gt;以下の依存関係をを &lt;code&gt;project.clj&lt;/code&gt; に追加します。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[gravatar &amp;quot;1.1.0&amp;quot;]&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;チャット画面のアバター表示用別になくても良い&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[http-kit &amp;quot;2.2.0&amp;quot;]&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;sente&lt;/code&gt; のサンプルによく使われていたので &lt;code&gt;jetty&lt;/code&gt; から置き換え&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;[com.taoensso/sente &amp;quot;1.12.0&amp;quot;]&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;sente&lt;/code&gt; 本体&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;とりあえずこんなもんです。&lt;/p&gt;
+&lt;h1&gt;============================================
+サーバー側の実装&lt;/h1&gt;
+&lt;p&gt;適当にネームスペース掘ります。今回は &lt;code&gt;earth-clj.socket&lt;/code&gt; でフォルダ直下にしてしまいました。&lt;/p&gt;
+&lt;p&gt;まずは &lt;code&gt;sente&lt;/code&gt; のリポジトリのREADMEに書いてあるように実装します。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(ns earth-clj.socket
+(:require [taoensso.sente :as sente]
+[clojure.core.async :refer [go-loop &amp;lt;!]]
+[compojure.core :refer [defroutes context GET POST]]
+[earth-clj.db.message :as message]
+[taoensso.timbre    :as timbre :refer (tracef debugf infof warnf errorf)]
+[taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]))&lt;/p&gt;
+&lt;p&gt;;; sente用の設定 要確認
+(let [{:keys [ch-recv send-fn connected-uids
+ajax-post-fn ajax-get-or-ws-handshake-fn]}
+(sente/make-channel-socket! (get-sch-adapter) {})]
+(def ring-ajax-post ajax-post-fn)
+(def ring-ajax-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
+(def ch-chsk ch-recv) ; ChannelSocket&#39;s receive channel
+(def chsk-send! send-fn) ; ChannelSocket&#39;s send API fn
+(def connected-uids connected-uids)) ; Watchable, read-only atom&lt;/p&gt;
+&lt;p&gt;(defroutes socket-routes
+;; &lt;other stuff&gt;
+;;; Add these 2 entries: ---&amp;gt;
+(GET  &amp;quot;/chsk&amp;quot; req (ring-ajax-get-or-ws-handshake req))
+(POST &amp;quot;/chsk&amp;quot; req (ring-ajax-post req)))&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;WebSocket&lt;/code&gt; の受信/発信用の &lt;code&gt;Var&lt;/code&gt; 定義と接続とかに使われる &lt;code&gt;routes&lt;/code&gt; の設定がされるっぽいです。
+正直そんなに理解してないです。 &lt;code&gt;connected-uids&lt;/code&gt; がコネクションに対するワンタイムトークンみたいになってるのかな？って程度です。&lt;/p&gt;
+&lt;p&gt;ただ、 &lt;code&gt;ch-chsk&lt;/code&gt; が &lt;code&gt;core.async&lt;/code&gt; の &lt;code&gt;channel&lt;/code&gt; になっていることだけ注意が必要かもです。
+&lt;code&gt;println&lt;/code&gt; とかすると &lt;code&gt;clojure.core.async.impl.channels.ManyToManyChannel&lt;/code&gt; のインスタンスであることがわかったりします。
+&lt;code&gt;ManyToMany&lt;/code&gt; があるなら他にもあるんじゃないかとか、 &lt;code&gt;core.async&lt;/code&gt; 自体も理解してないのでココらへんのオブジェクトが何なのかは追々・・・&lt;/p&gt;
+&lt;h1&gt;サーバー側のイベント&lt;/h1&gt;
+&lt;p&gt;サーバー側のイベント処理を書いていきます。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; 全UIDに対してメッセージをブロードキャストする
+;; TODO: UIDの扱い方がよくわからない
+(defn msgs-broadcast []
+(debugf &amp;quot;BroadCastMsgs&amp;quot;)
+(doseq [uid (:any @connected-uids)]
+(chsk-send! uid [:chat/msgs (message/all-messages)])))&lt;/p&gt;
+&lt;p&gt;;; イベントを送られてきたIDによって分岐するマルチメソッド
+(defmulti -event-msg-handler
+&amp;quot;Multimethod to handle Sente &lt;code&gt;event-msg&lt;/code&gt;s&amp;quot;
+:id)&lt;/p&gt;
+&lt;p&gt;;; :idが何にもマッチしなかった場合
+(defmethod -event-msg-handler
+:default
+[{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+(let [session (:session ring-req)
+uid     (:uid     session)]
+(debugf &amp;quot;Unhandled event: %s&amp;quot; event)
+(when ?reply-fn
+(?reply-fn {:umatched-event-as-echoed-from-from-server event}))))
+;; 初期化処理
+(defmethod -event-msg-handler
+:chat/init
+[{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+(let [session (:session ring-req)
+uid     (:uid     session)]
+(debugf &amp;quot;Init event: %s&amp;quot; event)
+(when ?reply-fn
+(?reply-fn (message/all-messages)))))
+;; チャットメッセージ投稿
+;; DBにインサート後ブロードキャストを行う
+(defmethod -event-msg-handler
+:chat/post
+[{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+(message/add-messages (get-in ring-req [:session :identity]) ?data)
+(msgs-broadcast))&lt;/p&gt;
+&lt;p&gt;;; イベントハンドラ発火元関数
+(defn event-msg-handler
+&amp;quot;Wraps &lt;code&gt;-event-msg-handler&lt;/code&gt; with logging, error catching, etc.&amp;quot;
+[{:as ev-msg :keys [id ?data event]}]
+(-event-msg-handler ev-msg) ; Handle event-msgs on a single thread
+;; Handle event-msgs on a thread pool
+#_(future (-event-msg-handler ev-msg)))&lt;/p&gt;
+&lt;p&gt;;; コネクションを開始する関数群
+(defonce router_ (atom nil))
+(defn stop-router! [] (when-let [stop-f @router_] (stop-f)))
+(defn start-router! []
+(stop-router!)
+(reset! router_
+;; 実際にはgo-loopに変換される。go-loopにしても似たようなものが取得できる
+;; 実際にドキュメントでは熟練者ならそのようにするような記載有り
+(sente/start-server-chsk-router!
+ch-chsk event-msg-handler))) ;; イベントが来るたびにevent-msg-handlerが呼ばれる&lt;/p&gt;
+&lt;p&gt;DBへのインサート処理とか、ページレンダリングの部分とか &lt;code&gt;earth-clj.core&lt;/code&gt; での初期起動とかは面倒なので割愛です。&lt;/p&gt;
+&lt;p&gt;ほぼほぼ &lt;code&gt;公式サンプル &amp;lt;https://github.com/ptaoussanis/sente/tree/master/example-project&amp;gt;&lt;/code&gt;_ 丸パクリですが、自分で幾つかイベント追加してます。
+マルチメソッドによって &lt;code&gt;:id&lt;/code&gt; の値で分岐してるので、初期化用のメソッドとメッセージ投稿用のメソッドを追加してます。&lt;/p&gt;
+&lt;p&gt;また、コメントにもありますが、 &lt;code&gt;sente/start-server-chsk-router!&lt;/code&gt; の実態は &lt;code&gt;go-loop&lt;/code&gt; のようです。
+実際にソース見てないので、 &lt;code&gt;ドキュメント頼り &amp;lt;http://ptaoussanis.github.io/sente/taoensso.sente.html#var-start-server-chsk-router.21&amp;gt;&lt;/code&gt;_ ですが、
+お試しで以下のようなコード書いた感じは大体同じレスポンスが取れるのでまぁ間違ってないのかなと。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(go-loop []
+(when-let [data (&amp;lt;! ch-chsk)]
+(println data)
+(recur)))&lt;/p&gt;
+&lt;p&gt;以下みたいな感じ&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;{:?reply-fn nil, :ch-recv #object[clojure.core.async.impl.channels.ManyToManyChannel 0x1e6dc10e &amp;quot;clojure.core.async.impl.channels.ManyToManyChannel@1e6dc10e&amp;quot;], :client-id &amp;quot;48eafbcd-f0c2-441a-9129-05278e039c97&amp;quot;, :connected-uids #atom[{:ws #{:taoensso.sente/nil-uid}, :ajax #{}, :any #{:taoensso.sente/nil-uid}} 0x77ce4d53], :uid :taoensso.sente/nil-uid, :event [:chat/post &amp;quot;bbb&amp;quot;], :id :chat/post, :ring-req {:identity 1, :cookies {&amp;quot;io&amp;quot; {:value &amp;quot;2uQMNqiEQ0OUNAqGAAAD&amp;quot;}, &amp;quot;ring-session&amp;quot; {:value &amp;quot;9b0e2ba2-6918-459f-8352-3b6bfe9251f5&amp;quot;}}, :remote-addr &amp;quot;0:0:0:0:0:0:0:1&amp;quot;, :params {:client-id &amp;quot;48eafbcd-f0c2-441a-9129-05278e039c97&amp;quot;}, :flash nil, :route-params {}, :headers {&amp;quot;origin&amp;quot; &amp;quot;http://localhost:4000&amp;quot;, &amp;quot;host&amp;quot; &amp;quot;localhost:4000&amp;quot;, &amp;quot;upgrade&amp;quot; &amp;quot;websocket&amp;quot;, &amp;quot;user-agent&amp;quot; &amp;quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36&amp;quot;, &amp;quot;cookie&amp;quot; &amp;quot;io=2uQMNqiEQ0OUNAqGAAAD; ring-session=9b0e2ba2-6918-459f-8352-3b6bfe9251f5&amp;quot;, &amp;quot;connection&amp;quot; &amp;quot;Upgrade&amp;quot;, &amp;quot;pragma&amp;quot; &amp;quot;no-cache&amp;quot;, &amp;quot;sec-websocket-key&amp;quot; &amp;quot;H3cJYBZ1veyIIpl09QkvVA==&amp;quot;, &amp;quot;accept-language&amp;quot; &amp;quot;ja,en-US;q=0.9,en;q=0.8,de;q=0.7,zh-CN;q=0.6,zh;q=0.5,fr;q=0.4,zh-TW;q=0.3&amp;quot;, &amp;quot;sec-websocket-version&amp;quot; &amp;quot;13&amp;quot;, &amp;quot;accept-encoding&amp;quot; &amp;quot;gzip, deflate, br&amp;quot;, &amp;quot;sec-websocket-extensions&amp;quot; &amp;quot;permessage-deflate; client_max_window_bits&amp;quot;, &amp;quot;cache-control&amp;quot; &amp;quot;no-cache&amp;quot;}, :async-channel #object[org.httpkit.server.AsyncChannel 0x79821c77 &amp;quot;/0:0:0:0:0:0:0:1:4000&amp;lt;-&amp;gt;/0:0:0:0:0:0:0:1:51664&amp;quot;], :server-port 4000, :content-length 0, :form-params {}, :compojure/route [:get &amp;quot;/chsk&amp;quot;], :websocket? true, :session/key &amp;quot;9b0e2ba2-6918-459f-8352-3b6bfe9251f5&amp;quot;, :query-params {&amp;quot;client-id&amp;quot; &amp;quot;48eafbcd-f0c2-441a-9129-05278e039c97&amp;quot;}, :content-type nil, :character-encoding &amp;quot;utf8&amp;quot;, :uri &amp;quot;/chsk&amp;quot;, :server-name &amp;quot;localhost&amp;quot;, :query-string &amp;quot;client-id=48eafbcd-f0c2-441a-9129-05278e039c97&amp;quot;, :body nil, :multipart-params {}, :scheme :http, :request-method :get, :session {:identity 1, :ring.middleware.anti-forgery/anti-forgery-token &amp;quot;NmfuFYMg+lHHS2opYqxkSPzoxDP0sGd6Hr0Xa2AWq4E3lDY1tfTTi/G+wQAS62RvHo0hUFodvQzXsyhF&amp;quot;}}, :?data &amp;quot;bbb&amp;quot;, :send-fn #function[taoensso.sente/make-channel-socket-server!/send-fn--23743]}&lt;/p&gt;
+&lt;h1&gt;============================================
+クライアント側の実装&lt;/h1&gt;
+&lt;p&gt;基本的に &lt;code&gt;ClojureScript&lt;/code&gt; で実装することになります。
+サーバー側と似たような感じで、 &lt;code&gt;earth-cljs.socket&lt;/code&gt; ネームスペースとしました。&lt;/p&gt;
+&lt;p&gt;初期設定もサーバーと同じようにREADMEに書いてある物そのままです。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(ns earth-cljs.socket
+(:require-macros [cljs.core.async.macros :as asyncm :refer (go go-loop)])
+(:require [cljs.core.async :as async :refer (&amp;lt;! &amp;gt;! put! chan)]
+[earth-cljs.util :as util :refer ($)]
+[taoensso.timbre :as timbre :refer-macros (tracef debugf infof warnf errorf)]
+[taoensso.encore :as encore :refer-macros (have have?)]
+[goog.string :as gstring]
+[gravatar.core :as gr]
+[taoensso.sente  :as sente :refer (cb-success?)]))&lt;/p&gt;
+&lt;p&gt;;;; Add this: ---&amp;gt;
+(let [{:keys [chsk ch-recv send-fn state]}
+(sente/make-channel-socket! &amp;quot;/chsk&amp;quot; ; Note the same path as before
+{:type :auto})] ; e/o #{:auto :ajax :ws}
+(def chsk chsk)
+(def ch-chsk ch-recv) ; ChannelSocket&#39;s receive channel
+(def chsk-send! send-fn) ; ChannelSocket&#39;s send API fn
+(def chsk-state state)) ; Watchable, read-only atom&lt;/p&gt;
+&lt;p&gt;中身もコードの意味もほとんどサーバー側と同じでちょっと感動します。
+ちなみに恥ずかしい限りですが &lt;code&gt;sente&lt;/code&gt; の中身覗いて &lt;code&gt;cljc&lt;/code&gt; の存在を知りました。&lt;/p&gt;
+&lt;h1&gt;描画用の関数と初期化用関数&lt;/h1&gt;
+&lt;p&gt;DOM生成用関数とアクセス時に初期データを取ってくる関数を定義してます。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(defn- update-msgs [data]
+(let [output-el ($ &amp;quot;comment-container&amp;quot;)]
+(set! (.-innerHTML output-el)
+(reduce #(let [{:keys [email name date message]} %2]
+(str %1
+&amp;quot;&lt;div class=&#39;comment&#39;&gt;&amp;quot;
+&amp;quot;&lt;a class=&#39;avatar&#39;&gt;&amp;quot;
+&amp;quot;&lt;img src=&#39;&quot; (gr/avatar-url (if email email &quot;&quot;) :https true) &quot;&#39; /&gt;&amp;quot;
+&amp;quot;&lt;/a&gt;&amp;quot;
+&amp;quot;&lt;div class=&#39;content&#39;&gt;&amp;quot;
+&amp;quot;&lt;a class=&#39;author&#39;&gt;&amp;quot;
+(gstring/htmlEscape (if name name &amp;quot;Anonymous&amp;quot;))
+&amp;quot;&lt;/a&gt;&amp;quot;
+&amp;quot;&lt;div class=&#39;metadata&#39;&gt;&amp;quot;
+&amp;quot;&lt;span class=&#39;date&#39;&gt;&amp;quot;
+(gstring/htmlEscape date)
+&amp;quot;&lt;/span&gt;&amp;quot;
+&amp;quot;&lt;/div&gt;&amp;quot;
+&amp;quot;&lt;div class=&#39;text&#39;&gt;&amp;quot;
+(gstring/htmlEscape message)
+&amp;quot;&lt;/div&gt;&amp;quot;
+&amp;quot;&lt;/div&gt;&amp;quot;
+&amp;quot;&lt;/div&gt;&amp;quot;)) &amp;quot;&amp;quot; data))
+(set! (.-scrollTop output-el) (.-scrollHeight output-el))))&lt;/p&gt;
+&lt;p&gt;(defn- init-msg-handler []
+(chsk-send!
+[:chat/init]
+8000
+(fn [reply]
+(if (sente/cb-success? reply)
+(update-msgs reply)
+#(.log js/console %)))))&lt;/p&gt;
+&lt;p&gt;画面表示用の関数は普通に文字列としてDOM生成してるだけです。ちなみにここだけ &lt;code&gt;semantic ui&lt;/code&gt; 使ってます。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;init-msg-handler&lt;/code&gt; は初期化時に呼び出すことを想定しています。
+&lt;code&gt;chsk-send!&lt;/code&gt; 関数の最後の引数にコールバック用の関数をおいておくとこれ勝手に呼んでくれて便利です。&lt;/p&gt;
+&lt;h1&gt;クライアント側のイベント&lt;/h1&gt;
+&lt;p&gt;まぁサーバー側とほとんど同じなのでソースだけ貼っておきます。&lt;/p&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;;; マルチメソッドによるサーバーからのイベント待受
+;; :idで判別される
+;;
+(defmulti -event-msg-handler
+&amp;quot;Multimethod to handle Sente &lt;code&gt;event-msg&lt;/code&gt;s&amp;quot;
+:id) ; Dispatch on event-id&lt;/p&gt;
+&lt;p&gt;;; デフォルトメソッド
+(defmethod -event-msg-handler
+:default ; Default/fallback case (no other matching handler)
+[{:as ev-msg :keys [event]}]
+(.log js/console (str &amp;quot;Unhandled event: &amp;quot; event)))&lt;/p&gt;
+&lt;p&gt;(defmethod -event-msg-handler :chsk/state
+[{:as ev-msg :keys [?data]}]
+(let [[old-state-map new-state-map] (have vector? ?data)]
+(if (:first-open? new-state-map)
+(.log js/console (str &amp;quot;Channel socket successfully established!: &amp;quot; new-state-map))
+(.log js/console (str &amp;quot;Channel socket state change: &amp;quot; new-state-map)))))&lt;/p&gt;
+&lt;p&gt;;; broadcastの受信を行う
+(defmethod -event-msg-handler :chsk/recv
+[{:as ev-msg :keys [?data]}]
+(case (first ?data)
+:chat/msgs (update-msgs (second ?data))
+(.log js/console (str ?data))))&lt;/p&gt;
+&lt;p&gt;(defmethod -event-msg-handler :chsk/handshake
+[{:as ev-msg :keys [?data]}]
+(let [[?uid ?csrf-token ?handshake-data] ?data]
+(.log js/console (str &amp;quot;Handshake: &amp;quot; ?data))
+(init-msg-handler)))&lt;/p&gt;
+&lt;p&gt;(defn event-msg-handler
+&amp;quot;Wraps &lt;code&gt;-event-msg-handler&lt;/code&gt; with logging, error catching, etc.&amp;quot;
+[{:as ev-msg :keys [id ?data event]}]
+(-event-msg-handler ev-msg))&lt;/p&gt;
+&lt;p&gt;(defn- send-msg-handler [e]
+(let [e ($ &amp;quot;chat-msg&amp;quot;)
+v (.-value e)]
+(chsk-send! [:chat/post v])
+(set! (.-value e) &amp;quot;&amp;quot;)))&lt;/p&gt;
+&lt;p&gt;(defonce router_ (atom nil))
+(defn stop-router! [] (when-let [stop-f @router_] (stop-f)))
+(defn start-router! []
+(stop-router!)
+(reset! router_
+(sente/start-client-chsk-router!
+ch-chsk event-msg-handler)))&lt;/p&gt;
+&lt;p&gt;(when-let [target-el ($ &amp;quot;chat-form&amp;quot;)]
+(start-router!))&lt;/p&gt;
+&lt;p&gt;(when-let [target-el ($ &amp;quot;chat-send&amp;quot;)]
+(.addEventListener target-el &amp;quot;click&amp;quot; send-msg-handler))&lt;/p&gt;
+&lt;p&gt;こんな感じです。&lt;/p&gt;
+&lt;h1&gt;============================================
+まとめ&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;core.async&lt;/code&gt; についてちょっと理解した。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;他のライブラリとか覗いても &lt;code&gt;core.async&lt;/code&gt; をラップしたようなのとか、そもそも &lt;code&gt;core.async&lt;/code&gt; だけでWebSocketしているような方もいたりでもうちょっと勉強したいです。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;知らないライブラリ調べながら使うと自分が余り使ってなかった構文とかの練習になる&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;マルチメソッドとか積極的には使ってなかったのでいい勉強になります。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Webアプリ楽しい&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;仕事でも結構作ってますがやっぱり楽しいですね。&lt;/li&gt;
+&lt;li&gt;個人的にはHerokuに上げるだとかデプロイするだとかのいざこざ含めて結構好きです。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;一応次作るものは考えているのでそのうちまた何か書きます。
+あ、あと最近Professional Clojureも平行して読んでいるのでそのまとめもそのうちということで。&lt;/p&gt;
+&lt;p&gt;こう遊んでるとますますClojureを仕事にしたくなる。&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>ClojureでWebアプリ</title>
+		<link href="https://zonuko.github.io/posts/clojure-web/"/>
+		<updated>2018-04-05T23:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/clojure-web/</id>
+		<content type="html">&lt;p&gt;ClojureでWebアプリ
+################################&lt;/p&gt;
+&lt;p&gt;前回に引き続きClojureです。&lt;/p&gt;
+&lt;p&gt;結構好きなので &lt;code&gt;これ &amp;lt;http://ayato-p.github.io/clojure-beginner/intro_web_development/&amp;gt;&lt;/code&gt;_ を参考にしつつ
+色々追加してWebアプリ作ってみました。&lt;/p&gt;
+&lt;p&gt;基本的には会社でのサンプル用に作ってた &lt;code&gt;Webアプリ &amp;lt;https://bitbucket.org/y_fujiwara/earthdemo&amp;gt;&lt;/code&gt;_ がありまして・・・
+今回はそれをリプレイス＆機能追加って感じで、天気みたり、検索した地域ブックマークしたりするWebアプリにしました。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;作ったもの &amp;lt;https://earth-clj.herokuapp.com/&amp;gt;&lt;/code&gt;_&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;リポジトリ。master一本なのは愛嬌 &amp;lt;https://gitlab.com/y-fujiwara/earth-clj.git&amp;gt;&lt;/code&gt;_&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;============================================
+使ったもの&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;認証&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;buddy&lt;/li&gt;
+&lt;li&gt;特に苦労しなかった。&lt;/li&gt;
+&lt;li&gt;パスワードのハッシュ化とかも。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ルーティング&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Compojure&lt;/li&gt;
+&lt;li&gt;参考にしたやつそのまんまですね。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;マイグレーション&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;migratus&lt;/li&gt;
+&lt;li&gt;そんなに困らなかったですが、herokuに上げるときにはかなり悩みました。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;クライアント側&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;ClojureScript&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;lein cljsbuild auto&lt;/code&gt; で使ってた。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Reagent&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ClojureScriptでReact使えるやつ。hiccupと似たシンタックスが使いやすかったです。
+Reactの経験はあったのでそことの差に戸惑ったけど、どちらかと言うとClojureScriptと普通のJavaScriptの差ですかね。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;cljsjs/chartjs&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;cljsjs/leaflet&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;cljsjs/moment&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;各JavaScriptライブリのClojureラッパー&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;上記の物以外は上に書いた参考サイトと同じです。 (hiccup使ってたりとか)&lt;/p&gt;
+&lt;h1&gt;============================================
+苦労したところ&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;jdbc&lt;/code&gt; が必ずリストで返してくること。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;知ってはいたが結構ハマりました。セッションからユーザー情報引っ張るところだったかな？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;ClojureScript&lt;/code&gt; と既存のJavaScriptライブラリの接続&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;new&lt;/code&gt; されたものを変数に置くこと前提にしていたりしてどうしようか悩みました。結局DOMに関することだったので
+一回対象の要素の中身消して作り直すとかにしてしまいましたが。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;environ&lt;/code&gt; ライブラリのアップデート&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;調べたら、&lt;code&gt;env&lt;/code&gt; で読み出す &lt;code&gt;project.clj&lt;/code&gt; に書いた内容は必ず文字列として持ってくるようになってみたいでした。
+&lt;code&gt;参考 &amp;lt;https://github.com/weavejester/environ/issues/36&amp;gt;&lt;/code&gt;_&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;結局DB設定は &lt;code&gt;read-string&lt;/code&gt; で読むことで解決&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;booleanみたいなものを付けている場合は設定されているstringからif文掛けてboolean返すような関数を作って回避しました。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;DOMのAPI触る分にはそこまで楽にならないのかなと思いました。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;結局直接API触る必要がある。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(defn- update-html [elem tag]
+(set! (.-innerHTML elem) tag))&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;herokuデプロイ周り&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;まぁいつもデプロイはハマるんですがやっぱりハマりました。&lt;/li&gt;
+&lt;li&gt;migratusどうやって実行させるか。結局参考サイトと同様に &lt;code&gt;main.clj&lt;/code&gt; での実行前にやらせてしまう方向にしてしまいました。&lt;/li&gt;
+&lt;li&gt;mainメソッド使うのどうせデプロイ時だけだし良いかなと・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(ns earth-clj.main
+(:require [earth-clj.core :as core]
+[migratus.core :as migratus]
+[earth-clj.db :as db])
+; mainクラスの生成
+(:gen-class))&lt;/p&gt;
+&lt;p&gt;; 第一引数にthisを取らないとstatic
+(defn -main [&amp;amp; {:as args}]
+;; 起動時にmigratusのマイグレーション
+(migratus/migrate db/migrate-spec)
+(core/start-server
+:host (get args &amp;quot;host&amp;quot;) :port (get args &amp;quot;port&amp;quot;) :join? true))&lt;/p&gt;
+&lt;h1&gt;============================================
+楽しかったところとか良かったところとか&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;適当に関数を小分けにするだけでも効果を感じられる。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;DOMのエレメント取るだけとかそういうのも関数にしましたが、スレッドマクロとかと組み合わせると単純な関数の小分けでも結構効果を感じられました。&lt;/li&gt;
+&lt;li&gt;関数型の複数の関数を組み合わせる抽象化が結構実感できた気がします。特にClojureScriptで一つのイベントで複数の変更をするだとかのときは。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;hiccupめっちゃ良い&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;html書くのが苦にならない&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;jade&lt;/code&gt; とか &lt;code&gt;haml&lt;/code&gt; とかも触ったことありましたが、一番感触よかったです。
+特殊構文ではなくて言語に沿ったデータ構造になっているからな気もします。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;ClojureScript&lt;/code&gt; でのDOM更新とかは結構スマートにかける気がしました。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;document.getElementById&lt;/code&gt; とかで取った要素に対して何かつけるとかが、 スレッドマクロ使うとわかりやすいと思いました。&lt;/li&gt;
+&lt;li&gt;ただし、一つの関数で複数のDOMに関して操作したいときは悩みました。結局普通に複数の式書いちゃいましたが・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;.. code-block:: Clojure&lt;/p&gt;
+&lt;p&gt;(defn- owm-ajax-handler [callback response]
+(let [weather (first (get-edn response &amp;quot;weather&amp;quot;))
+sys (get-edn response &amp;quot;sys&amp;quot;)
+main (get-edn response &amp;quot;main&amp;quot;)
+wind (get-edn response &amp;quot;wind&amp;quot;)
+clouds (get-edn response &amp;quot;clouds&amp;quot;)
+coord (get-edn response &amp;quot;coord&amp;quot;)]
+(-&amp;gt; (util/$ &amp;quot;weather&amp;quot;)
+(update-html (image-elem weather)))
+(-&amp;gt; (util/$ &amp;quot;city-name&amp;quot;)
+(update-text (title-text (gstring/htmlEscape (get-edn response &amp;quot;name&amp;quot;)))))
+(-&amp;gt; (util/$ &amp;quot;weekly-city&amp;quot;)
+(update-text (gstring/htmlEscape (get-edn response &amp;quot;name&amp;quot;))))
+(-&amp;gt; (util/$ &amp;quot;temperature&amp;quot;)
+(update-text (gstring/htmlEscape (util/calc-temp (get-edn main &amp;quot;temp&amp;quot;)))))
+(-&amp;gt; (util/$ &amp;quot;sunrise&amp;quot;)
+(update-text (util/unix-to-time-full (gstring/htmlEscape (get-edn sys &amp;quot;sunrise&amp;quot;)))))
+(-&amp;gt; (util/$ &amp;quot;sunset&amp;quot;)
+(update-text (util/unix-to-time-full (gstring/htmlEscape (get-edn sys &amp;quot;sunset&amp;quot;)))))
+(-&amp;gt; (util/$ &amp;quot;pressure&amp;quot;)
+(update-text (str (gstring/htmlEscape (get-edn main &amp;quot;pressure&amp;quot;)) &amp;quot;hpa&amp;quot;)))
+(-&amp;gt; (util/$ &amp;quot;humidity&amp;quot;)
+(update-text (str (gstring/htmlEscape (get-edn main &amp;quot;humidity&amp;quot;)) &amp;quot;%&amp;quot;)))
+(-&amp;gt; (util/$ &amp;quot;wind&amp;quot;)
+(update-text (str (gstring/htmlEscape (get-edn wind &amp;quot;speed&amp;quot;)) &amp;quot;m/s&amp;quot;)))
+(-&amp;gt; (util/$ &amp;quot;cloud&amp;quot;)
+(update-text (str (gstring/htmlEscape (get-edn clouds &amp;quot;all&amp;quot;)) &amp;quot;%&amp;quot;)))
+(-&amp;gt; (util/$ &amp;quot;latlon&amp;quot;)
+(update-text (str (gstring/htmlEscape (get-edn coord &amp;quot;lat&amp;quot;)) &amp;quot; &amp;quot; (gstring/htmlEscape (get-edn coord &amp;quot;lon&amp;quot;)))))
+(callback (get-edn coord &amp;quot;lat&amp;quot;) (get-edn coord &amp;quot;lon&amp;quot;))))&lt;/p&gt;
+&lt;p&gt;Ajaxでコールバックするときに &lt;code&gt;partial&lt;/code&gt; したりとか言う工夫もしてましたが、通常のJavaScriptでも変わらない気がしました。&lt;/p&gt;
+&lt;p&gt;その他にもクロージャ作って状態を閉じ込める &lt;code&gt;Reagent&lt;/code&gt; とかも触っててなるほどなと思いました。&lt;/p&gt;
+&lt;h1&gt;============================================
+まとめとか&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;全体的に &lt;code&gt;Clojure&lt;/code&gt; でのデータ構造とかはかなり触ってて気持ちがいいです。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;『プログラミングClojure』とかにもありますが、APIからデータそのものについて考えるべしって思想が感じられるのがすごい感触良いです。&lt;/li&gt;
+&lt;li&gt;学生自体はPython使ってましたが、いい意味で言語の思想を押し付けられる系の言語が好きなようです。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;まだまだこの書き方で良いの？って部分がある。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;上記の例でも貼り付けましたが、一つの関数の中で複数の式書いたりしてるのありなの？って気分です。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;サーバー側はほとんど最初に出した参考サイトのままなのでもうちょっといろいろいじれたら良いかなと思います。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ClojureScriptは1からだったので結構頑張りました。&lt;/li&gt;
+&lt;li&gt;個人的にはクライアント側はそこまで趣味じゃないのでその他の部分を頑張りたいところです。別に嫌いなわけではないですが・・・&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;多分しばらくClojureで遊んでいると思うので4Clojureやるかアルゴリズムクイックリファレンス続きやるかでもしていると思います。
+仕事にできれば良いなと思いますがもうちょっと精進が必要ですかね。&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>プログラミングClojureまとめ</title>
+		<link href="https://zonuko.github.io/posts/clojure-intro/"/>
+		<updated>2018-03-02T01:00:00Z</updated>
+		<id>https://zonuko.github.io/posts/clojure-intro/</id>
+		<content type="html">&lt;p&gt;プログラミングClojureまとめ
+################################&lt;/p&gt;
+&lt;p&gt;大分久しぶりの投稿。ブロックチェーンで遊んだりしてました。&lt;/p&gt;
+&lt;p&gt;プログラミングClojureちょっと前にやったので気になったところをまとめておきます。
+ついでにアルゴリズムクイックリファレンスの探索のところをClojureでやったので適当にのせつつ&lt;/p&gt;
+&lt;h1&gt;==================================
+再帰&lt;/h1&gt;
+&lt;p&gt;用意されているライブラリ &amp;gt; &lt;code&gt;lazy-seq&lt;/code&gt; &amp;gt; &lt;code&gt;recur&lt;/code&gt; &amp;gt; 再帰って感じのおすすめらしいです。なので、ライブラリに合った関数がなければ &lt;code&gt;lazy-seq&lt;/code&gt; を使う。
+&lt;code&gt;lazy-seq&lt;/code&gt; にすることで再帰によって起こされるJVMの問題を解決しようとしているらしい。
+ただ、正直 &lt;code&gt;lazy-seq&lt;/code&gt; について理解するのが若干難しいと感じてます。&lt;/p&gt;
+&lt;p&gt;二部探索を &lt;code&gt;recur&lt;/code&gt; で書いたやつ。 &lt;code&gt;loop&lt;/code&gt; と &lt;code&gt;recur&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(defn binary-search [array target]
+(loop [harf (sort array)]
+(let [mid (quot (count harf) 2)]
+(cond
+(= (count harf) 0) false
+(= (nth harf mid) target) true
+(&amp;lt; (nth harf mid) target) (recur (drop (+ mid 1) harf))
+(&amp;gt; (nth harf mid) target) (recur (take mid harf))
+:else false))))&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;lazy-seq&lt;/code&gt; をつかったやつその１。これは本からの写し。この手の無限シーケンスつくって &lt;code&gt;take&lt;/code&gt; とかで取り出すのはなんとなく理解できる。&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(defn fibo
+([] (concat [0 1] (fibo 0N 1N)))
+([a b]
+(let [n (+ a b)]
+(lazy-seq cons n (fibo b n)))))&lt;/p&gt;
+&lt;p&gt;無限のものではなくて、与えられたリストとかに対して使おうとすると理解が難しくなる印象。
+以下の二部探索木のノードを追加する部分で使ってみたがあっているかわからない。&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(defn- add-node
+[{value :value left :left right :right height :height :as node} data]
+(into {} (lazy-seq ;そもそも使い方あってんの？
+(if (&amp;lt;= data value)
+(if (nil? left)
+(assoc node :left (create-node data))
+(assoc node :left (add-node (node :left) data)))
+(if (nil? right)
+(assoc node :right (create-node data))
+(assoc node :right (add-node (node :right) data)))))))&lt;/p&gt;
+&lt;p&gt;なんでここで使おうと思ったかというと、 &lt;code&gt;assoc&lt;/code&gt; とかの引数で再帰することになるので末尾再帰にならないんじゃね？から
+こういう場面で &lt;code&gt;recur&lt;/code&gt; は良いのだろうかとか考えた結果という具合。なのでそもそも使い方があっているのかすらわからない。&lt;/p&gt;
+&lt;p&gt;とりあえずは動いている感じ。ちなみに以下6つのルールが紹介されてました。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;直接再帰しない&lt;/li&gt;
+&lt;li&gt;要素数が決まっているものは &lt;code&gt;recur&lt;/code&gt; を使って再帰する&lt;/li&gt;
+&lt;li&gt;巨大だったり要素数がわからないものについては &lt;code&gt;lazy-seq&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;遅延シーケンスをやたらと実体化しない&lt;/li&gt;
+&lt;li&gt;シーケンスライブラリに熟知する&lt;/li&gt;
+&lt;li&gt;問題を細かくする&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;自分で書いてて思いましたが、二部探索木だと要素数わかっているし &lt;code&gt;recur&lt;/code&gt; でよいのでは？あと &lt;code&gt;into {}&lt;/code&gt; すると実体化されている気もする。&lt;/p&gt;
+&lt;h1&gt;==================================
+状態管理&lt;/h1&gt;
+&lt;p&gt;超うろおぼえ&lt;/p&gt;
+&lt;p&gt;普通はClojureではほとんどのものが変更不可能ですが、 &lt;code&gt;ref&lt;/code&gt; とか &lt;code&gt;alter&lt;/code&gt; とか &lt;code&gt;commute&lt;/code&gt; だとか使うと変更可能にできる。&lt;/p&gt;
+&lt;p&gt;ただし、変更可能にすることで非同期とか並行処理とかで競合が発生する可能性は当然高まるので、そこら辺で使い分けるとのこと。&lt;/p&gt;
+&lt;p&gt;正直ほとんど覚えてないので読み返さないと・・・並行処理周りを支えているっぽいので。&lt;/p&gt;
+&lt;h1&gt;==================================
+オブジェクト指向的なの色々&lt;/h1&gt;
+&lt;p&gt;Java側のAPIを呼ぶ方法は結構前のほうで出てきてましたが、Clojureらしくこの手のことをやるにはどうするかが書いてありました。&lt;/p&gt;
+&lt;p&gt;一番おもしろいなと思ったのはプロトコル使ってデータ型に対して外からの拡張が出来る点です。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;extend-type&lt;/code&gt; とか使って既存のデータ型に後付するのが面白そう。&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(defprotocol Hoge
+(hoge [this])
+(hogehoge [this i]))&lt;/p&gt;
+&lt;p&gt;(extend-type Integer
+Hoge
+(hoge [a] a)
+(hogehoge [a i] (+ a i)))&lt;/p&gt;
+&lt;p&gt;ただ、この章でJavaで言うところのクラス定義的なやり方がいくつか出てきたが使い分けがよくわからない。
+とりあえず &lt;code&gt;defrecord&lt;/code&gt; にしている感じ。&lt;/p&gt;
+&lt;p&gt;それ以外にはマルチメソッドとかも面白かったです。&lt;/p&gt;
+&lt;h1&gt;============================
+まとめ&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;Lisp&lt;/code&gt; 系の言語初めてでしたがかなり面白かったので継続して触り中です。&lt;/p&gt;
+&lt;p&gt;カッコいかがなものかと思っていましたが、書いてみるとしっくりきます。&lt;/p&gt;
+&lt;p&gt;ただ、JavaのサンプルをClojureに変更しようとすると無駄にクラスとかメソッドに意識を持っていかれて
+無意味な &lt;code&gt;defprotocol&lt;/code&gt; とか &lt;code&gt;defrecord&lt;/code&gt; とかしちゃうのでここらへんは使わないで済むのならなるべく使わない方向が良いのかなぁとか思っています。&lt;/p&gt;
+&lt;h1&gt;============================
+おまけ&lt;/h1&gt;
+&lt;p&gt;冒頭でも書きましたがアルゴリズムクイックリファレンスのサンプルをClojureで幾つか書き直してので貼ってみます。&lt;/p&gt;
+&lt;p&gt;ハッシュサーチ&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(def ^:private table-size 6)&lt;/p&gt;
+&lt;p&gt;(defn- generate-hash [val]
+(if (not val)
+nil
+(let [code (.hashCode val)]
+(cond
+(&amp;lt; code 0) (mod (* -1 code) table-size)
+:else (mod code table-size)))))&lt;/p&gt;
+&lt;p&gt;(defn- hash-load [array]
+(loop [hash-table (vec (repeat table-size [])) array array]
+(let [head (first array) rest (rest array) hash-val (generate-hash head)]
+(cond
+(= (count array) 0) hash-table
+:else (recur (assoc hash-table hash-val (conj (nth hash-table hash-val) head)) rest)))))&lt;/p&gt;
+&lt;p&gt;(defn- inner-check [inner-array target]
+(loop [head (first inner-array) array inner-array]
+(cond
+(.equals head target) true
+(= (count array) 0) false
+:else (recur (first array) (rest array)))))&lt;/p&gt;
+&lt;p&gt;(defn- search-exec [table target]
+(let [table-val (nth table (generate-hash target))]
+(cond
+(= (count table-val) 0) false
+(= (count table-val) 1) true
+:else (inner-check table-val target))))&lt;/p&gt;
+&lt;p&gt;(defn hash-search [array target]
+(-&amp;gt; array
+hash-load
+(search-exec target)))&lt;/p&gt;
+&lt;p&gt;線形探索&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(defn linear-search [array target]
+(loop [head (first array) tail (rest array)]
+(cond
+(= head target) true
+(= (count tail) 0) false
+:else (recur (first tail) (rest tail)))))&lt;/p&gt;
+&lt;p&gt;ブルームフィルタ&lt;/p&gt;
+&lt;p&gt;.. code-block:: clojure&lt;/p&gt;
+&lt;p&gt;(defn- add-bits [bit data size fns]
+(loop [bit bit func (first fns) funcs (rest fns)]
+(cond
+(nil? func) bit
+:else (recur (bit-or bit (bit-shift-left 1 (func data size))) (first funcs) (rest funcs)))))&lt;/p&gt;
+&lt;p&gt;(defn- contains [bit value size fns]
+(loop [func (first fns) funcs (rest fns)]
+(cond
+(nil? func) true
+(= (bit-and bit (bit-shift-left 1 (func value size))) 0) false
+:else (recur (first funcs) (rest funcs)))))&lt;/p&gt;
+&lt;p&gt;(defn- array-add-bits [array size fns]
+(loop [bit 0 head (first array) tail (rest array)]
+(cond
+(nil? head) bit
+:else (recur (add-bits bit head size fns) (first tail) (rest tail)))))&lt;/p&gt;
+&lt;p&gt;(defn bloom-filter
+([array value]
+(let [size 1000 fns [(fn [e s] (mod (.hashCode e) s))]]
+(contains (array-add-bits array size fns) value size fns)))
+([array value size]
+(let [fns [(fn [e size] (mod (.hashCode e) size))]]
+(contains (array-add-bits array size fns) value size fns)))
+([array value size fns] (contains (array-add-bits array size fns) value size fns)))&lt;/p&gt;</content>
+	</entry>
+	<entry>
+		<title>Phoenixのフロントエンドをwebpackに置き換える</title>
+		<link href="https://zonuko.github.io/posts/phoenix-webpack/"/>
+		<updated>2017-06-18T23:40:00Z</updated>
+		<id>https://zonuko.github.io/posts/phoenix-webpack/</id>
+		<content type="html">&lt;p&gt;Phoenixのフロントエンドをwebpackに置き換える
+###################################################&lt;/p&gt;
+&lt;p&gt;Phoenixのフロントエンドのツールをwebpackにするのに思いの外手こずったので備忘録としておきます。&lt;/p&gt;
+&lt;h1&gt;============================================
+前提事項&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;mix phoenix.new hogehoge&lt;/code&gt; はしてある前提です。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;参考にしたのは以下あたりです。勝手に感謝です。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;https://daruiapprentice.blogspot.jp/2016/04/using-webpack-with-phoenix-framework.html&lt;/li&gt;
+&lt;li&gt;https://www.dailydrip.com/topics/elixirsips/drips/webpack-phoenix-and-elm&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;============================================
+要らないファイルの削除&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;brunch-config.js&lt;/code&gt; を削除します。大概忘れるので早めにやっておきます。&lt;/p&gt;
+&lt;h1&gt;============================================
+package.jsonの作成&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;package.json&lt;/code&gt; を書き換えます。&lt;/p&gt;
+&lt;p&gt;また、 &lt;code&gt;TypeScript&lt;/code&gt; と &lt;code&gt;React.js&lt;/code&gt; で試したので以下のような感じになりました。
+&lt;code&gt;dependencies&lt;/code&gt; とかは各自 &lt;code&gt;npm install --save hoge&lt;/code&gt; とか &lt;code&gt;npm install --save-dev hoge&lt;/code&gt; とかしてもらえればいいと思います。&lt;/p&gt;
+&lt;p&gt;また、コマンドで &lt;code&gt;watch&lt;/code&gt; と &lt;code&gt;compile&lt;/code&gt; だけ指定してあります。&lt;/p&gt;
+&lt;p&gt;.. code-block:: JavaScript&lt;/p&gt;
+&lt;p&gt;{
+&amp;quot;repository&amp;quot;: {},
+&amp;quot;license&amp;quot;: &amp;quot;MIT&amp;quot;,
+&amp;quot;scripts&amp;quot;: {
+&amp;quot;watch&amp;quot;: &amp;quot;webpack --watch-stdin --progress --color&amp;quot;,
+&amp;quot;compile&amp;quot;: &amp;quot;webpack -p&amp;quot;
+},
+&amp;quot;dependencies&amp;quot;: {
+&amp;quot;flux&amp;quot;: &amp;quot;^3.1.2&amp;quot;,
+&amp;quot;react&amp;quot;: &amp;quot;^15.5.4&amp;quot;,
+&amp;quot;react-dom&amp;quot;: &amp;quot;^15.5.4&amp;quot;,
+&amp;quot;redux&amp;quot;: &amp;quot;^3.6.0&amp;quot;,
+&amp;quot;typescript&amp;quot;: &amp;quot;^2.3.4&amp;quot;,
+&amp;quot;phoenix&amp;quot;: &amp;quot;file:deps/phoenix&amp;quot;,
+&amp;quot;phoenix_html&amp;quot;: &amp;quot;file:deps/phoenix_html&amp;quot;
+},
+&amp;quot;devDependencies&amp;quot;: {
+&amp;quot;@types/flux&amp;quot;: &amp;quot;^3.1.0&amp;quot;,
+&amp;quot;@types/material-ui&amp;quot;: &amp;quot;^0.17.10&amp;quot;,
+&amp;quot;@types/phoenix&amp;quot;: &amp;quot;0.0.4&amp;quot;,
+&amp;quot;@types/react&amp;quot;: &amp;quot;^15.0.27&amp;quot;,
+&amp;quot;@types/react-dom&amp;quot;: &amp;quot;^15.5.0&amp;quot;,
+&amp;quot;awesome-typescript-loader&amp;quot;: &amp;quot;^3.1.3&amp;quot;,
+&amp;quot;bootstrap-sass&amp;quot;: &amp;quot;^3.3.7&amp;quot;,
+&amp;quot;copy-webpack-plugin&amp;quot;: &amp;quot;^4.0.1&amp;quot;,
+&amp;quot;css-loader&amp;quot;: &amp;quot;^0.28.4&amp;quot;,
+&amp;quot;extract-text-webpack-plugin&amp;quot;: &amp;quot;^2.1.2&amp;quot;,
+&amp;quot;file-loader&amp;quot;: &amp;quot;^0.11.2&amp;quot;,
+&amp;quot;node-sass&amp;quot;: &amp;quot;^4.5.3&amp;quot;,
+&amp;quot;sass-loader&amp;quot;: &amp;quot;^6.0.6&amp;quot;,
+&amp;quot;source-map-loader&amp;quot;: &amp;quot;^0.2.1&amp;quot;,
+&amp;quot;style-loader&amp;quot;: &amp;quot;^0.18.2&amp;quot;,
+&amp;quot;url-loader&amp;quot;: &amp;quot;^0.5.9&amp;quot;,
+&amp;quot;webpack&amp;quot;: &amp;quot;^2.6.1&amp;quot;
+}
+}&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;phoenix_html&lt;/code&gt; とかのインストールがたまにおかしくなるので、以下を参照にアップデートをかけます。&lt;/p&gt;
+&lt;p&gt;https://github.com/phoenixframework/phoenix/issues/1622&lt;/p&gt;
+&lt;h1&gt;============================================
+webpack.config.jsonの作成&lt;/h1&gt;
+&lt;p&gt;webpackの設定ファイルを以下のような感じで作ります。
+webpackのバージョンの差異かなんかで前まで &lt;code&gt;url&lt;/code&gt; だとか &lt;code&gt;file&lt;/code&gt; だとかで指定されていた部分を
+&lt;code&gt;url-loader&lt;/code&gt; などの形式にしてます。&lt;/p&gt;
+&lt;p&gt;また、 &lt;code&gt;ExtractTextPlugin.extract&lt;/code&gt; の部分も参考サイトをそのままやると怒られるので怒られた内容通りに変更します。&lt;/p&gt;
+&lt;p&gt;それ以外だと &lt;code&gt;TypeScript&lt;/code&gt; ゆえにそれに準じているという程度かと。&lt;/p&gt;
+&lt;p&gt;.. code-block:: JavaScript&lt;/p&gt;
+&lt;p&gt;var ExtractTextPlugin = require(&amp;quot;extract-text-webpack-plugin&amp;quot;);
+var CopyWebpackPlugin = require(&amp;quot;copy-webpack-plugin&amp;quot;);&lt;/p&gt;
+&lt;p&gt;module.exports = {
+entry: [&amp;quot;./web/static/js/App.tsx&amp;quot;, &amp;quot;./web/static/css/app.scss&amp;quot;],
+output: {
+filename: &amp;quot;js/app.js&amp;quot;,
+path: __dirname + &amp;quot;/priv/static/&amp;quot;
+},&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; devtool: &amp;quot;source-map&amp;quot;,
+
+ resolve: {
+   extensions: [&amp;quot;.ts&amp;quot;, &amp;quot;.tsx&amp;quot;, &amp;quot;.js&amp;quot;, &amp;quot;.json&amp;quot;],
+   modules: [
+     __dirname + &amp;quot;/web/static/js&amp;quot;,
+     __dirname + &amp;quot;/node_modules&amp;quot;
+   ],
+   alias: {
+     phoenix_html: __dirname + &amp;quot;/deps/phoenix_html/web/static/js/phoenix_html.js&amp;quot;,
+     phoenix: __dirname + &amp;quot;/deps/phoenix/web/static/js/phoenix.js&amp;quot;
+   }
+ },
+
+ module: {
+   rules: [
+     { test: /\.tsx?$/, loader: &amp;quot;awesome-typescript-loader&amp;quot; },
+     { enforce: &amp;quot;pre&amp;quot;, test: /\.js$/, loader: &amp;quot;source-map-loader&amp;quot; },
+     {
+       test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+       loader: &amp;quot;url-loader?limit=10000&amp;amp;mimetype=application/font-woff&amp;quot;
+     },
+     {
+       test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+       loader: &amp;quot;url-loader?limit=10000&amp;amp;mimetype=application/octet-stream&amp;quot;
+     },
+     {
+       test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+       loader: &amp;quot;file-loader&amp;quot;
+     },
+     {
+       test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+       loader: &amp;quot;url-loader?limit=10000&amp;amp;mimetype=image/svg+xml&amp;quot;
+     },
+     {
+       test: /\.scss$/,
+       use: ExtractTextPlugin.extract({ fallback: &amp;quot;style-loader&amp;quot;, use: [&amp;quot;css-loader&amp;quot;, &amp;quot;sass-loader&amp;quot;] })
+     },
+     { test: /\.css$/, loader: ExtractTextPlugin.extract({ fallback: &#39;style-loader&#39;, use: &#39;css-loader&#39; }) },
+   ]
+ },
+ plugins: [
+   new ExtractTextPlugin(&amp;quot;css/app.css&amp;quot;),
+   new CopyWebpackPlugin([{ from: &amp;quot;./web/static/assets&amp;quot; }])
+ ]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;};&lt;/p&gt;
+&lt;p&gt;ざっとは理解してるはずですが、細かいところまでは理解しきれてません・・・&lt;/p&gt;
+&lt;h1&gt;============================================
+Phoenixの設定ファイル変更&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;phoenix&lt;/code&gt; 側で &lt;code&gt;brunch&lt;/code&gt; 前提の設定になっていたところを変えます。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;config/dev.exs&lt;/code&gt; です。&lt;/p&gt;
+&lt;p&gt;.. code-block:: elixir&lt;/p&gt;
+&lt;p&gt;use Mix.Config&lt;/p&gt;
+&lt;h1&gt;For development, we disable any cache and enable&lt;/h1&gt;
+&lt;h1&gt;debugging and code reloading.&lt;/h1&gt;
+&lt;h1&gt;&lt;/h1&gt;
+&lt;h1&gt;The watchers configuration can be used to run external&lt;/h1&gt;
+&lt;h1&gt;watchers to your application. For example, we use it&lt;/h1&gt;
+&lt;h1&gt;with brunch.io to recompile .js and .css sources.&lt;/h1&gt;
+&lt;p&gt;config :test, Test.Endpoint,
+http: [port: 4000],
+debug_errors: true,
+code_reloader: true,
+check_origin: false,
+watchers: [node: [&amp;quot;node_modules/webpack/bin/webpack.js&amp;quot;,
+&amp;quot;--watch-stdin&amp;quot;, &amp;quot;--progress&amp;quot;, &amp;quot;--colors&amp;quot;]]
+…&lt;/p&gt;
+&lt;h1&gt;============================================
+cssの変更&lt;/h1&gt;
+&lt;p&gt;さらに、このままだと &lt;code&gt;css&lt;/code&gt; 周りが色々とうまくいかないです。&lt;/p&gt;
+&lt;p&gt;まず &lt;code&gt;app.css&lt;/code&gt; を &lt;code&gt;app.scss&lt;/code&gt; に変更し、以下のような感じにします。&lt;/p&gt;
+&lt;p&gt;.. code-block:: css&lt;/p&gt;
+&lt;p&gt;$icon-font-path: &#39;~bootstrap-sass/assets/fonts/bootstrap/&#39;;
+@import &amp;quot;~bootstrap-sass/assets/stylesheets/_bootstrap.scss&amp;quot;;&lt;/p&gt;
+&lt;p&gt;/* Space out content a bit */&lt;/p&gt;
+&lt;p&gt;body,
+form,
+ul,
+table {
+margin-top: 20px;
+margin-bottom: 20px;
+}&lt;/p&gt;
+&lt;p&gt;/* Phoenix flash messages */&lt;/p&gt;
+&lt;p&gt;.alert:empty {
+display: none;
+}&lt;/p&gt;
+&lt;p&gt;/* Phoenix inline forms in links and buttons */&lt;/p&gt;
+&lt;p&gt;form.link,
+form.button {
+display: inline;
+}&lt;/p&gt;
+&lt;p&gt;/* Custom page header */&lt;/p&gt;
+&lt;p&gt;.header {
+border-bottom: 1px solid #e5e5e5;
+}&lt;/p&gt;
+&lt;p&gt;.logo {
+width: 519px;
+height: 71px;
+display: inline-block;
+margin-bottom: 1em;
+background-image: url(&amp;quot;/images/phoenix.png&amp;quot;);
+background-size: 519px 71px;
+}&lt;/p&gt;
+&lt;p&gt;/* Everything but the jumbotron gets side spacing for mobile first views */&lt;/p&gt;
+&lt;p&gt;.header,
+.marketing {
+padding-right: 15px;
+padding-left: 15px;
+}&lt;/p&gt;
+&lt;p&gt;/* Customize container */&lt;/p&gt;
+&lt;p&gt;@media (min-width: 768px) {
+.container {
+max-width: 730px;
+}
+}&lt;/p&gt;
+&lt;p&gt;.container-narrow&amp;gt;hr {
+margin: 30px 0;
+}&lt;/p&gt;
+&lt;p&gt;/* Main marketing message */&lt;/p&gt;
+&lt;p&gt;.jumbotron {
+text-align: center;
+border-bottom: 1px solid #e5e5e5;
+}&lt;/p&gt;
+&lt;p&gt;/* Supporting marketing content */&lt;/p&gt;
+&lt;p&gt;.marketing {
+margin: 35px 0;
+}&lt;/p&gt;
+&lt;p&gt;/* Responsive: Portrait tablets and up */&lt;/p&gt;
+&lt;p&gt;@media screen and (min-width: 768px) {
+/* Remove the padding we set earlier &lt;em&gt;/
+.header,
+.marketing {
+padding-right: 0;
+padding-left: 0;
+}
+/&lt;/em&gt; Space out the masthead &lt;em&gt;/
+.header {
+margin-bottom: 30px;
+}
+/&lt;/em&gt; Remove the bottom border on the jumbotron for visual effect */
+.jumbotron {
+border-bottom: 0;
+}&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;import&lt;/code&gt; 部分以降が何かというと &lt;code&gt;phoenix.css&lt;/code&gt; にかかれていたやつです。&lt;/p&gt;
+&lt;p&gt;組み込みの &lt;code&gt;phoenix.css&lt;/code&gt; を眺めた感じ、ここに &lt;code&gt;bootstrap&lt;/code&gt; の内容+αが書かれていたようでした。
+&lt;code&gt;bootstrap&lt;/code&gt; は外部から持ってくるようにしたので不要です。&lt;/p&gt;
+&lt;p&gt;従って+α部分をこっちに持ってきた形です。&lt;/p&gt;
+&lt;h1&gt;============================================
+実行&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;npm run compile&lt;/code&gt; もしくは &lt;code&gt;Phoenix&lt;/code&gt; を起動し、ファイル監視が始まればOKです。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;TypeScript&lt;/code&gt; 周りは簡単でしたが、 &lt;code&gt;css&lt;/code&gt; 周りが大変でした・・・&lt;/p&gt;
+&lt;p&gt;適当に書いたので間違っているところも多そうですが、単なる備忘録なのでこのへんで終わりです。&lt;/p&gt;</content>
+	</entry>
+</feed>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その19 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその19">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その19</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-02-14 21:52:00">
+      February 14th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その19
+">
+<h1>Programming Phoenix勉強その19</h1>
+<p>その19です。ここからChapter12です。今まで作った <code>InfoSys</code> アプリとかを アンブレラプロジェクトに変更してテストしやすくするみたいです。</p>
+<section id="rumbrellaプロジェクトの作成と設定
+">
+<h2>rumbrellaプロジェクトの作成と設定</h2>
+<p>以下のコマンドでアンブレラプロジェクトを新たに生成します。 既存の <code>rumbl</code> プロジェクトと混じらないように適当な場所で実行します。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mix new rumbrella --umbrella</span>
+</code></pre>
+<p>アンブレラプロジェクトが作成されたので、 <code>cd rumbrella/app</code> に移動して以下のコマンドを実行します。</p>
+<pre><code class="language-shell hljs">app $ mix new info_sys
+</code></pre>
+<p>準備が出来たので既存の <code>Rumbl.InfoSys</code> と <code>Rumbl</code> を <code>rumbrella</code> 管理下に移植していきます。 まず <code>Rumbl.InfoSys</code> からやっていきます。以下の流れです。</p>
+<!--TODO: 以下番号付きリストはパーサー側が対応してない
+-->
+<!--#. ``Rumbl.InfoSys`` のモジュール名を ``InfoSys`` に変更して、 ``lib/rumbl/info_sys.ex`` を ``app`` フォルダで作成した ``info_sys/lib/info_sys.ex`` となるように移動します。
+-->
+<!--#. ``Rumbl.InfoSys.Supervisor`` も同じようにリネームして ``info_sys/lib/info_sys/supervisor.ex`` となるように移動します。
+-->
+<!--#. ``Rumbl.InfoSys.Wolfram`` も ``supervisor`` と同じようにして同じフォルダに移動します。
+-->
+<!--#. ``Rumbl.InfoSys`` となっている箇所をすべて ``InfoSys`` に置換します。
+-->
+<!--#. ``Wolfram Alpha`` のAPIキーを取得する関数を以下のように変更します。
+-->
+<ul>
+<li><p><code>Rumbl.InfoSys</code> のモジュール名を <code>InfoSys</code> に変更して、 <code>lib/rumbl/info_sys.ex</code> を <code>app</code> フォルダで作成した <code>info_sys/lib/info_sys.ex</code> となるように移動します。</p></li>
+<li><p><code>Rumbl.InfoSys.Supervisor</code> も同じようにリネームして <code>info_sys/lib/info_sys/supervisor.ex</code> となるように移動します。</p></li>
+<li><p><code>Rumbl.InfoSys.Wolfram</code> も <code>supervisor</code> と同じようにして同じフォルダに移動します。</p></li>
+<li><p><code>Rumbl.InfoSys</code> となっている箇所をすべて <code>InfoSys</code> に置換します。</p></li>
+<li><p><code>Wolfram Alpha</code> のAPIキーを取得する関数を以下のように変更します。</p></li>
+</ul>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">app_id</span></span>, <span class="hljs-symbol">do:</span> <span class="hljs-title class_">Application</span>.get_env(<span class="hljs-symbol">:info_sys</span>, <span class="hljs-symbol">:wolfram</span>)[<span class="hljs-symbol">:app_id</span>]
+</code></pre>
+<ul><li><p>依存関係を移し替えておきます。 <code>info_sys</code> の <code>mix.exs</code> の <code>deps</code> に <code>{:sweet_xml, "~&gt; 0.5.0"}</code> を追加します。</p></li></ul>
+<p>これで <code>InfoSys</code> の移動は完了です。以下を実行しておきます。</p>
+<pre><code class="language-shell hljs">rumbrella $ mix deps.get
+rumbrella $ mix test
+</code></pre>
+<p>次は <code>Rumbl</code> 本体の移植を行います。</p>
+</section>
+<section id="rumblプロジェクトのrumbrellaへの移植
+">
+<h2>Rumblプロジェクトのrumbrellaへの移植</h2>
+<p><code>Rumbl</code> プロジェクトを <code>rumbrella</code> に移植します。</p>
+<ul>
+<li><p><code>rumbl</code> ディレクトリを <code>rumbrella/apps</code> 以下に移動します。</p></li>
+<li><p><code>rumbl</code> の <code>mix.exs</code> 内の <code>project</code> 関数に <code>info_sys</code> の <code>mix.exs</code> と合わせるような感じで以下を追加します。</p></li>
+</ul>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">project</span></span> <span class="hljs-keyword">do</span>
+  [<span class="hljs-symbol">app:</span> <span class="hljs-symbol">:rumbl</span>,
+   <span class="hljs-symbol">version:</span> <span class="hljs-string">"0.0.1"</span>,
+   <span class="hljs-symbol">elixir:</span> <span class="hljs-string">"~&gt; 1.2"</span>,
+   <span class="hljs-symbol">elixirc_paths:</span> elixirc_paths(<span class="hljs-title class_">Mix</span>.env),
+   <span class="hljs-symbol">compilers:</span> [<span class="hljs-symbol">:phoenix</span>, <span class="hljs-symbol">:gettext</span>] ++ <span class="hljs-title class_">Mix</span>.compilers,
+   <span class="hljs-symbol">build_embedded:</span> <span class="hljs-title class_">Mix</span>.env == <span class="hljs-symbol">:prod</span>,
+   <span class="hljs-symbol">start_permanent:</span> <span class="hljs-title class_">Mix</span>.env == <span class="hljs-symbol">:prod</span>,
+   <span class="hljs-symbol">aliases:</span> aliases(),
+   <span class="hljs-symbol">build_path:</span> <span class="hljs-string">"../../_build"</span>,
+   <span class="hljs-symbol">config_path:</span> <span class="hljs-string">"../../config/config.exs"</span>,
+   <span class="hljs-symbol">deps_path:</span> <span class="hljs-string">"../../deps"</span>,
+   <span class="hljs-symbol">lockfile:</span> <span class="hljs-string">"../../mix.lock"</span>,
+   <span class="hljs-symbol">deps:</span> deps()]
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>3. <code>mix.exs</code> の <code>application</code> 関数に <code>:info_sys</code> を追加します。 <code>:comeonin</code> の後に追加する感じです。</p>
+<ul>
+<li><p><code>deps</code> の <code>:sweet_xml</code> を削除して <code>{:info_sys, in_umbrella: true}</code> を追加します。</p></li>
+<li><p><code>lib/rumbl.ex</code> から <code>children</code> として追加していた <code>Rumbl.InfoSys</code> を削除します。</p></li>
+<li><p><code>video_channel.ex</code> で使っていた <code>Rumbl.InfoSys</code> を <code>InfoSys</code> に変更します。</p></li>
+<li><p><code>dev.secret.exs</code> の <code>WolframAlpha</code> のキー部分を <code>:rumbl</code> から <code>:info_sys</code> に変更します。</p></li>
+</ul>
+<p>これで準備OKです。</p>
+<p>最後に <code>mix deps.get</code> と <code>mix test</code> を実行しておきます。</p>
+</section>
+<section id="otpのテスト
+">
+<h2>OTPのテスト</h2>
+<p>ここで終わると短いので、このまま <code>chapter13</code> に入って <code>OTP</code> のテストを行います。 自動で生成されている　 <code>info_sys_test.exs</code> を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">InfoSysTest</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">ExUnit</span>.<span class="hljs-title class_">Case</span>
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">InfoSys</span>.<span class="hljs-title class_">Result</span>
+
+  <span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">TestBackend</span></span> <span class="hljs-keyword">do</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start_link</span></span>(query, ref, owner, limit) <span class="hljs-keyword">do</span>
+      <span class="hljs-title class_">Task</span>.start_link(__MODULE__, <span class="hljs-symbol">:fetch</span>, [query, ref, owner, limit])
+    <span class="hljs-keyword">end</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fetch</span></span>(<span class="hljs-string">"result"</span>, ref, owner, _limit) <span class="hljs-keyword">do</span>
+      send(owner, {<span class="hljs-symbol">:results</span>, ref, [%<span class="hljs-title class_">Result</span>{<span class="hljs-symbol">backend:</span> <span class="hljs-string">"test"</span>, <span class="hljs-symbol">text:</span> <span class="hljs-string">"result"</span>}]})
+    <span class="hljs-keyword">end</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fetch</span></span>(<span class="hljs-string">"none"</span>, ref, owner, _limit) <span class="hljs-keyword">do</span>
+      send(owner, {<span class="hljs-symbol">:results</span>, ref, []})
+    <span class="hljs-keyword">end</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fetch</span></span>(<span class="hljs-string">"timeout"</span>, _ref, owner, _limit) <span class="hljs-keyword">do</span>
+      <span class="hljs-comment"># プロセス監視用にテスト実行元にpidを送る</span>
+      send(owner, {<span class="hljs-symbol">:backend</span>, self()})
+      <span class="hljs-symbol">:timer</span>.sleep(<span class="hljs-symbol">:infinity</span>)
+    <span class="hljs-keyword">end</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fetch</span></span>(<span class="hljs-string">"boom"</span>, _ref, _owner, _limit) <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">raise</span> <span class="hljs-string">"boom!"</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"compute/2 with backend results"</span> <span class="hljs-keyword">do</span>
+    assert [%<span class="hljs-title class_">Result</span>{<span class="hljs-symbol">backend:</span> <span class="hljs-string">"test"</span>, <span class="hljs-symbol">text:</span> <span class="hljs-string">"result"</span>}] =
+           <span class="hljs-title class_">InfoSys</span>.compute(<span class="hljs-string">"result"</span>, <span class="hljs-symbol">backends:</span> [<span class="hljs-title class_">TestBackend</span>])
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"compute/2 with no backend results"</span> <span class="hljs-keyword">do</span>
+    assert [] = <span class="hljs-title class_">InfoSys</span>.compute(<span class="hljs-string">"none"</span>, <span class="hljs-symbol">backends:</span> [<span class="hljs-title class_">TestBackend</span>])
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"compute/2 with timeout returns no results and kills workers"</span> <span class="hljs-keyword">do</span>
+    results = <span class="hljs-title class_">InfoSys</span>.compute(<span class="hljs-string">"timeout"</span>, <span class="hljs-symbol">backends:</span> [<span class="hljs-title class_">TestBackend</span>], <span class="hljs-symbol">timeout:</span> <span class="hljs-number">10</span>)
+    assert results == []
+    <span class="hljs-comment"># 上のfetch("timeout", 〜) 関数から送られてくるPID</span>
+    assert_receive {<span class="hljs-symbol">:backend</span>, backend_pid}
+
+    ref = <span class="hljs-title class_">Process</span>.monitor(backend_pid)
+    assert_receive {<span class="hljs-symbol">:DOWN</span>, ^ref, <span class="hljs-symbol">:process</span>, _pid, _reason}
+    <span class="hljs-comment"># receivedはすでに受信ボックスに入っているものを取り出す</span>
+    <span class="hljs-comment"># 受信をまったりはしない</span>
+    refute_received {<span class="hljs-symbol">:DOWN</span>, _, _, _, _}
+    refute_received <span class="hljs-symbol">:timeout</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@tag</span> <span class="hljs-symbol">:capture_log</span>
+  test <span class="hljs-string">"compute/2 discards backend errors"</span> <span class="hljs-keyword">do</span>
+    assert <span class="hljs-title class_">InfoSys</span>.compute(<span class="hljs-string">"boom"</span>, <span class="hljs-symbol">backends:</span> [<span class="hljs-title class_">TestBackend</span>]) == []
+
+    refute_received {<span class="hljs-symbol">:DOWN</span>, _, _, _, _}
+    refute_received <span class="hljs-symbol">:timeout</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<ul>
+<li><p><code>wolfram</code> などのバックエンドAPIの代わりとなるモジュールを内部に定義しています。</p></li>
+<li><p>タイムアウトの処理は <code>assert_receive</code> や <code>refute_received</code> を使ってタイムアウト時のメッセージを受け取ることで行っています。</p></li>
+<li><p>例外発生時のテストも似たような感じですが、普通にやるとコンソールにエラーメッセージが表示されると出 <a href="mailto:``@tag">``@tag</a> :capture_log<code> で制御しています。
+
+今までのテストとそう変わったところは無いかと思います。
+
+============================================
+Wolfram APIの分離
+============================================
+
+現状の </code>Wolfram API<code> は </code>:httpc<code> がハードコーディングされており、こいつを使うことが前提になっています。
+これだとテストが難しいのでまずはこの取得先設定を外部ファイルにします。 </code>wolfram.ex<code> を変更します。
+
+.. code-block:: Elixir
+
+   @http Application.get_env(:info_sys, :wolfram)[:http_client] || :httpc
+ 
+   defp fetch_xml(query_str) do
+     {:ok, {_, _, body}} = @http.request(
+       String.to_char_list("http://api.wolframalpha.com/v2/query" &lt;&gt; "?appid=#{app_id()}" &lt;&gt;
+                                                                     "&amp;input=#{URI.encode_www_form(query_str)}&amp;format=plaintext"))
+     body
+   end
+
+接続に使うモジュールを </code>@http<code> と言うかたちで </code>config<code> 系統のファイルに外出しました。
+また、 </code>URI.eocode_www_form<code> にしています。
+
+外部ファイルを作ります。 </code>config/text.exs<code> を作ります。
+
+.. code-block:: Elixir
+
+   use Mix.Config
+   
+   config :info_sys, :wolfram,
+     app_id: "1234",
+     http_client: InfoSys.Test.HTTPClient
+
+環境によって動的に設定ファイルを読み込むように </code>config.exs<code> の </code>import_config "#{Mix.env}.exs"<code> のコメントを外しておきます。
+
+テスト以外の環境でも外部ファイルが必要となるので、 </code>use Mix.Config<code> だけ書いた 
+</code>dev.exs<code> と </code>prod.exs<code> を作っておきます。
+
+次にテスト用のXMLデータを持ってきます。 `本の公式サイトのソース置き場 &lt;https://pragprog.com/titles/phoenix/source_code&gt;`_
+からソースを持ってきて </code>test/fixtures<code> フォルダに </code>wolfram.xml<code> ファイルを設置しておきます。
+
+</code>http<code> のクライアントも作ります。 </code>test/backends/http_client.exs<code> を以下の内容で作ります。
+
+.. code-block:: Elixir
+
+   defmodule InfoSys.Test.HTTPClient do
+     @wolfram_xml File.read!("test/fixtures/wolfram.xml")
+   
+     def request(url) do
+       url = to_string(url)
+   
+       cond do
+         String.contains?(url, "1+%2B+1") -&gt; {:ok, {[], [], @wolfram_xml}}
+         true -&gt; {:ok, {[], [], "&lt;queryresult&gt;&lt;/queryresult&gt;"}}
+       end
+     end
+   end
+
+</code>test_helper.exs<code> にこの外部ファイル化したモジュールが読み込まれていることを確認する設定を書きます。
+
+.. code-block:: Elixir
+
+   Code.require_file "backends/http_client.exs", __DIR__
+   
+   ExUnit.start()
+
+</code>rumbl<code> の方にも似たように書きます。
+
+.. code-block:: Elixir
+
+   Code.require_file "../../info_sys/test/backends/http_client.exs", __DIR__
+   
+   ExUnit.start
+   
+   Ecto.Adapters.SQL.Sandbox.mode(Rumbl.Repo, :manual)
+
+ここまで来てやっと最後にテストを書きます。 </code>test/backends/woldram_test.exs<code> です。
+
+.. code-block:: Elixir
+
+   defmodule InfoSys.Backends.WolframTest do
+     use ExUnit.Case, async: true
+     alias InfoSys.Wolfram
+   
+     test "makes request, reports results, them terminates" do
+       ref = make_ref()
+       {:ok, pid} = Wolfram.start_link("1 + 1", ref, self(), 1)
+       Process.monitor(pid)
+   
+       assert_receive {:results, ^ref, [%InfoSys.Result{text: "2"}]}
+       assert_receive {:DOWN, _ref, :process, ^pid, :normal}
+     end
+   
+     test "no query results reports an empty list" do
+       ref = make_ref()
+       {:ok, _} = Wolfram.start_link("none", ref, self(), 1)
+   
+       assert_receive {:results, ^ref, []}
+     end
+   end
+
+これで基本的なテストはOKです。
+
+
+============================================
+まとめ
+============================================
+
+- </code>umbrella`` プロジェクトを使うことでAPI同士の結合を弱めて、テストがやりやすくなる。</p></li>
+<li><p>テストをする際はスタブとなるような構造体などを作ってやると良い</p></li>
+</ul>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix18/" rel="prev">Programming Phoenix勉強その18</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix20/" rel="next">Programming Phoenix勉強その20</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix19/ -->
+  
+
+</body></html>

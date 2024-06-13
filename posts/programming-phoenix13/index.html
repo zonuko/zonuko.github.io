@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その13 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその13">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その13</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-01-30 23:30:00">
+      January 30th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その13
+">
+<h1>Programming Phoenix勉強その13</h1>
+<p>その13です。ここからPart2です。ここから機能をちゃんと整備します。</p>
+<ul>
+<li><p>ビデオに対してリアルタイムコメントを付けられるように</p></li>
+<li><p>ビデオを再生可能に</p></li>
+</ul>
+<p>をやっていくようです。はじめにビデオを再生可能にしていきます。</p>
+<section id="視聴用ページ作成
+">
+<h2>視聴用ページ作成</h2>
+<p>投稿されたビデオを見るためのページを作ります。いつものを作るのでソースのみ提示します。 <code>app.html.eex</code> に投稿一覧表示用メニューを付けます。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml">...
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">header</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"header"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">ol</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"breadcrumb text-right"</span>&gt;</span>
+        <span class="hljs-comment">&lt;!-- assignsで突っ込んだものが使えている --&gt;</span>
+        &lt;%=</span><span class="language-ruby"> <span class="hljs-keyword">if</span> <span class="hljs-variable">@current_user</span> <span class="hljs-keyword">do</span> </span><span class="language-xml">%&gt;
+          <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>&lt;%=</span><span class="language-ruby"> <span class="hljs-variable">@current_user</span>.username </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>&lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"My Videos"</span>, <span class="hljs-symbol">to:</span> video_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:index</span>) </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
+...
+</span></code></pre>
+<p><code>watch_controller.ex</code> を作成します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.WatchController</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:controller</span>
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Video</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span></span>(conn, %{<span class="hljs-string">"id"</span> =&gt; id}) <span class="hljs-keyword">do</span>
+    video = <span class="hljs-title class_">Repo</span>.get!(<span class="hljs-title class_">Video</span>, id)
+    render conn, <span class="hljs-string">"show.html"</span>, <span class="hljs-symbol">video:</span> video
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>wathc/show.html.eex</code> を作成します。コメント入力欄がある唯のページです。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>&lt;%=</span><span class="language-ruby"> <span class="hljs-variable">@video</span>.title </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"row"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"col-sm-7"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> content_tag <span class="hljs-symbol">:div</span>, <span class="hljs-symbol">id:</span> <span class="hljs-string">"video"</span>,
+          <span class="hljs-symbol">data:</span> [<span class="hljs-symbol">id:</span> <span class="hljs-variable">@video</span>.id, <span class="hljs-symbol">player_id:</span> player_id(<span class="hljs-variable">@video</span>)] <span class="hljs-keyword">do</span> </span><span class="language-xml">%&gt;
+    &lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"col-sm-5"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"panel panel-default"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"panel-heading"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"panel-title"</span>&gt;</span>Annotations<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"msg-container"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"panel-body annotations"</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"panel-footer"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"msg-input"</span>
+                  <span class="hljs-attr">rows</span>=<span class="hljs-string">"3"</span>
+                  <span class="hljs-attr">class</span>=<span class="hljs-string">"form-control"</span>
+                  <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"Comment..."</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"msg-submit"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"btn btn-primary form-control"</span>
+            <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>
+          Post
+        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</span></code></pre>
+<p>上記テンプレート内で <code>player_id/1</code> という関数を使っているので <code>watch_view.ex</code> を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.WatchView</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:view</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">player_id</span></span>(video) <span class="hljs-keyword">do</span>
+    <span class="hljs-regex">~r{^.*(?:youtu<span class="hljs-char escape_">\.</span>be/|<span class="hljs-char escape_">\w</span>+/|v=)(?&lt;id&gt;[^#&amp;?]*)}</span>
+    |&gt; <span class="hljs-title class_">Regex</span>.named_captures(video.url)
+    |&gt; get_in([<span class="hljs-string">"id"</span>])
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>正規表現を使って投稿されたYouTubeのURLに対してパラメータ部分のみを取り出しています。 <code>router.ex</code> に <code>/</code> スコープに <code>get "/watch/:id", WatchController, :show</code> を追加しておきます。</p>
+<p>最後に、ビデオ一覧画面にウォッチ画面へのリンクボタンを作成します。 <code>video/index.html.eex</code> に以下を追加します。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml">...
+<span class="hljs-tag">&lt;<span class="hljs-name">tbody</span>&gt;</span>
+  &lt;%=</span><span class="language-ruby"> <span class="hljs-keyword">for</span> video &lt;- <span class="hljs-variable">@videos</span> <span class="hljs-keyword">do</span> </span><span class="language-xml">%&gt;
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>&lt;%=</span><span class="language-ruby"> video.user_id </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>&lt;%=</span><span class="language-ruby"> video.url </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>&lt;%=</span><span class="language-ruby"> video.title </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>&lt;%=</span><span class="language-ruby"> video.description </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-right"</span>&gt;</span>
+        &lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"Watch"</span>, <span class="hljs-symbol">to:</span> watch_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:show</span>, video), <span class="hljs-symbol">class:</span> <span class="hljs-string">"btn btn-default btn-xs"</span> </span><span class="language-xml">%&gt;
+...
+</span></code></pre>
+<p>これで準備は完了です。次からJavaScript側のコードを作成します。</p>
+</section>
+<section id="視聴用ページ作成
+">
+<h2>視聴用ページ作成</h2>
+<p>最初にPhoenixでのJavaScriptのビルド周りについて触れられています。</p>
+<ul>
+<li><p>ビルドツールは <code>Brunch</code> がデフォルト</p></li>
+<li><p><code>Brunch</code> の設定はデフォルトでES6になっている</p></li>
+<li><p><code>Brunch</code> を使わないように変えることも可能。プロジェクト作成時に <code>--no-Brunch</code> オプションを与えると最初から除ける。</p></li>
+<li><p><code>web/static/js</code> 以下にあるファイルをすべて <code>app.js</code> にまとめる</p></li>
+<li><p>staticファイルの読み込みは <code>static_path(@conn, "/js/app.js")</code> で行う</p></li>
+<li><p>モジュールシステムを利用しないライブラリは <code>web/static/vendor</code> に追加する</p><ul><li><p>公式ドキュメントによると <code>bower</code> で入れたものはこっちに配備されるっぽい？</p></li></ul></li>
+</ul>
+<p>というわけでJavaScript周りを実装します。 <code>static/js/player.js</code> を以下の通り実装します。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">let</span> <span class="hljs-title class_">Player</span> = {
+    <span class="hljs-attr">player</span>: <span class="hljs-literal">null</span>,
+
+    <span class="hljs-title function_">init</span>(<span class="hljs-params">domId, player, onReadby</span>) {
+        <span class="hljs-variable language_">window</span>.<span class="hljs-property">onYouTubeIframeAPIReady</span> = <span class="hljs-function">() =&gt;</span> {
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">onIframeReady</span>(domId, player, onReadby);
+        };
+        <span class="hljs-keyword">let</span> youtubeScriptTag = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">"script"</span>);
+        <span class="hljs-comment">// APIの読み込み APIが読み込まれるとonYouTubeIframeAPIReady関数が自動で呼ばれる</span>
+        youtubeScriptTag.<span class="hljs-property">src</span> = <span class="hljs-string">"//www.youtube.com/iframe_api"</span>;
+        <span class="hljs-variable language_">document</span>.<span class="hljs-property">head</span>.<span class="hljs-title function_">appendChild</span>(youtubeScriptTag);
+    },
+
+    <span class="hljs-title function_">onIframeReady</span>(<span class="hljs-params">domId, playerId, onReady</span>) {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">player</span> = <span class="hljs-keyword">new</span> <span class="hljs-variable constant_">YT</span>.<span class="hljs-title class_">Player</span>(domId, {
+            <span class="hljs-attr">height</span>: <span class="hljs-string">"360"</span>,
+            <span class="hljs-attr">width</span>: <span class="hljs-string">"420"</span>,
+            <span class="hljs-attr">videoId</span>: playerId,
+            <span class="hljs-attr">events</span>: {
+                <span class="hljs-string">"onReady"</span>: (<span class="hljs-function"><span class="hljs-params">event</span> =&gt;</span> <span class="hljs-title function_">onReady</span>(event)),
+                <span class="hljs-string">"onStateChange"</span>: (<span class="hljs-function"><span class="hljs-params">event</span> =&gt;</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">onPlayerStateChange</span>(event))
+            }
+        });
+    },
+
+    <span class="hljs-title function_">onPlayerStateChange</span>(<span class="hljs-params">event</span>) {},
+    <span class="hljs-title function_">getCurrentTime</span>(<span class="hljs-params"></span>) { <span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">player</span>.<span class="hljs-title function_">getCurrentTime</span>() * <span class="hljs-number">1000</span>); },
+    <span class="hljs-title function_">seekTo</span>(<span class="hljs-params">millsec</span>) { <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">player</span>.<span class="hljs-title function_">seekTo</span>(millsec / <span class="hljs-number">1000</span>); }
+};
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">Player</span>;
+</code></pre>
+<p>YouTubeのAPIを読み込んでいます。本筋から外れてしまうので割愛します。文法がES2015形式なので昔のJavaScriptとはちょっと変わっています。</p>
+<p>ソースを作っただけでは読み込んでくれないので <code>static/js/app.js</code> を以下のように変更します。</p>
+<pre><code class="language-JavaScript hljs">...
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Player</span> <span class="hljs-keyword">from</span> <span class="hljs-string">"./player"</span>;
+<span class="hljs-keyword">let</span> video = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"video"</span>);
+<span class="hljs-keyword">if</span>(video) {
+    <span class="hljs-title class_">Player</span>.<span class="hljs-title function_">init</span>(video.<span class="hljs-property">id</span>, video.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">"data-player-id"</span>), <span class="hljs-function">() =&gt;</span> {
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"player ready!"</span>);
+    });
+}
+</code></pre>
+<p><code>import</code> 文もES2015の文法だったと記憶してます。これも特に言うことはありません。</p>
+<p>こんな感じで実装して実行したあと、 <code>priv/static/js/app.js</code> を見に行くとソースがまとめられていることがわかります。 抜粋して載せてみます。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">var</span> <span class="hljs-title class_">Player</span> = {
+    <span class="hljs-attr">player</span>: <span class="hljs-literal">null</span>,
+
+    <span class="hljs-attr">init</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">init</span>(<span class="hljs-params">domId, plyerId, onReadby</span>) {
+        <span class="hljs-keyword">var</span> _this = <span class="hljs-variable language_">this</span>;
+
+        <span class="hljs-variable language_">window</span>.<span class="hljs-property">onYouTubeIframeAPIReady</span> = <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) {
+            _this.<span class="hljs-title function_">onIframeReady</span>(domId, playerId, onReadby);
+        };
+        <span class="hljs-keyword">var</span> youtubeScriptTag = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">"script"</span>);
+        <span class="hljs-comment">// APIの読み込み APIが読み込まれるとonYouTubeIframeAPIReady関数が自動で呼ばれる</span>
+        youtubeScriptTag.<span class="hljs-property">src</span> = <span class="hljs-string">"//www.youtube.com/iframe_api"</span>;
+        <span class="hljs-variable language_">document</span>.<span class="hljs-property">head</span>.<span class="hljs-title function_">appendChild</span>(youtubeScriptTag);
+    },
+    <span class="hljs-attr">onIframeReady</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">onIframeReady</span>(<span class="hljs-params">domId, playerId, _onReady</span>) {
+        <span class="hljs-keyword">var</span> _this2 = <span class="hljs-variable language_">this</span>;
+
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">player</span> = <span class="hljs-keyword">new</span> <span class="hljs-variable constant_">YT</span>.<span class="hljs-title class_">Player</span>(domId, {
+            <span class="hljs-attr">height</span>: <span class="hljs-string">"360"</span>,
+            <span class="hljs-attr">width</span>: <span class="hljs-string">"420"</span>,
+            <span class="hljs-attr">videoId</span>: playerId,
+            <span class="hljs-attr">events</span>: {
+                <span class="hljs-string">"onReady"</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">onReady</span>(<span class="hljs-params">event</span>) {
+                    <span class="hljs-keyword">return</span> <span class="hljs-title function_">_onReady</span>(event);
+                },
+                <span class="hljs-string">"onStateChange"</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">onStateChange</span>(<span class="hljs-params">event</span>) {
+                    <span class="hljs-keyword">return</span> _this2.<span class="hljs-title function_">onPlayerStateChange</span>(event);
+                }
+            }
+        });
+    },
+    <span class="hljs-attr">onPlayerStateChange</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">onPlayerStateChange</span>(<span class="hljs-params">event</span>) {},
+    <span class="hljs-attr">getCurrentTime</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">getCurrentTime</span>(<span class="hljs-params"></span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">player</span>.<span class="hljs-title function_">getCurrentTime</span>() * <span class="hljs-number">1000</span>);
+    },
+    <span class="hljs-attr">seekTo</span>: <span class="hljs-keyword">function</span> <span class="hljs-title function_">seekTo</span>(<span class="hljs-params">millsec</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">player</span>.<span class="hljs-title function_">seekTo</span>(millsec / <span class="hljs-number">1000</span>);
+    }
+};
+<span class="hljs-built_in">exports</span>.<span class="hljs-property">default</span> = <span class="hljs-title class_">Player</span>;
+});
+</code></pre>
+</section>
+<section id="スラッグの追加
+">
+<h2>スラッグの追加</h2>
+<p>各ビデオを任意のURLでアクセス出来るように <code>Slug</code> を付けます。</p>
+<p><code>mix ecto.gen.migration add_slug_to_video</code> を実行後以下のようにマイグレーションファイルを変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Repo.Migrations.AddSlugToVideo</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Migration</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">change</span></span> <span class="hljs-keyword">do</span>
+    alter table(<span class="hljs-symbol">:videos</span>) <span class="hljs-keyword">do</span>
+      add <span class="hljs-symbol">:slug</span>, <span class="hljs-symbol">:string</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>出来たらマイグレーションを実行後、 <code>video.ex</code> で新たに追加された <code>slug</code> カラムを使うようにします。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Video</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:model</span>
+
+  schema <span class="hljs-string">"videos"</span> <span class="hljs-keyword">do</span>
+    field <span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:string</span>
+    field <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:string</span>
+    field <span class="hljs-symbol">:description</span>, <span class="hljs-symbol">:string</span>
+    field <span class="hljs-symbol">:slug</span>, <span class="hljs-symbol">:string</span> <span class="hljs-comment"># 追加</span>
+    belongs_to <span class="hljs-symbol">:user</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>
+
+    belongs_to <span class="hljs-symbol">:category</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Category</span>
+
+    timestamps()
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@doc</span> <span class="hljs-string">"""
+  Builds a changeset based on the `struct` and `params`.
+  """</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(struct, params \\ %{}) <span class="hljs-keyword">do</span>
+    struct
+    |&gt; cast(params, [<span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:description</span>, <span class="hljs-symbol">:category_id</span>])
+    |&gt; validate_required([<span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:description</span>])
+    |&gt; slugify_title() <span class="hljs-comment"># タイトルをSlugに変換</span>
+    |&gt; assoc_constraint(<span class="hljs-symbol">:category</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">slugify_title</span></span>(changeset) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># タイトルからSlugを作成する</span>
+    <span class="hljs-comment"># changesetを弄るだけで変更予定データの追加などが出来ている</span>
+    <span class="hljs-keyword">if</span> title = get_change(changeset, <span class="hljs-symbol">:title</span>) <span class="hljs-keyword">do</span>
+      put_change(changeset, <span class="hljs-symbol">:slug</span>, slugify(title))
+    <span class="hljs-keyword">else</span>
+      changeset
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">slugify</span></span>(str) <span class="hljs-keyword">do</span>
+    str
+    |&gt; <span class="hljs-title class_">String</span>.downcase()
+    |&gt; <span class="hljs-title class_">String</span>.replace(<span class="hljs-regex">~r/[^<span class="hljs-char escape_">\w</span>-]+/u</span>, <span class="hljs-string">"-"</span>)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>get_change</code> や <code>put_change</code> などを使うことで、変更が <code>changeset</code> の中だけで収まってくれています。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>JavaScript</code> のビルドツールのデフォルトは <code>Brunch</code></p></li>
+<li><p><code>JavaScript</code> の書式はデフォルトでES2015(ES6)形式</p></li>
+<li><p>static系統のファイルは <code>web/static/*</code> に色々おいていくとよしなにしてくれる</p></li>
+</ul>
+<p>全体的にクライアントサイドって感じでした。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix12/" rel="prev">Programming Phoenix勉強その12</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix14/" rel="next">Programming Phoenix勉強その14</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix13/ -->
+  
+
+</body></html>

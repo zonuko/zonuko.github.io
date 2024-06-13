@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その11 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその11">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その11</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-01-28 17:21:00">
+      January 28th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その11
+">
+<h1>Programming Phoenix勉強その11</h1>
+<p>その11です。chapter8です。テストですよ</p>
+<p>環境が <code>test</code> になるのでChapter7でやったWindows用コンパイルをやっておきます。細かい部分は省きます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">rumbl&gt; </span><span class="language-bash"><span class="hljs-built_in">set</span> <span class="hljs-string">"MIX_ENV=test"</span> &amp;&amp; mix deps.compile</span>
+</code></pre>
+<section id="テスト用に自動生成されるコードについて
+">
+<h2>テスト用に自動生成されるコードについて</h2>
+<p>テストを実行する前に自動生成された <code>video_controller_test.exs</code> を削除しておきます。</p>
+<p><code>conn_case.ex</code> を見るとテストの初期設定がかいてあるっぽいです。ちなみに最新版だと書籍のやつと大分違います。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.ConnCase</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">ExUnit</span>.<span class="hljs-title class_">CaseTemplate</span>
+
+  using <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">quote</span> <span class="hljs-keyword">do</span>
+      <span class="hljs-comment"># Import conveniences for testing with connections</span>
+      <span class="hljs-keyword">use</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">ConnTest</span>
+
+      <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>
+      <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>
+      <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Changeset</span>
+      <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Query</span>
+
+      <span class="hljs-keyword">import</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Router</span>.<span class="hljs-title class_">Helpers</span>
+
+      <span class="hljs-comment"># The default endpoint for testing</span>
+      <span class="hljs-variable">@endpoint</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Endpoint</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  setup tags <span class="hljs-keyword">do</span>
+    <span class="hljs-symbol">:ok</span> = <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Adapters</span>.<span class="hljs-title class_">SQL</span>.<span class="hljs-title class_">Sandbox</span>.checkout(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>)
+
+    <span class="hljs-keyword">unless</span> tags[<span class="hljs-symbol">:async</span>] <span class="hljs-keyword">do</span>
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Adapters</span>.<span class="hljs-title class_">SQL</span>.<span class="hljs-title class_">Sandbox</span>.mode(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>, {<span class="hljs-symbol">:shared</span>, self()})
+    <span class="hljs-keyword">end</span>
+
+    {<span class="hljs-symbol">:ok</span>, <span class="hljs-symbol">conn:</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">ConnTest</span>.build_conn()}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>using</code> ブロックは対して違いが無いですが、 <code>setup</code> ブロックは大分違います。 <a href="https://hexdocs.pm/ecto/Ecto.Adapters.SQL.Sandbox.html">Ectoのドキュメント</a> を見て探ってみます。  <code>Ecto.Adapters.SQL.Sandbox.checkout(Rumbl.Repo)</code> では与えられたリポジトリに対してコネクションを取りに行っているようです。 次の <code>Ecto.Adapters.SQL.Sandbox.mode(Rumbl.Repo, {:shared, self()})</code> は接続の共有方法を指定しているようです。同期的にテストを行う場合はこちらのようです。（ <code>allow/3</code> 関数を使った非同期の方も書いてありましたが割愛します。） また、これは <code>checkout</code> された接続と同じ接続を使うようなので <code>checkout</code> の後に呼び出すのが必須なようです。 接続に対して所有権の概念が導入されこのようになったようです。</p>
+</section>
+<section id="ログアウト時のテストの実装
+">
+<h2>ログアウト時のテストの実装</h2>
+<p>まずテストデータを作る関数を作ります。 <code>test/support/test_helpers.ex</code> を作ります。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.TestHelpers</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">insert_user</span></span>(attrs \\ %{}) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># Dictをマージする キーが被っている時は第二引数のものが優先される</span>
+    changes = <span class="hljs-title class_">Enum</span>.into(attrs, %{
+      <span class="hljs-symbol">name:</span> <span class="hljs-string">"Some User"</span>,
+      <span class="hljs-symbol">username:</span> <span class="hljs-string">"user<span class="hljs-subst">#{<span class="hljs-title class_">Base</span>.encode16(<span class="hljs-symbol">:crypto</span>.rand_bytes(<span class="hljs-number">8</span>))}</span>"</span>,
+      <span class="hljs-symbol">password:</span> <span class="hljs-string">"supersecret"</span>,
+    })
+
+    %<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>{}
+    |&gt; <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>.registration_changeset(changes)
+    |&gt; <span class="hljs-title class_">Repo</span>.insert!()
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">insert_video</span></span>(user, attrs \\ %{}) <span class="hljs-keyword">do</span>
+    user
+    |&gt; <span class="hljs-title class_">Ecto</span>.build_assoc(<span class="hljs-symbol">:videos</span>, attrs)
+    |&gt; <span class="hljs-title class_">Repo</span>.insert!()
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>新しい目のElixirだと <code>Dict</code> がdeprecatedと怒られるので <code>Enum.into</code> に変えてます。第一引数の <code>Enumerable</code> を第二引数の <code>Collectable</code> のものに合体します。パイプでやろうかと思いましたが逆に見にくくなりそうだったのでやめました。</p>
+<p>作った関数を各テストで使えるように <code>import</code> します。</p>
+<pre><code class="language-Elixir hljs">using <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">quote</span> <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># Import conveniences for testing with connections</span>
+    <span class="hljs-keyword">use</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">ConnTest</span>
+
+    <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>
+    <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>
+    <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Changeset</span>
+    <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Query</span>
+
+    <span class="hljs-keyword">import</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Router</span>.<span class="hljs-title class_">Helpers</span>
+    <span class="hljs-comment"># 自分で実装したヘルパー関数を各テストで使えるようにする</span>
+    <span class="hljs-keyword">import</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">TestHelpers</span>
+
+    <span class="hljs-comment"># The default endpoint for testing</span>
+    <span class="hljs-variable">@endpoint</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Endpoint</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>最後に <code>video_controller_test.exs</code> を作ります。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoControllerTest</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">ConnCase</span>
+
+  test <span class="hljs-string">"requires user authentication on all actions"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    <span class="hljs-title class_">Enum</span>.each([
+      get(conn, video_path(conn, <span class="hljs-symbol">:new</span>)),
+      get(conn, video_path(conn, <span class="hljs-symbol">:index</span>)),
+      get(conn, video_path(conn, <span class="hljs-symbol">:show</span>, <span class="hljs-string">"123"</span>)),
+      get(conn, video_path(conn, <span class="hljs-symbol">:edit</span>, <span class="hljs-string">"123"</span>)),
+      put(conn, video_path(conn, <span class="hljs-symbol">:update</span>, <span class="hljs-string">"123"</span>, %{})),
+      post(conn, video_path(conn, <span class="hljs-symbol">:create</span>, %{})),
+      delete(conn, video_path(conn, <span class="hljs-symbol">:delete</span>, <span class="hljs-string">"123"</span>)),
+    ], <span class="hljs-keyword">fn</span> conn -&gt;
+      assert html_response(conn, <span class="hljs-number">302</span>) <span class="hljs-comment"># ユーザ認証が必要なので全部設定されたパスにリダイレクトされる</span>
+      assert conn.halted <span class="hljs-comment"># 認証が行われていないのでhaltedはtrueになる</span>
+    <span class="hljs-keyword">end</span>)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>ユーザ認証が行われていない時にちゃんとリダイレクトされて <code>halted</code> が <code>true</code> になっているかテストをしています。このテストは <code>mix test</code> で実行した時にパスするはずです。</p>
+</section>
+<section id="ログイン時のテストの実装
+">
+<h2>ログイン時のテストの実装</h2>
+<p>ログアウトときたらログインということで実装してみます。</p>
+<p>まずテスト時にログインしてないと話にならないのでそこら辺からやっていきます。 <code>auth.ex</code> の <code>call/2</code> 関数を変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span></span>(conn, repo) <span class="hljs-keyword">do</span>
+  user_id = get_session(conn, <span class="hljs-symbol">:user_id</span>)
+  <span class="hljs-keyword">cond</span> <span class="hljs-keyword">do</span>
+    user = conn.assigns[<span class="hljs-symbol">:current_user</span>] -&gt;
+      conn
+    user = user_id &amp;&amp; repo.get(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>, user_id) -&gt;
+      <span class="hljs-comment"># assignでconnを変更する(importされた関数)</span>
+      <span class="hljs-comment"># これによって:current_userがコントローラやビューで使えるようになる</span>
+      assign(conn, <span class="hljs-symbol">:current_user</span>, user)
+    <span class="hljs-literal">true</span> -&gt;
+      assign(conn, <span class="hljs-symbol">:current_user</span>, <span class="hljs-literal">nil</span>)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>cond</code> で場合分けをしていて、カレントユーザがすでに入ればそのまま <code>conn</code> を返します。これで <code>:current_user</code> を突っ込んだ後にこいつを呼び出せばそのまま処理に移れるはずです。</p>
+<p>次に <code>video_controller_test.exs</code> を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoControllerTest</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">ConnCase</span>
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Video</span>
+  <span class="hljs-variable">@valid_attrs</span> %{<span class="hljs-symbol">url:</span> <span class="hljs-string">"http://youtu.be"</span>, <span class="hljs-symbol">title:</span> <span class="hljs-string">"vid"</span>, <span class="hljs-symbol">description:</span> <span class="hljs-string">"a vid"</span>}
+  <span class="hljs-variable">@invalid_attrs</span> %{<span class="hljs-symbol">title:</span> <span class="hljs-string">"invalid"</span>}
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">video_count</span></span>(query), <span class="hljs-symbol">do:</span> <span class="hljs-title class_">Repo</span>.one(from v <span class="hljs-keyword">in</span> query, <span class="hljs-symbol">select:</span> count(v.id))
+
+  setup %{<span class="hljs-symbol">conn:</span> conn} = config <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">if</span> username = config[<span class="hljs-symbol">:login_as</span>] <span class="hljs-keyword">do</span>
+      <span class="hljs-comment"># ログインしておいて欲しいときはこっち</span>
+      user = insert_user(<span class="hljs-symbol">username:</span> <span class="hljs-string">"max"</span>)
+      conn = assign(conn, <span class="hljs-symbol">:current_user</span>, user)
+      {<span class="hljs-symbol">:ok</span>, <span class="hljs-symbol">conn:</span> conn, <span class="hljs-symbol">user:</span> user}
+    <span class="hljs-keyword">else</span>
+      <span class="hljs-comment"># ログインしてほしくないときはこっち</span>
+      <span class="hljs-symbol">:ok</span> 
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"requires user authentication on all actions"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    <span class="hljs-title class_">Enum</span>.each([
+      get(conn, video_path(conn, <span class="hljs-symbol">:new</span>)),
+      get(conn, video_path(conn, <span class="hljs-symbol">:index</span>)),
+      get(conn, video_path(conn, <span class="hljs-symbol">:show</span>, <span class="hljs-string">"123"</span>)),
+      get(conn, video_path(conn, <span class="hljs-symbol">:edit</span>, <span class="hljs-string">"123"</span>)),
+      put(conn, video_path(conn, <span class="hljs-symbol">:update</span>, <span class="hljs-string">"123"</span>, %{})),
+      post(conn, video_path(conn, <span class="hljs-symbol">:create</span>, %{})),
+      delete(conn, video_path(conn, <span class="hljs-symbol">:delete</span>, <span class="hljs-string">"123"</span>)),
+    ], <span class="hljs-keyword">fn</span> conn -&gt;
+      assert html_response(conn, <span class="hljs-number">302</span>) <span class="hljs-comment"># ユーザ認証が必要なので全部設定されたパスにリダイレクトされる</span>
+      assert conn.halted <span class="hljs-comment"># 認証が行われていないのでhaltedはtrueになる</span>
+    <span class="hljs-keyword">end</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@tag</span> <span class="hljs-symbol">login_as:</span> <span class="hljs-string">"max"</span>
+  test <span class="hljs-string">"lists all user's videos on index"</span>, %{<span class="hljs-symbol">conn:</span> conn, <span class="hljs-symbol">user:</span> user} <span class="hljs-keyword">do</span>
+    user_video = insert_video(user, <span class="hljs-symbol">title:</span> <span class="hljs-string">"funny cats"</span>)
+    other_video = insert_video(insert_user(<span class="hljs-symbol">username:</span> <span class="hljs-string">"other"</span>), <span class="hljs-symbol">title:</span> <span class="hljs-string">"another video"</span>)
+
+    conn = get conn, video_path(conn, <span class="hljs-symbol">:index</span>)
+    assert html_response(conn, <span class="hljs-number">200</span>) =~ <span class="hljs-regex">~r/Listing videos/</span>
+    assert <span class="hljs-title class_">String</span>.contains?(conn.resp_body, user_video.title)
+    refute <span class="hljs-title class_">String</span>.contains?(conn.resp_body, other_video.title)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@tag</span> <span class="hljs-symbol">login_as:</span> <span class="hljs-string">"max"</span>
+  test <span class="hljs-string">"creates user video and redirects"</span>, %{<span class="hljs-symbol">conn:</span> conn, <span class="hljs-symbol">user:</span> user} <span class="hljs-keyword">do</span>
+    conn = post conn, video_path(conn, <span class="hljs-symbol">:create</span>), <span class="hljs-symbol">video:</span> <span class="hljs-variable">@valid_attrs</span>
+    assert redirected_to(conn) == video_path(conn, <span class="hljs-symbol">:index</span>)
+    assert <span class="hljs-title class_">Repo</span>.get_by!(<span class="hljs-title class_">Video</span>, <span class="hljs-variable">@valid_attrs</span>).user_id == user.id
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@tag</span> <span class="hljs-symbol">login_as:</span> <span class="hljs-string">"max"</span>
+  test <span class="hljs-string">"does not create video and renders errors when invalid"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    count_before = video_count(<span class="hljs-title class_">Video</span>)
+    conn = post conn, video_path(conn, <span class="hljs-symbol">:create</span>), <span class="hljs-symbol">video:</span> <span class="hljs-variable">@invalid_attrs</span>
+    assert html_response(conn, <span class="hljs-number">200</span>) =~ <span class="hljs-string">"check the errors"</span>
+    assert video_count(<span class="hljs-title class_">Video</span>) == count_before
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@tag</span> <span class="hljs-symbol">login_as:</span> <span class="hljs-string">"max"</span>
+  test <span class="hljs-string">"autorizes actions against access by other users"</span>, %{<span class="hljs-symbol">user:</span> owner, <span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    video = insert_video(owner, <span class="hljs-variable">@valid_attrs</span>)
+    non_owner = insert_user(<span class="hljs-symbol">username:</span> <span class="hljs-string">"sneaky"</span>)
+    conn = assign(conn, <span class="hljs-symbol">:current_user</span>, non_owner)
+
+    assert_error_sent <span class="hljs-symbol">:not_found</span>, <span class="hljs-keyword">fn</span>-&gt;
+      get(conn, video_path(conn, <span class="hljs-symbol">:show</span>, video))
+    <span class="hljs-keyword">end</span>
+
+    assert_error_sent <span class="hljs-symbol">:not_found</span>, <span class="hljs-keyword">fn</span> -&gt;
+      get(conn, video_path(conn, <span class="hljs-symbol">:edit</span>, video))
+    <span class="hljs-keyword">end</span>
+
+     assert_error_sent <span class="hljs-symbol">:not_found</span>, <span class="hljs-keyword">fn</span> -&gt;
+      get(conn, video_path(conn, <span class="hljs-symbol">:update</span>, video, <span class="hljs-symbol">video:</span> <span class="hljs-variable">@valid_attrs</span>))
+    <span class="hljs-keyword">end</span>
+
+     assert_error_sent <span class="hljs-symbol">:not_found</span>, <span class="hljs-keyword">fn</span> -&gt;
+      get(conn, video_path(conn, <span class="hljs-symbol">:delete</span>, video))
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>video_controller</code> に対するテストを一気に追加しました。ポイントとなるのは以下だと思います。テスト自体にそんなに難しいところは無いと思います。</p>
+<ul>
+<li><p><code>setup</code> の部分をタグによって場合分けした。それにより、ログイン時のテストにはタグを付けることでログアウト時のテストと一緒にテストが出来る。</p></li>
+<li><p><code>@～</code> で共通で使えるリクエストパラメータを外出しした。</p></li>
+</ul>
+</section>
+<section id="plugのテスト
+">
+<h2>Plugのテスト</h2>
+<p><code>Plug</code> のテストも普通のテストと同じように書けます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.AuthTest</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">ConnCase</span>
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Auth</span>
+
+  setup %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    conn =
+      conn
+      |&gt; bypass_through(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Router</span>, <span class="hljs-symbol">:browser</span>) <span class="hljs-comment"># bypass_through関数でRouterを経由してconnを作る</span>
+      |&gt; get(<span class="hljs-string">"/"</span>)
+
+    {<span class="hljs-symbol">:ok</span>, %{<span class="hljs-symbol">conn:</span> conn}}
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"authenticate_user halts when no current_user exists"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    conn = <span class="hljs-title class_">Auth</span>.authenticate_user(conn, [])
+    assert conn.halted
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"authenticate_user continues when the current_user exists"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    conn =
+      conn
+      |&gt; assign(<span class="hljs-symbol">:current_user</span>, %<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>{})
+      |&gt; <span class="hljs-title class_">Auth</span>.authenticate_user([])
+
+    refute conn.halted
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"login puts the user in the session"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    login_conn =
+      conn
+      |&gt; <span class="hljs-title class_">Auth</span>.login(%<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>{<span class="hljs-symbol">id:</span> <span class="hljs-number">123</span>})
+      |&gt; send_resp(<span class="hljs-symbol">:ok</span>, <span class="hljs-string">""</span>) <span class="hljs-comment"># テスト用に:okをレスポンスとして返す</span>
+
+    next_conn = get(login_conn, <span class="hljs-string">"/"</span>)
+    assert get_session(next_conn, <span class="hljs-symbol">:user_id</span>) === <span class="hljs-number">123</span>
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"logout drops the session"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    logout_conn =
+      conn
+      |&gt; put_session(<span class="hljs-symbol">:user_id</span>, <span class="hljs-number">123</span>)
+      |&gt; <span class="hljs-title class_">Auth</span>.logout()
+      |&gt; send_resp(<span class="hljs-symbol">:ok</span>, <span class="hljs-string">""</span>)
+
+    next_conn = get(logout_conn, <span class="hljs-string">"/"</span>)
+    refute get_session(next_conn, <span class="hljs-symbol">:user_id</span>)
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"call places user from session into assigns"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    user = insert_user()
+    <span class="hljs-comment"># セッションにユーザIDをを入れてcallを呼び出す</span>
+    conn =
+      conn
+      |&gt; put_session(<span class="hljs-symbol">:user_id</span>, user.id)
+      |&gt; <span class="hljs-title class_">Auth</span>.call(<span class="hljs-title class_">Repo</span>)
+
+    assert conn.assigns.current_user.id == user.id
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"call with no session sets current_user assign to nil"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># sessionに何も入れずにcallを呼び出す</span>
+    conn = <span class="hljs-title class_">Auth</span>.call(conn, <span class="hljs-title class_">Repo</span>)
+    assert conn.assigns.current_user == <span class="hljs-literal">nil</span>
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"login with a valid username and pass"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    user = insert_user(<span class="hljs-symbol">username:</span> <span class="hljs-string">"me"</span>, <span class="hljs-symbol">password:</span> <span class="hljs-string">"secret"</span>)
+
+    {<span class="hljs-symbol">:ok</span>, conn} =
+      <span class="hljs-title class_">Auth</span>.login_by_username_add_pass(conn, <span class="hljs-string">"me"</span>, <span class="hljs-string">"secret"</span>, <span class="hljs-symbol">repo:</span> <span class="hljs-title class_">Repo</span>)
+
+    assert conn.assigns.current_user.id == user.id
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"login with a not found user"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    assert {<span class="hljs-symbol">:error</span>, <span class="hljs-symbol">:not_found</span>, _conn} =
+      <span class="hljs-title class_">Auth</span>.login_by_username_add_pass(conn, <span class="hljs-string">"me"</span>, <span class="hljs-string">"secret"</span>, <span class="hljs-symbol">repo:</span> <span class="hljs-title class_">Repo</span>)
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"login with password mismatch"</span>, %{<span class="hljs-symbol">conn:</span> conn} <span class="hljs-keyword">do</span>
+    _ = insert_user(<span class="hljs-symbol">username:</span> <span class="hljs-string">"me"</span>, <span class="hljs-symbol">password:</span> <span class="hljs-string">"secret"</span>)
+
+    assert {<span class="hljs-symbol">:error</span>, <span class="hljs-symbol">:unauthorized</span>, _conn} =
+      <span class="hljs-title class_">Auth</span>.login_by_username_add_pass(conn, <span class="hljs-string">"me"</span>, <span class="hljs-string">"wrond"</span>, <span class="hljs-symbol">repo:</span> <span class="hljs-title class_">Repo</span>)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>あまり書くことはないですが、 <code>setup</code> で <code>bypass_through</code> で各パイプを経由した <code>conn</code> を作っている点くらいだと思います。 セッションやらフラッシュメッセージが必要となるためです。</p>
+<p>テストの高速化のために <code>config/text.exs</code> に以下を追加しておきます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-comment"># テストを高速化するためにハッシュの複雑差を変えて計算の時間を減らす</span>
+config <span class="hljs-symbol">:comeonin</span>, <span class="hljs-symbol">:bcrypt_log_rounds</span>, <span class="hljs-number">4</span>
+config <span class="hljs-symbol">:comeonin</span>, <span class="hljs-symbol">:pbkdf2_rounds</span>, <span class="hljs-number">1</span>
+</code></pre>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<p>よくあるテストコードと余り変わらなくて特に書くことがない・・・今までの知識を総動員している感覚があります。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix10/" rel="prev">Programming Phoenix勉強その10</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix12/" rel="next">Programming Phoenix勉強その12</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix11/ -->
+  
+
+</body></html>

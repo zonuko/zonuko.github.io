@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Professional Clojureメモその1 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Profession Clojureを読む第1章">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Professional Clojureメモその1</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/clojure/" class="tag">clojure</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2018-05-27 23:00:00">
+      May 27th, 2018
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="professional-clojureメモその1
+">
+<h1>Professional Clojureメモその1</h1>
+<p>Profession Clojureって本を買ったのでメモしていこうと思います。</p>
+<div class="kaerebalink-box" style="text-align:left;padding-bottom:20px;font-size:small;/zoom: 1;overflow: hidden;"><div class="kaerebalink-image" style="float:left;margin:0 15px 10px 0;"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/B01G7S4SGK/zonuko-22/" target="_blank"><img src="https://images-fe.ssl-images-amazon.com/images/I/51PAVy95uvL._SL160_.jpg" style="border: none;"></a></div><div class="kaerebalink-info" style="line-height:120%;/zoom: 1;overflow: hidden;"><div class="kaerebalink-name" style="margin-bottom:10px;line-height:120%"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/B01G7S4SGK/zonuko-22/" target="_blank">Professional Clojure</a><div class="kaerebalink-powered-date" style="font-size:8pt;margin-top:5px;font-family:verdana;line-height:120%">posted with <a href="http://kaereba.com" rel="nofollow" target="_blank">カエレバ</a></div></div><div class="kaerebalink-detail" style="margin-bottom:5px;">Jeremy Anderson,Michael Gaare,Justin Holguín,Nick Bailey,Timothy Pratley Wrox 2016-05-25    </div><div class="kaerebalink-link1" style="margin-top:10px;"></div></div><div class="booklink-footer" style="clear: left"></div></div>
+
+<p>ちなみに章ごとです。今回は第1章です。</p>
+<p>第1章ではClojureの関数型の部分についてJavaと比較するような形で書かれています。 最初は細かく書こうと思ったんですが、思ったよりボリューム満点だったので適当にClojureの部分だけ要約します。</p>
+<section id="再帰
+">
+<h2>再帰</h2>
+<p>Programming Clojureとか読んでると今更な感もあるんですが、触れられていました。</p>
+<p>通常の再帰ではスタックがあふれるので、 <code>recur</code> を使って末尾再帰します。 ただし、 JVMは末尾呼び出し最適化をサポートしてないのでシュミレートしているだけのようです。('tail call optimazation'とあったので末尾呼び出し最適化としておきます。)</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">defn</span> <span class="hljs-title">factorial2</span> [n]
+  (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [count n acc <span class="hljs-number">1</span>]
+    (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">zero?</span></span> count)
+      acc
+      (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">dec</span></span> count) (<span class="hljs-name"><span class="hljs-built_in">*</span></span> acc count)))))
+</code></pre>
+<p>相互再帰は <code>trampoline</code> でやる感じです。ただし、サンプルでは普通の相互再帰と、 <code>letfn</code> でローカルに関数を2つ作ってそれを相互再帰する方も紹介されていました。 普通に相互再帰すると関数呼び出しが <code>trampoline</code> 付きでの呼び出しになるのが普通に関数呼び出せば良くなるのがメリットみたいです。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; 使うときはtrampolineなしで普通に呼べば良い</span>
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">my-even?</span> [n]
+  (<span class="hljs-name"><span class="hljs-built_in">letfn</span></span> [(<span class="hljs-name">e?</span> [n] (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">zero?</span></span> n) <span class="hljs-literal">true</span> #(<span class="hljs-name">o?</span> (<span class="hljs-name"><span class="hljs-built_in">dec</span></span> n))))
+          (<span class="hljs-name">o?</span> [n] (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">zero?</span></span> n) <span class="hljs-literal">false</span> #(<span class="hljs-name">e?</span> (<span class="hljs-name"><span class="hljs-built_in">dec</span></span> n))))]
+    (<span class="hljs-name">trampoline</span> e? n)))
+
+<span class="hljs-comment">;; trampolineはmy-evenの中に閉じ込められているのでそのまま使える</span>
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">my-odd?</span> [n]
+  (<span class="hljs-name"><span class="hljs-built_in">not</span></span> (<span class="hljs-name">my-even?</span> n)))
+</code></pre>
+</section>
+<section id="高階関数
+">
+<h2>高階関数</h2>
+<p>特に発見とかもなかったです。 <code>filter</code> の例が出ていました。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">def</span> <span class="hljs-title">lst</span> [<span class="hljs-string">"a"</span> <span class="hljs-string">"b"</span> <span class="hljs-string">"c"</span> <span class="hljs-string">"d"</span>])
+(<span class="hljs-name"><span class="hljs-built_in">filter</span></span> #(<span class="hljs-name"><span class="hljs-built_in">=</span></span> <span class="hljs-string">"a"</span> %) lst)
+</code></pre>
+<p>それ以外にもコマンドパターンの比較があったりしました。</p>
+</section>
+<section id="部分適用と合成関数
+">
+<h2>部分適用と合成関数</h2>
+<p>`partial` を使った部分適用について触れられています。 部分適用とかカリー化とか誤用の元なので触れるのに勇気がいる・・・</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">def</span> <span class="hljs-title">twice</span> (<span class="hljs-name"><span class="hljs-built_in">partial</span></span> * <span class="hljs-number">2</span>))
+(<span class="hljs-name"><span class="hljs-built_in">map</span></span> twice [<span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span>])
+</code></pre>
+<p>関数の合成の方は <code>comp</code> で出来ます。評価順は右から左って感じです。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; 2足してから2倍する</span>
+(<span class="hljs-name"><span class="hljs-built_in">map</span></span> (<span class="hljs-name"><span class="hljs-built_in">comp</span></span> (<span class="hljs-name"><span class="hljs-built_in">partial</span></span> * <span class="hljs-number">2</span>) (<span class="hljs-name"><span class="hljs-built_in">partial</span></span> + <span class="hljs-number">2</span>)) [<span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span>])
+</code></pre>
+</section>
+<section id="遅延評価
+">
+<h2>遅延評価</h2>
+<p>もっと使わないと全然理解が甘い気がしてて恐縮ですが、  <code>map</code> とかでも <code>lazy sequence</code> を返してくる点が触れられています。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; lazy-cat全く覚えてなかった</span>
+<span class="hljs-comment">;; 素朴な使い方</span>
+(<span class="hljs-name">lazy-cat</span> [<span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span>] [<span class="hljs-number">4</span> <span class="hljs-number">5</span> <span class="hljs-number">6</span>])
+
+<span class="hljs-comment">;; フィボナッチ ただしプログラミングClojureで紹介されている良くないパターン</span>
+<span class="hljs-comment">;; map以下では自分自身が常に変更されて計算されていくイメージ</span>
+<span class="hljs-comment">;; [1 1]のときはmapの引数は[1] [1]となり、2が計算される</span>
+<span class="hljs-comment">;; 2が分かると[1 1 2]となり[1 1 2]と[1 2]となり3が計算される</span>
+<span class="hljs-comment">;; 3が分かると[1 1 2 3]となり[1 1 2 3]と[1 2 3]となり5が計算される</span>
+<span class="hljs-comment">;; 以下無限に続くものがmapの引数となるリスト</span>
+(<span class="hljs-keyword">def</span> <span class="hljs-title">fib-seq</span>
+  (<span class="hljs-name">lazy-cat</span> [<span class="hljs-number">1</span> <span class="hljs-number">1</span>] (<span class="hljs-name"><span class="hljs-built_in">map</span></span> + (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> fib-seq) fib-seq)))
+</code></pre>
+</section>
+<section id="変更可能な仲間
+">
+<h2>変更可能な仲間</h2>
+<section id="atom
+">
+<h3>Atom</h3>
+<p>最もシンプルな変更可能な値。協調動作を行わない前提だったり、独立した値に使えるっぽいです。 一度に複数変更しない場合にのみ使う感じです。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; そのまま表示すると#atom[{} 0x755e4715]って感じでセットした値とハッシュ値のセットになる</span>
+(<span class="hljs-keyword">def</span> <span class="hljs-title">app-state</span> (<span class="hljs-name"><span class="hljs-built_in">atom</span></span> {}))
+<span class="hljs-comment">;; swap!で更新する。第二引数の関数をその後の引数を使って実行する</span>
+<span class="hljs-comment">;; #atom[{:current-user "Jeremy"} 0x755e4715]な感じ</span>
+(<span class="hljs-name"><span class="hljs-built_in">swap!</span></span> app-state assoc <span class="hljs-symbol">:current-user</span> <span class="hljs-string">"Jeremy"</span>)
+<span class="hljs-comment">;; 直接上書き更新する場合はreset!</span>
+<span class="hljs-comment">;; #atom[{:aaa 1} 0x755e4715]</span>
+(<span class="hljs-name"><span class="hljs-built_in">reset!</span></span> app-state {<span class="hljs-symbol">:aaa</span> <span class="hljs-number">1</span>})
+<span class="hljs-comment">;; derefか@で中身を取得</span>
+(<span class="hljs-symbol">:aaa</span> @app-state)
+</code></pre>
+</section>
+<section id="ref
+">
+<h3>Ref</h3>
+<p>複数値の変更に使うやつです。いわゆるトランザクション。 ここらへんプログラミングClojureにもあったんですが要復習。</p>
+<p><code>atom</code> との比較は割愛</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; refの定義方法はatomと似た感じ</span>
+(<span class="hljs-keyword">def</span> <span class="hljs-title">checking</span> (<span class="hljs-name"><span class="hljs-built_in">ref</span></span> {<span class="hljs-symbol">:balance</span> <span class="hljs-number">500</span>}))
+<span class="hljs-comment">;; 協調動作実験用にもう一つ</span>
+(<span class="hljs-keyword">def</span> <span class="hljs-title">savings</span> (<span class="hljs-name"><span class="hljs-built_in">ref</span></span> {<span class="hljs-symbol">:balance</span> <span class="hljs-number">250</span>}))
+
+<span class="hljs-comment">;; dosyncで協調動作</span>
+<span class="hljs-comment">;; throwされると最初のcommuteは巻き戻される</span>
+<span class="hljs-comment">;; 更新自体はalterも存在し、こっちは実行順が保証される</span>
+(<span class="hljs-name"><span class="hljs-built_in">dosync</span></span>
+  (<span class="hljs-name"><span class="hljs-built_in">commute</span></span> checking assoc <span class="hljs-symbol">:balance</span> <span class="hljs-number">700</span>)
+  (<span class="hljs-name"><span class="hljs-built_in">throw</span></span> (<span class="hljs-name">Exception.</span> <span class="hljs-string">"Oops..."</span>))
+  (<span class="hljs-name"><span class="hljs-built_in">commute</span></span> savings assoc <span class="hljs-symbol">:balance</span> <span class="hljs-number">50</span>))
+</code></pre>
+</section>
+</section>
+<section id="nilの扱い
+">
+<h2>Nilの扱い</h2>
+<p>Nil Punningって日本語にするとどういう感じなんだろう？上手い翻訳が出てこない・・・</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; nilはfalsy</span>
+(<span class="hljs-name"><span class="hljs-built_in">if</span></span> <span class="hljs-literal">nil</span> <span class="hljs-string">"true"</span> <span class="hljs-string">"false"</span>)
+
+<span class="hljs-comment">;; firstとかみたいに配列の類いを渡すこと前提にしているものはnil渡すとnilを返す</span>
+<span class="hljs-comment">;; 単純に想定されているものが来てないので最初の要素とかが無いので</span>
+(<span class="hljs-name"><span class="hljs-built_in">first</span></span> <span class="hljs-literal">nil</span>) <span class="hljs-comment">;; =&gt; nil</span>
+(<span class="hljs-name"><span class="hljs-built_in">second</span></span> <span class="hljs-literal">nil</span>) <span class="hljs-comment">;; =&gt; nil</span>
+(<span class="hljs-name"><span class="hljs-built_in">seq?</span></span> <span class="hljs-literal">nil</span>) <span class="hljs-comment">;; =&gt; false</span>
+
+<span class="hljs-comment">;; 空のリストとかとはnilは違う</span>
+(<span class="hljs-name"><span class="hljs-built_in">if</span></span> '() <span class="hljs-string">"true"</span> <span class="hljs-string">"false"</span>) <span class="hljs-comment">;; =&gt; "true"</span>
+
+<span class="hljs-comment">;; falsyな値としてnilを扱っているのかnilとしてnilを使っているのか要注意</span>
+<span class="hljs-comment">;; 以下の例はmapを扱う場合にValueとしてnilがあるとKeyが存在しないときに帰ってくるnilを判別が出来ない例</span>
+(<span class="hljs-symbol">:foo</span> {<span class="hljs-symbol">:foo</span> <span class="hljs-literal">nil</span> <span class="hljs-symbol">:bar</span> <span class="hljs-string">"baz"</span>}) <span class="hljs-comment">;; =&gt; nil</span>
+(<span class="hljs-symbol">:fooo</span> {<span class="hljs-symbol">:foo</span> <span class="hljs-literal">nil</span> <span class="hljs-symbol">:bar</span> <span class="hljs-string">"baz"</span>}) <span class="hljs-comment">;; =&gt; nil</span>
+<span class="hljs-comment">;; mapはデフォルト値を指定できるのでKeyが無いときはそっちがいい</span>
+(<span class="hljs-symbol">:fooo</span> {<span class="hljs-symbol">:foo</span> <span class="hljs-literal">nil</span> <span class="hljs-symbol">:bar</span> <span class="hljs-string">"baz"</span>} <span class="hljs-symbol">:not-found</span>) <span class="hljs-comment">;; =&gt; :not-found</span>
+</code></pre>
+<p><code>(first 1)</code> はなんでnilじゃないんだろう？</p>
+</section>
+<section id="オブジェクト指向っぽいやつ
+">
+<h2>オブジェクト指向っぽいやつ</h2>
+<p>オーバーロードっぽいディスパッチは <code>defmulti</code> のマルチメソッドでできる</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; 第一引数に与えられた何某かで実際に呼び出されるメソッドが決まる</span>
+(<span class="hljs-keyword">defmulti</span> <span class="hljs-title">area</span> (<span class="hljs-name"><span class="hljs-built_in">fn</span></span> [shape &amp; _] shape))
+
+<span class="hljs-comment">;; １つ目が:triangleの場合</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">area</span> <span class="hljs-symbol">:triangle</span>
+  [_ base height]
+  (/ (<span class="hljs-name"><span class="hljs-built_in">*</span></span> base height) <span class="hljs-number">2</span>))
+
+<span class="hljs-comment">;; :sqareの場合</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">area</span> <span class="hljs-symbol">:square</span>
+  [_ side]
+  (<span class="hljs-name"><span class="hljs-built_in">*</span></span> side side))
+
+<span class="hljs-comment">;; :rectの場合</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">area</span> <span class="hljs-symbol">:rect</span>
+  [_length width]
+  (<span class="hljs-name"><span class="hljs-built_in">*</span></span> length width))
+
+<span class="hljs-comment">;; :circleの場合</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">area</span> <span class="hljs-symbol">:circle</span>
+  [_ radius]
+  (<span class="hljs-name"><span class="hljs-built_in">*</span></span> radius radius Math/PI))
+</code></pre>
+<p>オーバーロードと違ってオブジェクトに紐づくようなメソッドではなく、 特定の条件から実際の関数がディスパッチされる単なる関数群という感じでしょうか</p>
+<section id="クラスっぽいやつ
+">
+<h3>クラスっぽいやつ</h3>
+<p><code>deftype</code> とか <code>defrecord</code> でクラスが作れる。 <code>defrecord</code> の方は普通の連想配列のようにも振る舞える</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">deftype</span> <span class="hljs-title">hogehoge</span> [hoge])
+(<span class="hljs-keyword">def</span> <span class="hljs-title">h</span> (<span class="hljs-name">hogehoge.</span> <span class="hljs-number">100</span>))
+(<span class="hljs-name">.hoge</span> h) <span class="hljs-comment">;; =&gt; 100</span>
+(<span class="hljs-symbol">:hoge</span> h) <span class="hljs-comment">;; =&gt; nil</span>
+
+(<span class="hljs-keyword">defrecord</span> <span class="hljs-title">foo</span> [bar])
+(<span class="hljs-keyword">def</span> <span class="hljs-title">f</span> (<span class="hljs-name">foo.</span> <span class="hljs-number">100</span>))
+(<span class="hljs-name">.bar</span> f) <span class="hljs-comment">;; =&gt; 100</span>
+(<span class="hljs-symbol">:bar</span> f) <span class="hljs-comment">;; =&gt; 100</span>
+</code></pre>
+</section>
+<section id="インターフェースぽいやつ
+">
+<h3>インターフェースぽいやつ</h3>
+<p><code>interface</code> っぽいやつとして <code>defprotocol</code> が紹介されていました。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">defprotocol</span> <span class="hljs-title">Shape</span>
+  (<span class="hljs-name">area</span> [this])
+  (<span class="hljs-name">perimeter</span> [this]))
+
+(<span class="hljs-keyword">defrecord</span> <span class="hljs-title">React</span> [width length]
+  Shape <span class="hljs-comment">;; Shapeプロトコルを実装</span>
+  (<span class="hljs-name">area</span> [this] (<span class="hljs-name"><span class="hljs-built_in">*</span></span> (<span class="hljs-symbol">:width</span> this) (<span class="hljs-symbol">:length</span> this)))
+  (<span class="hljs-name">perimeter</span> [this] (<span class="hljs-name"><span class="hljs-built_in">+</span></span> (<span class="hljs-name"><span class="hljs-built_in">*</span></span> <span class="hljs-number">2</span> (<span class="hljs-symbol">:width</span> this)) (<span class="hljs-name"><span class="hljs-built_in">*</span></span> <span class="hljs-number">2</span> (<span class="hljs-symbol">:length</span> this)))))
+</code></pre>
+<p>どちらかというとtraitとかに近いのかも？traitの方はちょっとかじった程度ですが。</p>
+<p><code>defrecord</code> や <code>deftype</code> したくないけど特定の <code>Var</code> になにか処理を付け加えたいとき用に `reify` があるっぽいです。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; recordやtypeではない単なるVarにprotocolを実装させる</span>
+(<span class="hljs-keyword">def</span> <span class="hljs-title">some-shape</span>
+  (<span class="hljs-name"><span class="hljs-built_in">reify</span></span> Shape
+    (<span class="hljs-name">area</span> [this] <span class="hljs-string">"Area"</span>)
+    (<span class="hljs-name">perimeter</span> [this] <span class="hljs-string">"I calculate perimeter"</span>)))
+</code></pre>
+</section>
+</section>
+<section id="その他
+">
+<h2>その他</h2>
+<p>データの永続性についてとかを木構造を作って紹介されてましたがブログでは割愛します。</p>
+<p>また、マクロの紹介として <code>defroutes</code> とかが紹介されていました。 マクロ自体の説明ではなくて何が出来るかとかそういう話です。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p>ほとんど復習でしたが、 <code>trampoline</code> の使い方とか参考になりました。</p></li>
+<li><p><code>honeysql</code> とか紹介されてたのでそのうち使ってみたいです</p></li>
+</ul>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/inventory/" rel="prev">社会に出て3年間でやってたこと</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/job-change/" rel="next">そろそろ誕生日だし転職活動しようと思う</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/professional-clojure1/ -->
+  
+
+</body></html>

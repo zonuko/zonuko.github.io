@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その6 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその6">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その6</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-01-11 17:52:00">
+      January 11th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その6
+">
+<h1>Programming Phoenix勉強その6</h1>
+<p>その6です。 実際にDBを操作するところからです。</p>
+<section id="新規ユーザ生成処理
+">
+<h2>新規ユーザ生成処理</h2>
+<p><code>Rumbl.UserController</code> に以下の関数を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">new</span></span>(conn, _params) <span class="hljs-keyword">do</span>
+  changeset = <span class="hljs-title class_">User</span>.changeset(%<span class="hljs-title class_">User</span>{})
+  render conn, <span class="hljs-string">"new.html"</span>, <span class="hljs-symbol">changeset:</span> changeset
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>changeset</code> 周りとかが謎めいていますが一旦置いときます。単に自分が今理解してないだけですが・・・ DBの操作とそれ以外の検証とかエラーとかセキュリティとかを分離するのに役立つっぽいです。 <code>user.ex</code> に上記で利用している <code>User.changeset</code> 関数を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(model, params \\ <span class="hljs-symbol">:empty</span>) <span class="hljs-keyword">do</span>
+  model
+  |&gt; cast(params, <span class="hljs-string">~w(name username)</span>, [])
+  |&gt; validate_length(<span class="hljs-symbol">:username</span>, <span class="hljs-symbol">min:</span> <span class="hljs-number">1</span>, <span class="hljs-symbol">max:</span> <span class="hljs-number">20</span>)
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>Ecto</code> を使う関数を定義しました。 <code>cast</code> で <code>Ecto.changeset</code> を生成してバリデーションチェックを掛けているようです。</p>
+</section>
+<section id="前準備
+">
+<h2>前準備</h2>
+<p><code>:new</code> アクションを実装する前に前準備をします。 今まで書いてあったルーティング設定を消して以下を追加します。まぁ説明不要だと思います。</p>
+<pre><code class="language-Elixir hljs">resouces <span class="hljs-string">"/users"</span>, <span class="hljs-title class_">UserController</span>, <span class="hljs-symbol">only:</span> [<span class="hljs-symbol">:index</span>, <span class="hljs-symbol">:show</span>, <span class="hljs-symbol">:new</span>, <span class="hljs-symbol">:create</span>]
+</code></pre>
+</section>
+<section id="テンプレート実装
+">
+<h2>テンプレート実装</h2>
+<p><code>:new</code> に対応するテンプレートを適当に作ります。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>New User<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+
+&lt;%=</span><span class="language-ruby"> form_for <span class="hljs-variable">@changeset</span>, user_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:create</span>), fn f -&gt; </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> text_input f, <span class="hljs-symbol">:name</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Name"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> text_input f, <span class="hljs-symbol">:username</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Username"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> password_input f, <span class="hljs-symbol">:password</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Password"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  &lt;%=</span><span class="language-ruby"> submit <span class="hljs-string">"Create User"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"btn, btn-primary"</span> </span><span class="language-xml">%&gt;
+&lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+</span></code></pre>
+<p> ここまでやって起動したところ、何やらWarningが出たので解消します。</p>
+<pre><code class="language-shell hljs">warning: `Ecto.Changeset.cast/4` is deprecated, please use `cast/3` + `validate_required/3` instead
+    (rumbl) web/models/user.ex:15: Rumbl.User.changeset/2
+    (rumbl) web/controllers/user_controller.ex:16: Rumbl.UserController.new/2
+    (rumbl) web/controllers/user_controller.ex:1: Rumbl.UserController.action/2
+    (rumbl) web/controllers/user_controller.ex:1: Rumbl.UserController.phoenix_controller_pipeline/2
+
+warning: passing :empty to Ecto.Changeset.cast/3 is deprecated, please pass an empty map or :invalid instead
+    (rumbl) web/models/user.ex:15: Rumbl.User.changeset/2
+    (rumbl) web/controllers/user_controller.ex:16: Rumbl.UserController.new/2
+    (rumbl) web/controllers/user_controller.ex:1: Rumbl.UserController.action/2
+    (rumbl) web/controllers/user_controller.ex:1: Rumbl.UserController.phoenix_controller_pipeline/2
+</code></pre>
+</section>
+<section id="warningの解消
+">
+<h2>Warningの解消</h2>
+<p><code>Ecto</code> とかのバージョの違いのせいか2つWarningが出てました。1つは <code>user.ex</code> の <code>changeset/2</code> 関数のデフォルト引数で <code>:empty</code> としていた部分です。 その部分を以下のように変えます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(model, params \\ %{}) <span class="hljs-keyword">do</span>
+</code></pre>
+<p>単純に空の <code>Map</code> にしただけですね。 もう1つ <code>cast/4</code> 関数を呼び出している部分でもWarningが出ているので修正します。</p>
+<pre><code class="language-Elixir hljs">model
+|&gt; cast(params, [<span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:username</span>])
+|&gt; validate_required([<span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:username</span>])
+|&gt; validate_length(<span class="hljs-symbol">:username</span>, <span class="hljs-symbol">min:</span> <span class="hljs-number">1</span>, <span class="hljs-symbol">max:</span> <span class="hljs-number">20</span>)
+</code></pre>
+<p><a href="http://www.phoenixframework.org/docs/ecto-models">ここ</a> とか <a href="https://hexdocs.pm/ecto/Ecto.Changeset.html#cast/4">ここらへん</a> 参考にしましたが英語力の無さ故にあってるかわからないです。誰か教えて!!  パラメータの名前的にはあってそうですが・・・ また、これを見ると <code>cast</code> が <code>changeset</code> を返してきて、それに対してバリデーションを掛けているのがわかります。</p>
+</section>
+<section id="createアクションの実装
+">
+<h2>Createアクションの実装</h2>
+<p><code>new</code> アクションを実装したので実際にDBにインサートする <code>create</code> アクションを実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create</span></span>(conn, %{<span class="hljs-string">"user"</span> =&gt; user_params}) <span class="hljs-keyword">do</span>
+  changeset = <span class="hljs-title class_">User</span>.changeset(%<span class="hljs-title class_">User</span>{}, user_params)
+  <span class="hljs-keyword">case</span> <span class="hljs-title class_">Repo</span>.insert(changeset) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, user} -&gt;
+      conn
+      |&gt; put_flash(<span class="hljs-symbol">:info</span>, <span class="hljs-string">"<span class="hljs-subst">#{user.name}</span> created!"</span>)
+      |&gt; redirect(<span class="hljs-symbol">to:</span> user_path(conn, <span class="hljs-symbol">:index</span>))
+    {<span class="hljs-symbol">:error</span>, changeset} -&gt;
+      render(conn, <span class="hljs-string">"new.html"</span>, <span class="hljs-symbol">changeset:</span> changeset)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>あんまり説明することはないですが、 <code>conn</code> からのパイプラインで作成後の <code>template</code> 用の処理を読んでる点くらいでしょうか。パイプラインが最大の特徴かもしれませんが・・・ また、 <code>new.html.eex</code> もエラーを表示するように変えます。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>New User<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+&lt;%=</span><span class="language-ruby"> <span class="hljs-keyword">if</span> <span class="hljs-variable">@changeset</span>.action <span class="hljs-keyword">do</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"alert alert-danger"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Oops, something went wrong! Please check the errors below.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+&lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+
+&lt;%=</span><span class="language-ruby"> form_for <span class="hljs-variable">@changeset</span>, user_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:create</span>), fn f -&gt; </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> text_input f, <span class="hljs-symbol">:name</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Name"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+    &lt;%=</span><span class="language-ruby"> error_tag f, <span class="hljs-symbol">:name</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> text_input f, <span class="hljs-symbol">:username</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Username"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+    &lt;%=</span><span class="language-ruby"> error_tag f, <span class="hljs-symbol">:username</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> password_input f, <span class="hljs-symbol">:password</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Password"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+    &lt;%=</span><span class="language-ruby"> error_tag f, <span class="hljs-symbol">:password</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  &lt;%=</span><span class="language-ruby"> submit <span class="hljs-string">"Create User"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"btn, btn-primary"</span> </span><span class="language-xml">%&gt;
+&lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+</span></code></pre>
+<p><code>error_tag/2</code> 関数は <code>view</code> の <code>error_helpers.ex</code> に定義されている関数です。</p>
+</section>
+<section id="changesetについて
+">
+<h2>Changesetについて</h2>
+<p>このchapterの最後に <code>changeset</code> について触れられています。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(1)&gt; </span><span class="language-bash">changeset = Rumbl.User.changeset(%Rumbl.User{username: <span class="hljs-string">"eric"</span>})</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Changeset&lt;action: nil, changes: %{},</span>
+ errors: [name: {"can't be blank", [validation: :required]}],
+ data: #Rumbl.User&lt;&gt;, valid?: false&gt;
+<span class="hljs-meta prompt_">iex(2)&gt; </span><span class="language-bash">changeset</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Changeset&lt;action: nil, changes: %{},</span>
+ errors: [name: {"can't be blank", [validation: :required]}],
+ data: #Rumbl.User&lt;&gt;, valid?: false&gt;
+<span class="hljs-meta prompt_">iex(3)&gt; </span><span class="language-bash">import Ecto.Changeset</span>
+Ecto.Changeset
+<span class="hljs-meta prompt_">iex(4)&gt; </span><span class="language-bash">changeset.changes</span>
+<span class="hljs-meta prompt_">%</span><span class="language-bash">{}</span>
+<span class="hljs-meta prompt_">iex(5)&gt; </span><span class="language-bash">changeset = put_change(changeset, :username, <span class="hljs-string">"ericmj"</span>)</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Changeset&lt;action: nil, changes: %{username: <span class="hljs-string">"ericmj"</span>},</span>
+ errors: [name: {"can't be blank", [validation: :required]}],
+ data: #Rumbl.User&lt;&gt;, valid?: false&gt;
+<span class="hljs-meta prompt_">iex(6)&gt; </span><span class="language-bash">changeset.changes</span>
+<span class="hljs-meta prompt_">%</span><span class="language-bash">{username: <span class="hljs-string">"ericmj"</span>}</span>
+<span class="hljs-meta prompt_">iex(7)&gt; </span><span class="language-bash">get_change(changeset, :username)</span>
+"ericmj"
+</code></pre>
+<p>これを見ると <code>changeset</code> はバリデーション以外にも変更をの追跡と保持を行っていることがわかります。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<p>簡単なDB操作を行いました。今回はテンプレート周りはおまけだったように思います。 何かしらフレームワーク触ったことあればそんなに違和感はなく使えると思います。 ずっと <code>changeset</code> が謎だったんですが、少し理解できたと思います。 基本的なところは結構網羅されてきたんじゃないかと思いますのでサクサク行きたいです。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix5/" rel="prev">Programming Phoenix勉強その5</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix7/" rel="next">Programming Phoenix勉強その7</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix6/ -->
+  
+
+</body></html>

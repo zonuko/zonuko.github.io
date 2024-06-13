@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        blogをdeno製静的サイトジェネレーターlumeに移植した | zonukoブログ
+      
+    </title>
+    <meta name="description" content="pelicanからlumeに移植したので紹介です">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">blogをdeno製静的サイトジェネレーターlumeに移植した</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+      <a href="/tags/deno/" class="tag">deno</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2022-10-21 00:12:00">
+      October 21st, 2022
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="blogをdeno製静的サイトジェネレーターlumeに移植した
+">
+<h1>blogをdeno製静的サイトジェネレーターlumeに移植した</h1>
+<p>何年ぶりだって感じですが、久々のブログです。 色々あって(転職したり、病気したり)、なかなかブログ書くって感じでもなかったですが、思い切ってツールごと切り替えたので紹介です。</p>
+<section id="deno製静的サイトジェネレーター「lume」
+">
+<h2>deno製静的サイトジェネレーター「lume」</h2>
+<p><a href="https://lume.land/">https://lume.land/</a></p>
+<p>JavaScript/TypeScriptのランタイムであるdenoでできている静的サイトジェネレーターです。</p>
+<ul>
+<li><p>自分でレンダリングやファイルローダーカスタマイズできるPlugin機構がある</p><ul>
+<li><p>公式のPluginも初めから結構ある</p></li>
+<li><p>検索やタグ機能もプラグインで提供されている(デフォルトインストール済み)</p></li>
+</ul></li>
+<li><p>テンプレートもいくつか対応されている</p><ul><li><p>Markdown、Nunjucks、Pug、JSXなど</p></li></ul></li>
+<li><p>denoなのでカスタムプラグインや設定などをTypeScriptで書ける</p></li>
+</ul>
+</section>
+<section id="既存のブログ記事をlumeに移植する
+">
+<h2>既存のブログ記事をlumeに移植する</h2>
+<p>このブログのマークアップ言語はrestructuredTextで書かれています。拡張子はrstです。 色々プラグインありますが、rstファイルに対応しているものはないので自分でなんとかしないといけないです。</p>
+<p>今回は以下の方法で対応しました。</p>
+<ul>
+<li><p>rstのパーサー、レンダラーはRust製のものがあったのでWebAssemblyにしてdenoから扱う</p></li>
+<li><p>上記で作ったものはカスタムプラグインを作ってrstファイルの場合はそちらでレンダリングを行う</p></li>
+</ul>
+<p>denoがWeb標準のAPIに準拠しているおかげで、WebAssemblyさえ作れれば割りと拡張性が高いですね。</p>
+</section>
+<section id="rustでrstをレンダリングするwebassemblyを作る
+">
+<h2>RustでrstをレンダリングするWebAssemblyを作る</h2>
+<p>WebAssemblyのツールチェインとしては、denoのブログで紹介されている以下を使います。</p>
+<p><a href="https://deno.com/blog/wasmbuild">https://deno.com/blog/wasmbuild</a></p>
+<p>内部的にはwasm_bindgenというRustのツールチェインが使われています。rstのレンダリングに使っているcrate(Rustのライブラリ)は以下です。</p>
+<p><a href="https://github.com/flying-sheep/rust-rst">https://github.com/flying-sheep/rust-rst</a></p>
+<pre><code class="language-Rust hljs"><span class="hljs-keyword">use</span> rst_parser::parse;
+<span class="hljs-keyword">use</span> rst_renderer::render_html;
+<span class="hljs-keyword">use</span> std::<span class="hljs-type">str</span>;
+<span class="hljs-keyword">use</span> wasm_bindgen::prelude::*;
+
+<span class="hljs-meta">#[wasm_bindgen]</span>
+<span class="hljs-keyword">pub</span> <span class="hljs-keyword">fn</span> <span class="hljs-title function_">render_rst</span>(rst: &amp;<span class="hljs-type">str</span>, is_standalone: <span class="hljs-type">bool</span>) <span class="hljs-punctuation">-&gt;</span> <span class="hljs-type">Result</span>&lt;<span class="hljs-type">String</span>, JsError&gt; {
+  <span class="hljs-keyword">let</span> <span class="hljs-variable">content</span> = rst.<span class="hljs-title function_ invoke__">replace</span>(<span class="hljs-string">'\t'</span>, <span class="hljs-string">" "</span>.<span class="hljs-title function_ invoke__">repeat</span>(<span class="hljs-number">8</span>).<span class="hljs-title function_ invoke__">as_ref</span>());
+  <span class="hljs-keyword">let</span> <span class="hljs-variable">document</span> = <span class="hljs-keyword">match</span> <span class="hljs-title function_ invoke__">parse</span>(&amp;content) {
+    <span class="hljs-title function_ invoke__">Ok</span>(doc) =&gt; doc,
+    <span class="hljs-title function_ invoke__">Err</span>(e) =&gt; <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Err</span>(JsError::<span class="hljs-title function_ invoke__">new</span>(e.<span class="hljs-title function_ invoke__">to_string</span>().<span class="hljs-title function_ invoke__">as_ref</span>())),
+  };
+
+  <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">s</span> = <span class="hljs-type">Vec</span>::<span class="hljs-title function_ invoke__">new</span>();
+  <span class="hljs-keyword">match</span> <span class="hljs-title function_ invoke__">render_html</span>(&amp;document, &amp;<span class="hljs-keyword">mut</span> s, is_standalone) {
+    <span class="hljs-title function_ invoke__">Ok</span>(_) =&gt; (),
+    <span class="hljs-title function_ invoke__">Err</span>(e) =&gt; <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Err</span>(JsError::<span class="hljs-title function_ invoke__">new</span>(e.<span class="hljs-title function_ invoke__">to_string</span>().<span class="hljs-title function_ invoke__">as_ref</span>())),
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">Ok</span>(<span class="hljs-type">str</span>::<span class="hljs-title function_ invoke__">from_utf8</span>(&amp;s)?.<span class="hljs-title function_ invoke__">to_string</span>());
+}
+
+<span class="hljs-meta">#[cfg(test)]</span>
+<span class="hljs-keyword">mod</span> tests {
+  <span class="hljs-keyword">const</span> TEST_DOC2: &amp;<span class="hljs-type">str</span> = <span class="hljs-string">"Programming Phoenix勉強その2
+################################
+
+:date: 2016-12-31 00:50
+:tags: Elixir,Phoenix
+:slug: programming-phoenix2
+:related_posts: programming-phoenix1
+:summary: Programming Phoenixって本を読むその2
+
+| その2です。
+| その1の続きです。
+
+=========================================
+デフォルトのディレクトリ構成について
+=========================================
+
+- ``config`` ディレクトリ
+
+  - Phoenixの設定ファイル置き場.名前のまま.
+  - ``prod.secret.exs`` は秘密情報が入っているファイルなので,VCSからは外すこと.
+  - ``config.exs`` の ``endpoint`` はWebサーバーとアプリケーションの接続の境界部分.
+
+- ``lib`` ディレクトリ
+
+  - Supervision treeと,長く起動するプロセスが置かれる.（?,あってるか微妙）
+  - DBとのコネクションプールとかのような長く使われるものが置かれるっぽい.
+
+- ``test`` ディレクトリ
+
+  - 名前の通りテストが置かれる.
+
+- ``web`` ディレクトリ
+
+  - Webアプリに必要な ``model``, ``view``, ``template``, ``controller`` が置かれる.
+
+==============
+Plugについて
+==============
+
+| ``Plug`` ライブラリは接続の統一化のために使われる.
+| ``Plug`` のリポジトリ `Plugリポジトリ`_ には以下のように書いてある.
+
+::
+
+    ・ A specification for composable modules between web applications
+    ・ Connection adapters for different web servers in the Erlang VM
+
+| なので,各機能のモジュールの仕様の記述と,Erlang VMと各Webサーバーとの接続をやってくれるみたいです.
+| （あまり理解してない感が）
+| 実際にPhoenixが作ってくれる物を見てみます. ``config/endpoint.exs`` を見てみます.
+
+.. code-block:: Elixir
+    :linenos:
+
+    defmodule Hello.Endpoint do
+      use Phoenix.Endpoint, otp_app: :hello
+
+      socket \"/socket\", Hello.UserSocket
+
+      # Serve at \"/\" the static files from \"priv/static\" directory.
+      #
+      # You should set gzip to true if you are running phoenix.digest
+      # when deploying your static files in production.
+      plug Plug.Static,
+        at: \"/\", from: :hello, gzip: false,
+        only: ~w(css fonts images js favicon.ico robots.txt)
+
+      # Code reloading can be explicitly enabled under the
+      # :code_reloader configuration of your endpoint.
+      if code_reloading? do
+        socket \"/phoenix/live_reload/socket\", Phoenix.LiveReloader.Socket
+        plug Phoenix.LiveReloader
+        plug Phoenix.CodeReloader
+      end
+
+      plug Plug.RequestId
+      plug Plug.Logger
+
+      plug Plug.Parsers,
+        parsers: [:urlencoded, :multipart, :json],
+        pass: [\"*/*\"],
+        json_decoder: Poison
+
+      plug Plug.MethodOverride
+      plug Plug.Head
+
+      # The session will be stored in the cookie and signed,
+      # this means its contents can be read but not tampered with.
+      # Set :encryption_salt if you would also like to encrypt it.
+      plug Plug.Session,
+        store: :cookie,
+        key: \"_hello_key\",
+        signing_salt: \"zzWE+Yw+\"
+
+      plug Hello.Router
+    end
+
+| とりあえず ``plug`` ってのがいっぱい出てきています.
+| なんとなく見てると, ``plug Plug.Static`` で静的ファイルについての設定っぽいものが書いてあったり,
+| ``plug Plug.Logger`` とか, ``plug Plug.Parsers`` とかあったりして,Webアプリに必要な設定が書いてあるっぽいなと言う感覚です.
+| ココらへんの一連の ``plug`` は関数のパイプラインとして処理されるようです.
+|
+
+.. code-block:: Elixir
+    :linenos:
+
+    connection
+    |&gt; Plug.Static.call 
+    |&gt; Plug.RequestId.call  
+    |&gt; Plug.Logger.call 
+    |&gt; Plug.Parsers.call  
+    |&gt; Plug.MethodOverride.call
+    |&gt; Plug.Head.call  
+    |&gt; Plug.Session.call
+    |&gt; Hello.Router.call
+
+| ソースに書いた順になってるっぽいです.Servletの設定順ミスってハマった思い出が…
+| ちなみに ``endpoint`` 自体も ``plug`` で,アプリケーション自体は ``endpoint`` で始まり ``controller`` で終わる一連のパイプラインらしい.
+
+================
+Routerについて
+================
+
+| ``web/router.ex`` のソースを見ると,2つのパイプラインがあることがわかる.
+
+.. code-block:: Elixir
+    :linenos:
+
+    defmodule Hello.Router do
+      use Hello.Web, :router
+
+      pipeline :browser do
+        plug :accepts, [\"html\"]
+        plug :fetch_session
+        plug :fetch_flash
+        plug :protect_from_forgery
+        plug :put_secure_browser_headers
+      end
+
+      pipeline :api do
+        plug :accepts, [\"json\"]
+      end
+
+      scope \"/\", Hello do
+        pipe_through :browser # Use the default browser stack
+
+        get \"/hello/:name\", HelloController, :world
+        get \"/\", PageController, :index
+      end
+
+      # Other scopes may use custom stacks.
+      # scope \"/api\", Hello do
+      #   pipe_through :api
+      # end
+    end
+
+
+- ``browser`` パイプライン
+
+  - HTMLのみを受け付ける.
+  - セッション管理とか,フラッシュメッセージとか,セキュリティ対策とかを提供してくれるらしい.
+
+- ``api`` パイプライン
+
+  - 基本的なJSON API用のパイプライン.JSONのみ受け付ける.
+  - XMLにしたいときとかはここ一箇所変更すれば全部変更される.
+
+| ``pipe_through`` でどのパイプラインを使うか書く.
+| 処理の流れとしては接続を取得→パイプラインを呼び出し→コントローラーを呼び出し.
+| 呼び出し順を纏めると以下になる.
+
+.. code-block:: Elixir
+    :linenos:
+
+    connection
+    |&gt; endpoint
+    |&gt; router 
+    |&gt; pipeline  
+    |&gt; controller
+
+==================
+まとめ
+==================
+
+| 今回は,内部的な処理の流れとかおまじない的な部分が何をしてるかの勉強だった感じです.
+| 英語がヘタレ過ぎて自分が理解している意味とあってるか若干の不安が...
+
+リンク
+=============
+
+.. Plugリポジトリ link: https://github.com/elixir-lang/plug
+"</span>;
+
+  <span class="hljs-keyword">const</span> TEST_DOC: &amp;<span class="hljs-type">str</span> = <span class="hljs-string">"About me
+=================
+
+
+- 名前
+
+  - y-fujiwara
+  - nuhera or zonuko (HN)
+
+- 経歴
+
+  - 千葉県の私立理系大学院修了(2015/3)
+
+    - 数理計画の類をやってた。
+    - Pythonつかって色々やってた。
+
+  - 都内のIT企業に就職(2015/4 ～ 今まで)
+
+    - メインはC++かC#かJava
+    - たまにRubyとかJavaScript
+
+Interests
+=============
+
+- アニメ
+
+  - SHOW BY ROCK!!
+
+    - 2期円盤マラソン中
+
+- Game
+
+  - STG どれも下手くそ
+
+    - レイストーム
+    - ダライアス外伝
+
+  - 格闘ゲーム
+
+    - コンボゲーと呼ばれる物
+
+- Music
+
+  - ゲームサントラ集め
+
+- Technology
+
+  - 業務でつかった物
+  - Vim
+
+    - 修行中
+
+  - Python
+  - Elixir
+  - Haskell,Rust
+
+    - 勉強中・・・
+
+  - Elm
+  - 線形代数
+  - プログラミング言語作成
+
+    - 将来的に・・・
+
+.. image:: /images/DSC_8445.JPG
+  :alt: Quicksilver
+"</span>;
+
+  <span class="hljs-keyword">use</span> super::*;
+
+  <span class="hljs-meta">#[test]</span>
+  <span class="hljs-keyword">fn</span> <span class="hljs-title function_">rst_to_html</span>() {
+    <span class="hljs-keyword">match</span> <span class="hljs-title function_ invoke__">render_rst</span>(TEST_DOC, <span class="hljs-literal">false</span>) {
+      <span class="hljs-title function_ invoke__">Ok</span>(_) =&gt; (),
+      <span class="hljs-title function_ invoke__">Err</span>(e) =&gt; <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"{:?}"</span>, JsValue::<span class="hljs-title function_ invoke__">from</span>(e).<span class="hljs-title function_ invoke__">as_string</span>().<span class="hljs-title function_ invoke__">unwrap</span>()),
+    }
+    <span class="hljs-built_in">assert!</span>(<span class="hljs-literal">true</span>);
+  }
+
+  <span class="hljs-meta">#[test]</span>
+  <span class="hljs-keyword">fn</span> <span class="hljs-title function_">rst_to_html2</span>() {
+    <span class="hljs-keyword">match</span> <span class="hljs-title function_ invoke__">render_rst</span>(TEST_DOC2, <span class="hljs-literal">false</span>) {
+      <span class="hljs-title function_ invoke__">Ok</span>(_) =&gt; (),
+      <span class="hljs-title function_ invoke__">Err</span>(e) =&gt; <span class="hljs-built_in">panic!</span>(<span class="hljs-string">"{:?}"</span>, JsValue::<span class="hljs-title function_ invoke__">from</span>(e).<span class="hljs-title function_ invoke__">as_string</span>().<span class="hljs-title function_ invoke__">unwrap</span>()),
+    }
+    <span class="hljs-built_in">assert!</span>(<span class="hljs-literal">true</span>);
+  }
+}
+</code></pre>
+<p>テスト雑ですが、パーサーとかのエラーで落ちないかどうかだけが気になるのでエラーの場合はあえてpanicしてます。最初にビルドしたときにエラーになったシンタックスがいくつかあったのでそこらへんだけ担保したい感じです。</p>
+<p>deno側は単に即exportして終わりです。deno用にビルドされているだけで、非同期で読み込む必要があるなど、wasmの取り扱い方的には普通にwasm_bindgen使うときとそう変わらないです。</p>
+<pre><code class="language-TypeScript hljs"><span class="hljs-keyword">export</span> { instantiate } <span class="hljs-keyword">from</span> <span class="hljs-string">"./lib/rs_lib.generated.js"</span>;
+</code></pre>
+</section>
+<section id="作ったライブラリをlumeのpluginにする
+">
+<h2>作ったライブラリをlumeのPluginにする</h2>
+<p>コード見てもらったほうが早いと思います。プラグインの作り方はlumeの公式サイトにあります。</p>
+<pre><code class="language-TypeScript hljs"><span class="hljs-keyword">import</span> <span class="hljs-keyword">type</span> { <span class="hljs-title class_">Data</span>, <span class="hljs-title class_">DeepPartial</span>, <span class="hljs-title class_">Engine</span>, <span class="hljs-title class_">Helper</span>, <span class="hljs-title class_">Site</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">"lume/core.ts"</span>;
+<span class="hljs-keyword">import</span> { merge } <span class="hljs-keyword">from</span> <span class="hljs-string">"lume/core/utils.ts"</span>;
+<span class="hljs-keyword">import</span> loader <span class="hljs-keyword">from</span> <span class="hljs-string">"lume/core/loaders/text.ts"</span>;
+<span class="hljs-keyword">import</span> { instantiate } <span class="hljs-keyword">from</span> <span class="hljs-string">"./rst_render/lib.ts"</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Options</span> {
+  <span class="hljs-comment">/** The list of extensions this plugin applies to */</span>
+  <span class="hljs-attr">extensions</span>: <span class="hljs-built_in">string</span>[];
+
+  <span class="hljs-comment">/** To modify existing rules or new custom rules */</span>
+  <span class="hljs-comment">// deno-lint-ignore no-explicit-any</span>
+  <span class="hljs-attr">rules</span>: <span class="hljs-title class_">Record</span>&lt;<span class="hljs-built_in">string</span>, <span class="hljs-function">(<span class="hljs-params">...args: <span class="hljs-built_in">any</span>[]</span>) =&gt;</span> <span class="hljs-built_in">any</span>&gt;;
+
+  <span class="hljs-comment">/** Set `true` append your plugins to the defaults */</span>
+  <span class="hljs-attr">keepDefaultPlugins</span>: <span class="hljs-built_in">boolean</span>;
+}
+
+<span class="hljs-comment">// Default options</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-attr">defaults</span>: <span class="hljs-title class_">Options</span> = {
+  <span class="hljs-attr">extensions</span>: [<span class="hljs-string">".rst"</span>],
+  <span class="hljs-attr">rules</span>: {},
+  <span class="hljs-attr">keepDefaultPlugins</span>: <span class="hljs-literal">false</span>,
+};
+
+<span class="hljs-comment">/** Template engine to render Markdown files */</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RstEngine</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Engine</span> {
+  #<span class="hljs-attr">instance</span>:
+    | { <span class="hljs-attr">render_rst</span>: <span class="hljs-function">(<span class="hljs-params">rst: <span class="hljs-built_in">string</span>, is_standalone: <span class="hljs-built_in">boolean</span></span>) =&gt;</span> <span class="hljs-built_in">string</span> }
+    | <span class="hljs-literal">null</span>;
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.#instance = <span class="hljs-literal">null</span>;
+  }
+
+  <span class="hljs-keyword">async</span> <span class="hljs-title function_">init</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">this</span>.#instance = <span class="hljs-keyword">await</span> <span class="hljs-title function_">instantiate</span>();
+  }
+
+  <span class="hljs-title function_">deleteCache</span>(<span class="hljs-params"></span>) {}
+
+  <span class="hljs-title function_">render</span>(
+    <span class="hljs-attr">content</span>: <span class="hljs-built_in">string</span>,
+    _data?: <span class="hljs-title class_">Data</span>,
+    _filename?: <span class="hljs-built_in">string</span>,
+  ): <span class="hljs-built_in">string</span> {
+    <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.#instance) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">"engine is not inited."</span>);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#instance.<span class="hljs-title function_">render_rst</span>(content, <span class="hljs-literal">true</span>);
+  }
+
+  <span class="hljs-title function_">renderInline</span>(<span class="hljs-attr">content</span>: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">string</span> {
+    <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.#instance) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">"engine is not inited."</span>);
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#instance.<span class="hljs-title function_">render_rst</span>(content, <span class="hljs-literal">false</span>);
+  }
+
+  <span class="hljs-title function_">renderSync</span>(
+    <span class="hljs-attr">content</span>: <span class="hljs-built_in">unknown</span>,
+    _data?: <span class="hljs-title class_">Data</span>,
+    _filename?: <span class="hljs-built_in">string</span>,
+  ): <span class="hljs-built_in">string</span> {
+    <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.#instance) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">"engine is not inited."</span>);
+    }
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> content !== <span class="hljs-string">"string"</span>) {
+      content = <span class="hljs-title class_">String</span>(content);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.#instance.<span class="hljs-title function_">render_rst</span>(content <span class="hljs-keyword">as</span> <span class="hljs-built_in">string</span>, <span class="hljs-literal">true</span>);
+  }
+
+  <span class="hljs-title function_">addHelper</span>(<span class="hljs-params"></span>) {}
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">userOptions?: DeepPartial&lt;Options&gt;</span>) {
+  <span class="hljs-keyword">const</span> options = <span class="hljs-title function_">merge</span>(defaults, userOptions);
+
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> (<span class="hljs-params">site: Site</span>) {
+    <span class="hljs-keyword">const</span> engine = <span class="hljs-keyword">new</span> <span class="hljs-title class_">RstEngine</span>();
+    <span class="hljs-keyword">await</span> engine.<span class="hljs-title function_">init</span>();
+    <span class="hljs-comment">// pugやnunjucksを使ってテンプレート上にhtmlをレンダリングする場合はエンジンの登録が必須なのでやっておく</span>
+    site.<span class="hljs-title function_">loadPages</span>(options.<span class="hljs-property">extensions</span>, loader, engine);
+
+    <span class="hljs-keyword">function</span> <span class="hljs-title function_">filter</span>(<span class="hljs-params"><span class="hljs-built_in">string</span>: <span class="hljs-built_in">string</span>, inline = <span class="hljs-literal">false</span></span>): <span class="hljs-built_in">string</span> {
+      <span class="hljs-keyword">if</span> (inline) {
+        <span class="hljs-keyword">return</span> engine.<span class="hljs-title function_">renderInline</span>(<span class="hljs-built_in">string</span>?.<span class="hljs-title function_">toString</span>() || <span class="hljs-string">""</span>).<span class="hljs-title function_">trim</span>();
+      }
+      <span class="hljs-keyword">return</span> engine.<span class="hljs-title function_">render</span>(<span class="hljs-built_in">string</span>?.<span class="hljs-title function_">toString</span>() || <span class="hljs-string">""</span>).<span class="hljs-title function_">trim</span>();
+    }
+
+    <span class="hljs-comment">// Register the md filter</span>
+    site.<span class="hljs-title function_">filter</span>(<span class="hljs-string">"rst"</span>, filter <span class="hljs-keyword">as</span> <span class="hljs-title class_">Helper</span>, <span class="hljs-literal">true</span>);
+  };
+}
+</code></pre>
+<p>ポイントは以下です。</p>
+<ul>
+<li><p>デフォルトエクスポートされる関数を一つ用意する</p><ul><li><p>引数はプラグインオプション</p></li></ul></li>
+<li><p>上記関数はSiteオブジェクトを引数に取る関数をreturnする</p></li>
+<li><p>returnする関数の中でSiteオブジェクトに加工することでレンダリング等を制御できる</p></li>
+</ul>
+<p>ちょいと微妙なのが最終的な関数がasyncな点です。戻り値が必要な関数ではないので、おそらく大丈夫とは思います。</p>
+</section>
+<section id="課題
+">
+<h2>課題</h2>
+<p>すべてのrestructuredTextのシンタックスに対応しているわけではないです。 番号付きリスト等に対応されていません。</p>
+<p><a href="https://github.com/flying-sheep/rust-rst/blob/c2eace26cd421ab773f325264eaae0c4e15e932c/parser/src/rst.pest#L344">https://github.com/flying-sheep/rust-rst/blob/c2eace26cd421ab773f325264eaae0c4e15e932c/parser/src/rst.pest#L344</a> 等を見ると、コメントされていてまだ未対応なことがわかります。</p>
+<ul>
+<li><p>自分でforkして改造する</p></li>
+<li><p>自分でパーサーとか作る</p></li>
+<li><p>Pythonとかを無理やり読み込む(Sphinx直接使うので対応漏れとかがなさそう)</p></li>
+</ul>
+<p>等が考えられますが、今のところ対応してないものに気をつければ読めるものはできるので追々...ということで。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<p>地味にブログのビルドとかもGitHub Actionsにしたりして書きやすくなったのでちょいちょい復活していきたいです。</p>
+<p>とはいえ会社でもブログ書いてるので分配に迷います...</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/clojure-crawler/" rel="prev">Clojureで○○画像を集める</a>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/blog-to-lume/ -->
+  
+
+</body></html>

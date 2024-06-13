@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その17 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその17">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その17</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-02-06 22:18:00">
+      February 6th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その17
+">
+<h1>Programming Phoenix勉強その17</h1>
+<p>その17です。ここから <code>chapter11</code> です。 <code>OTP</code> で簡単なアプリを作ります。次の章にそれをアンブレラプロジェクトの下に置きます。</p>
+<section id="counterアプリの作成
+">
+<h2>Counterアプリの作成</h2>
+<p>はじめに素朴な <code>send</code> と <code>receive</code> を使ったカウンターアプリを作ります。</p>
+<p><code>lib/rumbl/counter.ex</code> を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Counter</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-comment"># listenにメッセージを送信する</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">inc</span></span>(pid), <span class="hljs-symbol">do:</span> send(pid, <span class="hljs-symbol">:inc</span>)
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dec</span></span>(pid), <span class="hljs-symbol">do:</span> send(pid, <span class="hljs-symbol">:dec</span>)
+
+  <span class="hljs-comment"># listenで保持されている状態を取得する</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">val</span></span>(pid, timeout \\ <span class="hljs-number">5000</span>) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># プロセスにリファレンスという形でマークを付ける</span>
+    <span class="hljs-comment"># リクエストに対してレスポンスを紐付ける同期処理</span>
+    ref = make_ref()
+    send(pid, {<span class="hljs-symbol">:val</span>, self(), ref})
+    <span class="hljs-keyword">receive</span> <span class="hljs-keyword">do</span>
+      {^ref, val} -&gt; val
+    <span class="hljs-keyword">after</span>
+      timeout -&gt; exit(<span class="hljs-symbol">:timeout</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># エントリポイント</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start_link</span></span>(initial_val) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, spawn_link(<span class="hljs-keyword">fn</span> -&gt; listen(initial_val) <span class="hljs-keyword">end</span>)}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># 無限ループでval状態を保持する</span>
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">listen</span></span>(val) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">receive</span> <span class="hljs-keyword">do</span>
+      <span class="hljs-symbol">:inc</span> -&gt; listen(val + <span class="hljs-number">1</span>)
+      <span class="hljs-symbol">:dec</span> -&gt; listen(val - <span class="hljs-number">1</span>)
+      {<span class="hljs-symbol">:val</span>, sender, ref} -&gt;
+        send sender, {ref, val}
+        listen(val)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>以下で動作を確かめられます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">{:ok, pid} = Counter.start_link(0)</span>
+{:ok, #PID&lt;0.259.0&gt;}
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">pid</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">PID&lt;0.259.0&gt;</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Counter.inc(pid)</span>
+:inc
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Counter.val(pid)</span>
+1
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Counter.dec(pid)</span>
+:dec
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Counter.dec(pid)</span>
+:dec
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Counter.val(pid)</span>
+-1
+</code></pre>
+<p><code>start_link</code> 関数でプロセスを開始します。これは <code>listen</code> 関数の再帰呼び出しによって無限ループになっています。 <code>listen</code> 関数によって保存される状態はPIDによって識別されるため <code>inc</code> 関数や <code>dec</code> 、 <code>val</code> 関数 にそのPIDを与えています。</p>
+<p>次に素朴な非同期通信から <code>OTP</code> の <code>GenServer</code> を使ってみます。</p>
+</section>
+<section id="counterアプリのotp化
+">
+<h2>CounterアプリのOTP化</h2>
+<p><code>Counter</code> を <code>OTP</code> を使ったものにしてみます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Counter</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">GenServer</span>
+
+  <span class="hljs-comment"># listenにメッセージを送信する</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">inc</span></span>(pid), <span class="hljs-symbol">do:</span> <span class="hljs-title class_">GenServer</span>.cast(pid, <span class="hljs-symbol">:inc</span>)
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dec</span></span>(pid), <span class="hljs-symbol">do:</span> <span class="hljs-title class_">GenServer</span>.cast(pid, <span class="hljs-symbol">:dec</span>)
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">val</span></span>(pid) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 値が返ってくるのを待つ必要があるため同期呼び出し</span>
+    <span class="hljs-title class_">GenServer</span>.call(pid, <span class="hljs-symbol">:val</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start_link</span></span>(initial_val) <span class="hljs-keyword">do</span>
+    <span class="hljs-title class_">GenServer</span>.start_link(__MODULE__, initial_val)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">init</span></span>(initial_val) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, initial_val}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_cast</span></span>(<span class="hljs-symbol">:inc</span>, val) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:noreply</span>, val + <span class="hljs-number">1</span>}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_cast</span></span>(<span class="hljs-symbol">:dec</span>, val) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:noreply</span>, val - <span class="hljs-number">1</span>}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_call</span></span>(<span class="hljs-symbol">:val</span>, _from, val) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:reply</span>, val, val}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>GenServer</code> を使ったものに変更しました。大分すっきりしました。 同期処理の <code>handle_call</code> は値を返すことを期待するため <code>{:reply, val, val}</code> を返しています。 非同期処理の <code>handle_cast</code> は値を返さない非同期処理なので <code>{:noreply, val ± 1}</code> としています。</p>
+<p>また、 <code>OTP</code> 化しましたので元の <code>Rumbl</code> アプリに組み込んでみます。 <code>lib/rumbl.ex</code> をちょっと変更します。</p>
+<pre><code class="language-Elixir hljs">children = [
+  <span class="hljs-comment"># Start the Ecto repository</span>
+  supervisor(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>, []),
+  <span class="hljs-comment"># Start the endpoint when the application starts</span>
+  supervisor(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Endpoint</span>, []),
+  <span class="hljs-comment"># Start your own worker by calling: Rumbl.Worker.start_link(arg1, arg2, arg3)</span>
+  worker(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Counter</span>, [<span class="hljs-number">5</span>]), <span class="hljs-comment"># 追加</span>
+]
+</code></pre>
+<p><code>Rumbl</code> アプリ起動時にワーカーとして <code>Counter</code> を起動するように追加しました。 ワーカーとして追加することで <code>start_link</code> が自動で呼び出され、第二引数のものを引数として起動します。</p>
+</section>
+<section id="クラッシュ時の動作
+">
+<h2>クラッシュ時の動作</h2>
+<p>せっかく <code>Supervisor Tree</code> に <code>Counter</code> を追加してみたので、クラッシュさせたときの動作も見てみます。</p>
+<p><code>counter.ex</code> をクラッシュさせるようにしてみます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">init</span></span>(initial_val) <span class="hljs-keyword">do</span>
+  <span class="hljs-comment"># :tickメッセージを1000ミリ秒後に自分自身に送信</span>
+  <span class="hljs-title class_">Process</span>.send_after(self(), <span class="hljs-symbol">:tick</span>, <span class="hljs-number">1000</span>)
+  {<span class="hljs-symbol">:ok</span>, initial_val}
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-comment"># valが0以下になったらわざとクラッシュさせる</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_info</span></span>(<span class="hljs-symbol">:tick</span>, val) <span class="hljs-keyword">when</span> val &lt;= <span class="hljs-number">0</span>, <span class="hljs-symbol">do:</span> <span class="hljs-keyword">raise</span> <span class="hljs-string">"boom!"</span>
+
+<span class="hljs-comment"># send_afterで自分自身に送られたものを受け取る</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_info</span></span>(<span class="hljs-symbol">:tick</span>, val) <span class="hljs-keyword">do</span>
+  <span class="hljs-title class_">IO</span>.puts <span class="hljs-string">"tick <span class="hljs-subst">#{val}</span>"</span>
+  <span class="hljs-title class_">Process</span>.send_after(self(), <span class="hljs-symbol">:tick</span>, <span class="hljs-number">1000</span>)
+  {<span class="hljs-symbol">:noreply</span>, val - <span class="hljs-number">1</span>}
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>以下のような表示がコンソールにされます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">tick 5</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">tick 4</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">tick 3</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">tick 2</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">tick 1</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">[error] GenServer <span class="hljs-comment">#PID&lt;0.348.0&gt; terminating</span></span>
+** (RuntimeError) boom!
+    (rumbl) lib/rumbl/counter.ex:38: Rumbl.Counter.handle_info/2
+    (stdlib) gen_server.erl:615: :gen_server.try_dispatch/4
+    (stdlib) gen_server.erl:681: :gen_server.handle_msg/5
+    (stdlib) proc_lib.erl:240: :proc_lib.init_p_do_apply/3
+Last message: :tick
+State: 0
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">tick 5</span>
+</code></pre>
+<p>デクリメントされ0以下になったときにプロセスがクラッシュしていることがわかります。 さらに、自動で与えていた初期値で再起動しています。</p>
+</section>
+<section id="クラッシュ時の各戦略について
+">
+<h2>クラッシュ時の各戦略について</h2>
+<p><code>worker</code> の再起動戦略は以下の設定が可能です。 <code>worker</code> の第三引数として <code>restart: :permanent</code> のような形式で指定します。</p>
+<ul>
+<li><p><code>:permanent</code> : デフォルトの戦略。上記のような挙動をする。</p></li>
+<li><p><code>:temporary</code> : クラッシュ時に再起動しない。</p></li>
+<li><p><code>:transient</code> : 正常終了以外でプロセスが終了した時に再起動を行う。</p></li>
+</ul>
+<p>また、 <code>supervisor</code> の監視戦略は以下のようなものがあります。</p>
+<ul>
+<li><p><code>:one_for_one</code> : 子プロセスがクラッシュすると <code>Supervisor</code> はそのプロセスだけを再起動する。</p></li>
+<li><p><code>:one_for_all</code> : 子プロセス全てを終了して再起動する。</p></li>
+<li><p><code>:rest_for_one</code> : 終了した子プロセスにつながるプロセスのみ全て終了後再起動する。</p></li>
+<li><p><code>:simple_one_for_one</code> : 基本的には <code>:one_for_one</code> だが、プロセスを動的に監視する必要がある場合に使う。 <code>Supervisor</code> に一つの子のみ定義する必要がある。</p></li>
+</ul>
+</section>
+<section id="agentについて
+">
+<h2>Agentについて</h2>
+<p>今まで書いてきた <code>GenServer</code> は <code>Agent</code> を使うともっと短く書けます。コンソールで試してみます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(1)&gt; </span><span class="language-bash">import Agent</span>
+Agent
+<span class="hljs-meta prompt_">iex(2)&gt; </span><span class="language-bash">{:ok, agent} = start_link fn -&gt; 5 end, name: MyAgent</span>
+{:ok, #PID&lt;0.351.0&gt;}
+<span class="hljs-meta prompt_">iex(3)&gt; </span><span class="language-bash">update MyAgent, &amp;(&amp;1 + 1)</span>
+:ok
+<span class="hljs-meta prompt_">iex(4)&gt; </span><span class="language-bash">update MyAgent, &amp;(&amp;1 + 1)</span>
+:ok
+<span class="hljs-meta prompt_">iex(5)&gt; </span><span class="language-bash">get MyAgent, &amp;(&amp;1)</span>
+7
+<span class="hljs-meta prompt_">iex(6)&gt; </span><span class="language-bash">stop MyAgent</span>
+:ok
+</code></pre>
+<p>また、 <code>OTP</code> は <code>start_link</code> で開始時に <code>:name</code> オプションでプロセスにPID以外の名前をつけることが出来ます。 <code>update</code> 関数で状態を変更出来、 <code>get</code> 関数で状態を取得できます。 見てわかるように <code>Agent</code> は状態の保持に特化したものです。実際には中身で <code>GenServer</code> が呼ばれるようです。</p>
+<p>このように <code>GenServer</code> 上の構成物になっているものの中の一つとして <code>Phoenix.Channel</code> があります。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p>プロセスを起動するには <code>GenServer</code> を使う。</p></li>
+<li><p>プロセスの戦略は <code>worker</code> 自身の設定と <code>children</code> に対する <code>supervisor</code> の監視戦略で行う。</p></li>
+<li><p><code>Agent</code> は <code>GenServer</code> の状態管理特化の抽象化。 </p></li>
+<li><p><code>Phoenix.Channel</code> も <code>Agent</code> 同様に <code>GenServer</code> の抽象化。</p></li>
+</ul>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix16/" rel="prev">Programming Phoenix勉強その16</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix18/" rel="next">Programming Phoenix勉強その18</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix17/ -->
+  
+
+</body></html>

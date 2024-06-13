@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その1 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその1 Phoenixのフロントンドをwebpackにします">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その1</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2016-12-28 21:50:00">
+      December 28th, 2016
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その1
+">
+<h1>Programming Phoenix勉強その1</h1>
+<p> 買ってあったけど読んでなかったので読みます.プログラミングElixirは原著の方も翻訳の方も一応読んでます.  プログラミングElixirについては色々なところで書評なり見る気がするけど,こっちの方は余り見ない気がします.</p>
+<div class="kaerebalink-box" style="text-align:left;padding-bottom:20px;font-size:small;/zoom: 1;overflow: hidden;"><div class="kaerebalink-image" style="float:left;margin:0 15px 10px 0;"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/1680501453/zonuko-22/" target="_blank"><img src="https://images-fe.ssl-images-amazon.com/images/I/41pPn50VnvL._SL160_.jpg" style="border: none;"></a></div><div class="kaerebalink-info" style="line-height:120%;/zoom: 1;overflow: hidden;"><div class="kaerebalink-name" style="margin-bottom:10px;line-height:120%"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/1680501453/zonuko-22/" target="_blank">Programming Phoenix: Productive, Reliable, Fast</a><div class="kaerebalink-powered-date" style="font-size:8pt;margin-top:5px;font-family:verdana;line-height:120%">posted with <a href="http://kaereba.com" rel="nofollow" target="_blank">カエレバ</a></div></div><div class="kaerebalink-detail" style="margin-bottom:5px;">Chris Mccord,Bruce Tate,Jose Valim Pragmatic Bookshelf 2016-04-30    </div><div class="kaerebalink-link1" style="margin-top:10px;"><div class="shoplinkamazon" style="display:inline;margin-right:5px"><a href="http://www.amazon.co.jp/gp/search?keywords=Programming%20Phoenix&amp;__mk_ja_JP=%E3%82%AB%E3%82%BF%E3%82%AB%E3%83%8A&amp;tag=zonuko-22" target="_blank">Amazon</a></div></div></div><div class="booklink-footer" style="clear: left"></div></div>
+
+<p>ちなみに実際にコードを書くPart1のChapter2からやってきます. あとPhoenix自体は何回か触ってます.趣味で.</p>
+<section id="前提
+">
+<h2>前提</h2>
+<ul>
+<li><p>PostgreSQL9.5</p></li>
+<li><p>Elixir 1.3.2</p></li>
+<li><p>Phoenix Framework1.2.1</p></li>
+</ul>
+<p>本より新し目のバージョンにしてるので,色々問題ありそうですが頑張る感じで行きます.</p>
+</section>
+<section id="初期構築
+">
+<h2>初期構築</h2>
+<p>プロジェクトテンプレートの生成としてはじめに以下のコマンドを入力します.</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mix phoenix.new hello</span>
+* creating hello/ config/ config.exs
+  ...
+
+Fetch and install dependencies? [Yn] y
+* running mix deps.get
+* running npm
+</code></pre>
+<p> これでカレントディレクトリにhelloってフォルダが掘られて,色々勝手に整備してくれる.  次に以下のコマンドでDB作ったりします.</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> hello</span>
+hello $ mix ecto.create
+==&gt; connection
+Compiling 1 file （.ex）
+Generated connection app
+...
+</code></pre>
+<p>これで <code>hello_dev</code> とか言うデータベースができていればOKです. 出来てなければ, <code>config/dev.exs</code> ってファイルにDBとの接続設定があるので見直します.</p>
+</section>
+<section id="起動
+">
+<h2>起動</h2>
+<p>以下のコマンドでサーバー起動.</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> hello</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">mix phoenix.server</span>
+</code></pre>
+<p><code>mix phoenix.server</code> の部分は <code>iex -S mix phoenix.server</code> でもOK.こちらはIEXの内部でサーバーが起動する. ちなみにデフォルトでは <code>localhost:4000</code> で起動する.</p>
+</section>
+<section id="ルーティング
+">
+<h2>ルーティング</h2>
+<p>特定のURLとのルーティングを行うには, <code>web/router.exs</code> に設定を書く.</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Hello.Router</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-comment"># 省略</span>
+
+  scope <span class="hljs-string">"/"</span>, <span class="hljs-title class_">Hello</span> <span class="hljs-keyword">do</span>
+    pipe_through <span class="hljs-symbol">:browser</span> <span class="hljs-comment"># Use the default browser stack</span>
+
+    get <span class="hljs-string">"/hello"</span>, <span class="hljs-title class_">HelloController</span>, <span class="hljs-symbol">:world</span>  <span class="hljs-comment"># 追加</span>
+    get <span class="hljs-string">"/"</span>, <span class="hljs-title class_">PageController</span>, <span class="hljs-symbol">:index</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Other scopes may use custom stacks.</span>
+  <span class="hljs-comment"># scope "/api", Hello do</span>
+  <span class="hljs-comment">#   pipe_through :api</span>
+  <span class="hljs-comment"># end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>見ればなんとなくわかると思いますが, <code>get</code> マクロに対して色々ルーティングの設定をします. この場合は <code>/hello</code> にアクセスが来たら <code>HelloController</code> （モジュール）の <code>:world</code> アクション（関数）を呼び出すようにしてます. ただ,この段階だと <code>HelloController</code> がないのでアクセスしてもエラー画面です. エラー画面が若干本と違ってたので貼っておきます.</p>
+<img alt=" Quicksilver
+" src="/images/Phoenix_error.jpg">
+<section id="controller実装
+">
+<h3>Controller実装</h3>
+<p>エラーを解消するために <code>web/controllers/hello_controller.ex</code> を以下の内容で作ります.</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Hello.HelloController</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Hello</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:controller</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">world</span></span>（conn, _param） <span class="hljs-keyword">do</span>
+    render conn, <span class="hljs-string">"world.html"</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>ファイル名はController名をスネークケース,モジュール名は, （ <code>scope</code> で設定した名前） <code>.</code> （ <code>get</code> に設定したController名）で作ります. （ココらへんの理解が微妙に曖昧） で,また <code>/hello</code> にアクセスすると,今度はviewがないと怒られます。</p>
+</section>
+<section id="view実装
+">
+<h3>View実装</h3>
+<p><code>web/views/hello_view.ex</code> を以下の内容で作ります.</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Hello.HelloView</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Hello</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:view</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>で,今度はtemplateが無いって怒られるのでまた作ります.</p>
+</section>
+<section id="template実装
+">
+<h3>Template実装</h3>
+<p><code>web/templates/world.html.eex</code> を以下の内容で作ります.</p>
+<pre><code class="language-html hljs language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>From template: Hello world!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+</code></pre>
+<p>これで晴れて <code>/hello</code> にアクセスしても怒られなくなります.</p>
+</section>
+</section>
+<section id="routing時のパラメータ
+">
+<h2>Routing時のパラメータ</h2>
+<p>次に,ルーティング時にパラメータを渡す方法を実装します. （ <code>/hoge/1/</code> のような感じに） <code>web/router.ex</code> に上の方で追加したルーティング設定を修正します.</p>
+<pre><code class="language-Elixir hljs">get <span class="hljs-string">"/hello/:name"</span>, <span class="hljs-title class_">HelloController</span>, <span class="hljs-symbol">:world</span>
+</code></pre>
+<p>こうすると <code>:name</code> の部分が色々変えられてControllerに渡されてきます. なので,Controllerを以下のように変更して渡された値を取得できるようにします.</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">world</span></span>(conn, %{<span class="hljs-string">"name"</span> =&gt; name}) <span class="hljs-keyword">do</span>
+  render conn, <span class="hljs-string">"world.html"</span>, <span class="hljs-symbol">name:</span> name
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>パターンマッチにより渡されてきた値が <code>name</code> にバインドされます. パターンマッチについては本の中で解説されてますが,飛ばします.プログラミングElixirとかElixirのチュートリアルとか読んでもらえれば. 最後に,template側で渡された値を表示するようにしてあげれば完成.</p>
+<pre><code class="language-html hljs language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello &lt;%= String.capitalize @name %&gt;!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+</code></pre>
+<p><code>&lt;%= ～ %&gt;</code> の部分にElixirの関数が書けて, @nameの部分にControllerから渡された値が入ってくるようです.</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<p>とりあえず今回はここまでとしておきます。 かなり復習感ありましたが,基本的な部分はなんとなくわかったと思います。 やっぱりRailsにかなり近くて,Railsやってた人はここらへんはあまり深く読まなくても良い気がします. あと名前付けとかのルールとかは追々という感じで調べていきたいです.</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/my-first-article/" rel="prev">ブログ書くことにした</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix2/" rel="next">Programming Phoenix勉強その2</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix1/ -->
+  
+
+</body></html>

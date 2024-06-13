@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その2 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその2">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その2</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2016-12-31 00:50:00">
+      December 31st, 2016
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その2
+">
+<h1>Programming Phoenix勉強その2</h1>
+<p>その2です。 その1の続きです。</p>
+<section id="デフォルトのディレクトリ構成について
+">
+<h2>デフォルトのディレクトリ構成について</h2>
+<ul>
+<li><p><code>config</code> ディレクトリ</p><ul>
+<li><p>Phoenixの設定ファイル置き場.名前のまま.</p></li>
+<li><p><code>prod.secret.exs</code> は秘密情報が入っているファイルなので,VCSからは外すこと.</p></li>
+<li><p><code>config.exs</code> の <code>endpoint</code> はWebサーバーとアプリケーションの接続の境界部分.</p></li>
+</ul></li>
+<li><p><code>lib</code> ディレクトリ</p><ul>
+<li><p>Supervision treeと,長く起動するプロセスが置かれる.（?,あってるか微妙）</p></li>
+<li><p>DBとのコネクションプールとかのような長く使われるものが置かれるっぽい.</p></li>
+</ul></li>
+<li><p><code>test</code> ディレクトリ</p><ul><li><p>名前の通りテストが置かれる.</p></li></ul></li>
+<li><p><code>web</code> ディレクトリ</p><ul><li><p>Webアプリに必要な <code>model</code>, <code>view</code>, <code>template</code>, <code>controller</code> が置かれる.</p></li></ul></li>
+</ul>
+</section>
+<section id="plugについて
+">
+<h2>Plugについて</h2>
+<p><code>Plug</code> ライブラリは接続の統一化のために使われる. <code>Plug</code> のリポジトリ <a href="https://github.com/elixir-lang/plug">Plugリポジトリ</a> には以下のように書いてある. </p>
+<pre>・ A specification for composable modules between web applications
+・ Connection adapters for different web servers in the Erlang VM
+</pre>
+<p>なので,各機能のモジュールの仕様の記述と,Erlang VMと各Webサーバーとの接続をやってくれるみたいです. （あまり理解してない感が） 実際にPhoenixが作ってくれる物を見てみます. <code>config/endpoint.exs</code> を見てみます.</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Hello.Endpoint</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Endpoint</span>, <span class="hljs-symbol">otp_app:</span> <span class="hljs-symbol">:hello</span>
+
+  socket <span class="hljs-string">"/socket"</span>, <span class="hljs-title class_">Hello</span>.<span class="hljs-title class_">UserSocket</span>
+
+  <span class="hljs-comment"># Serve at "/" the static files from "priv/static" directory.</span>
+  <span class="hljs-comment">#</span>
+  <span class="hljs-comment"># You should set gzip to true if you are running phoenix.digest</span>
+  <span class="hljs-comment"># when deploying your static files in production.</span>
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Static</span>,
+    <span class="hljs-symbol">at:</span> <span class="hljs-string">"/"</span>, <span class="hljs-symbol">from:</span> <span class="hljs-symbol">:hello</span>, <span class="hljs-symbol">gzip:</span> <span class="hljs-literal">false</span>,
+    <span class="hljs-symbol">only:</span> <span class="hljs-string">~w(css fonts images js favicon.ico robots.txt)</span>
+
+  <span class="hljs-comment"># Code reloading can be explicitly enabled under the</span>
+  <span class="hljs-comment"># :code_reloader configuration of your endpoint.</span>
+  <span class="hljs-keyword">if</span> code_reloading? <span class="hljs-keyword">do</span>
+    socket <span class="hljs-string">"/phoenix/live_reload/socket"</span>, <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">LiveReloader</span>.<span class="hljs-title class_">Socket</span>
+    plug <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">LiveReloader</span>
+    plug <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">CodeReloader</span>
+  <span class="hljs-keyword">end</span>
+
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">RequestId</span>
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Logger</span>
+
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Parsers</span>,
+    <span class="hljs-symbol">parsers:</span> [<span class="hljs-symbol">:urlencoded</span>, <span class="hljs-symbol">:multipart</span>, <span class="hljs-symbol">:json</span>],
+    <span class="hljs-symbol">pass:</span> [<span class="hljs-string">"*/*"</span>],
+    <span class="hljs-symbol">json_decoder:</span> <span class="hljs-title class_">Poison</span>
+
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">MethodOverride</span>
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Head</span>
+
+  <span class="hljs-comment"># The session will be stored in the cookie and signed,</span>
+  <span class="hljs-comment"># this means its contents can be read but not tampered with.</span>
+  <span class="hljs-comment"># Set :encryption_salt if you would also like to encrypt it.</span>
+  plug <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Session</span>,
+    <span class="hljs-symbol">store:</span> <span class="hljs-symbol">:cookie</span>,
+    <span class="hljs-symbol">key:</span> <span class="hljs-string">"_hello_key"</span>,
+    <span class="hljs-symbol">signing_salt:</span> <span class="hljs-string">"zzWE+Yw+"</span>
+
+  plug <span class="hljs-title class_">Hello</span>.<span class="hljs-title class_">Router</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>とりあえず <code>plug</code> ってのがいっぱい出てきています. なんとなく見てると, <code>plug Plug.Static</code> で静的ファイルについての設定っぽいものが書いてあったり, <code>plug Plug.Logger</code> とか, <code>plug Plug.Parsers</code> とかあったりして,Webアプリに必要な設定が書いてあるっぽいなと言う感覚です. ココらへんの一連の <code>plug</code> は関数のパイプラインとして処理されるようです.</p>
+<pre><code class="language-Elixir hljs">connection 
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Static</span>.call
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">RequestId</span>.call
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Logger</span>.call
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Parsers</span>.call
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">MethodOverride</span>.call
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Head</span>.call
+|&gt; <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Session</span>.call
+|&gt; <span class="hljs-title class_">Hello</span>.<span class="hljs-title class_">Router</span>.call
+</code></pre>
+<p>ソースに書いた順になってるっぽいです.Servletの設定順ミスってハマった思い出が… ちなみに <code>endpoint</code> 自体も <code>plug</code> で,アプリケーション自体は <code>endpoint</code> で始まり <code>controller</code> で終わる一連のパイプラインらしい.</p>
+</section>
+<section id="routerについて
+">
+<h2>Routerについて</h2>
+<p><code>web/router.ex</code> のソースを見ると,2つのパイプラインがあることがわかる.</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Hello.Router</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Hello</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:router</span>
+
+  pipeline <span class="hljs-symbol">:browser</span> <span class="hljs-keyword">do</span>
+    plug <span class="hljs-symbol">:accepts</span>, [<span class="hljs-string">"html"</span>]
+    plug <span class="hljs-symbol">:fetch_session</span>
+    plug <span class="hljs-symbol">:fetch_flash</span>
+    plug <span class="hljs-symbol">:protect_from_forgery</span>
+    plug <span class="hljs-symbol">:put_secure_browser_headers</span>
+  <span class="hljs-keyword">end</span>
+
+  pipeline <span class="hljs-symbol">:api</span> <span class="hljs-keyword">do</span>
+    plug <span class="hljs-symbol">:accepts</span>, [<span class="hljs-string">"json"</span>]
+  <span class="hljs-keyword">end</span>
+
+  scope <span class="hljs-string">"/"</span>, <span class="hljs-title class_">Hello</span> <span class="hljs-keyword">do</span>
+    pipe_through <span class="hljs-symbol">:browser</span> <span class="hljs-comment"># Use the default browser stack</span>
+
+    get <span class="hljs-string">"/hello/:name"</span>, <span class="hljs-title class_">HelloController</span>, <span class="hljs-symbol">:world</span>
+    get <span class="hljs-string">"/"</span>, <span class="hljs-title class_">PageController</span>, <span class="hljs-symbol">:index</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># Other scopes may use custom stacks.</span>
+  <span class="hljs-comment"># scope "/api", Hello do</span>
+  <span class="hljs-comment">#   pipe_through :api</span>
+  <span class="hljs-comment"># end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<ul>
+<li><p><code>browser</code> パイプライン</p><ul>
+<li><p>HTMLのみを受け付ける.</p></li>
+<li><p>セッション管理とか,フラッシュメッセージとか,セキュリティ対策とかを提供してくれるらしい.</p></li>
+</ul></li>
+<li><p><code>api</code> パイプライン</p><ul>
+<li><p>基本的なJSON API用のパイプライン.JSONのみ受け付ける.</p></li>
+<li><p>XMLにしたいときとかはここ一箇所変更すれば全部変更される.</p></li>
+</ul></li>
+</ul>
+<p> <code>pipe_through</code> でどのパイプラインを使うか書く.  処理の流れとしては接続を取得→パイプラインを呼び出し→コントローラーを呼び出し.  呼び出し順を纏めると以下になる.</p>
+<pre><code class="language-Elixir hljs">connection
+|&gt; endpoint
+|&gt; router
+|&gt; pipeline
+|&gt; controller
+</code></pre>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<p>今回は,内部的な処理の流れとかおまじない的な部分が何をしてるかの勉強だった感じです. 英語がヘタレ過ぎて自分が理解している意味とあってるか若干の不安が...</p>
+
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix1/" rel="prev">Programming Phoenix勉強その1</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix3/" rel="next">Programming Phoenix勉強その3</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix2/ -->
+  
+
+</body></html>

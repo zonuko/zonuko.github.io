@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        ClojureでWebアプリ続き(WebSocketとチャット) | zonukoブログ
+      
+    </title>
+    <meta name="description" content="ClojureでWebアプリ作ってみたつづき">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">ClojureでWebアプリ続き(WebSocketとチャット)</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/clojure/" class="tag">clojure</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2018-05-15 23:00:00">
+      May 15th, 2018
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="clojureでwebアプリ続き(websocketとチャット)
+">
+<h1>ClojureでWebアプリ続き(WebSocketとチャット)</h1>
+<p>単発で終わったと見せかけて続きです。</p>
+<p>`WebSocket` 使ってチャットでも作ってみます。 使うものは <a href="https://github.com/ptaoussanis/sente">sente</a> です。単純にググったら最初の方に出てきたので使ってみます。 とりあえずシンプルに以下が目標です。</p>
+<ul>
+<li><p>チャットルームとかは作らずに全員同じチャットルーム</p><ul><li><p>要するにサーバーからの通知は必ずブロードキャストで行きます。</p></li></ul></li>
+<li><p>テーブル作ってそこに保存すること(メッセージと、ログインしている場合は発信者のID)</p></li>
+<li><p>リプライ機能とかは作らない</p></li>
+</ul>
+<p>リポジトリなどは前回とおんなじ</p>
+<section id="導入
+">
+<h2>導入</h2>
+<p>以下の依存関係をを `project.clj` に追加します。</p>
+<ul>
+<li><p>`[gravatar "1.1.0"]`</p><ul><li><p>チャット画面のアバター表示用別になくても良い</p></li></ul></li>
+<li><p>`[http-kit "2.2.0"]`</p><ul><li><p>`sente` のサンプルによく使われていたので `jetty` から置き換え</p></li></ul><p>  </p></li>
+</ul>
+<ul><li><p>`[com.taoensso/sente "1.12.0"]`</p><ul><li><p>`sente` 本体</p></li></ul></li></ul>
+<p>とりあえずこんなもんです。</p>
+</section>
+<section id="サーバー側の実装
+">
+<h2>サーバー側の実装</h2>
+<p>適当にネームスペース掘ります。今回は `earth-clj.socket` でフォルダ直下にしてしまいました。</p>
+<p>まずは `sente` のリポジトリのREADMEに書いてあるように実装します。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-name"><span class="hljs-built_in">ns</span></span> earth-clj.socket
+  (<span class="hljs-symbol">:require</span> [taoensso.sente <span class="hljs-symbol">:as</span> sente]
+            [clojure.core.async <span class="hljs-symbol">:refer</span> [go-loop &lt;!]]
+            [compojure.core <span class="hljs-symbol">:refer</span> [defroutes context GET POST]]
+            [earth-clj.db.message <span class="hljs-symbol">:as</span> message]
+            [taoensso.timbre    <span class="hljs-symbol">:as</span> timbre <span class="hljs-symbol">:refer</span> (<span class="hljs-name">tracef</span> debugf infof warnf errorf)]
+            [taoensso.sente.server-adapters.http-kit <span class="hljs-symbol">:refer</span> (<span class="hljs-name">get-sch-adapter</span>)]))
+
+<span class="hljs-comment">;; sente用の設定 要確認</span>
+(<span class="hljs-name"><span class="hljs-built_in">let</span></span> [{<span class="hljs-symbol">:keys</span> [ch-recv send-fn connected-uids
+              ajax-post-fn ajax-get-or-ws-handshake-fn]}
+      (<span class="hljs-name">sente/make-channel-socket!</span> (<span class="hljs-name">get-sch-adapter</span>) {})]
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">ring-ajax-post</span> ajax-post-fn)
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">ring-ajax-get-or-ws-handshake</span> ajax-get-or-ws-handshake-fn)
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">ch-chsk</span> ch-recv) <span class="hljs-comment">; ChannelSocket's receive channel</span>
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">chsk-send!</span> send-fn) <span class="hljs-comment">; ChannelSocket's send API fn</span>
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">connected-uids</span> connected-uids)) <span class="hljs-comment">; Watchable, read-only atom</span>
+
+(<span class="hljs-name">defroutes</span> socket-routes
+           <span class="hljs-comment">;; &lt;other stuff&gt;</span>
+           <span class="hljs-comment">;;; Add these 2 entries: ---&gt;</span>
+           (<span class="hljs-name">GET</span>  <span class="hljs-string">"/chsk"</span> req (<span class="hljs-name">ring-ajax-get-or-ws-handshake</span> req))
+           (<span class="hljs-name">POST</span> <span class="hljs-string">"/chsk"</span> req (<span class="hljs-name">ring-ajax-post</span> req)))
+</code></pre>
+<p>`WebSocket` の受信/発信用の `Var` 定義と接続とかに使われる `routes` の設定がされるっぽいです。 正直そんなに理解してないです。 `connected-uids` がコネクションに対するワンタイムトークンみたいになってるのかな？って程度です。</p>
+<p>ただ、 `ch-chsk` が `core.async` の `channel` になっていることだけ注意が必要かもです。 `println` とかすると `clojure.core.async.impl.channels.ManyToManyChannel` のインスタンスであることがわかったりします。 `ManyToMany` があるなら他にもあるんじゃないかとか、 `core.async` 自体も理解してないのでココらへんのオブジェクトが何なのかは追々・・・</p>
+<section id="サーバー側のイベント
+">
+<h3>サーバー側のイベント</h3>
+<p>サーバー側のイベント処理を書いていきます。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; 全UIDに対してメッセージをブロードキャストする</span>
+<span class="hljs-comment">;; <span class="hljs-doctag">TODO:</span> UIDの扱い方がよくわからない</span>
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">msgs-broadcast</span> []
+  (<span class="hljs-name">debugf</span> <span class="hljs-string">"BroadCastMsgs"</span>)
+  (<span class="hljs-name"><span class="hljs-built_in">doseq</span></span> [uid (<span class="hljs-symbol">:any</span> @connected-uids)]
+    (<span class="hljs-name">chsk-send!</span> uid [<span class="hljs-symbol">:chat/msgs</span> (<span class="hljs-name">message/all-messages</span>)])))
+
+<span class="hljs-comment">;; イベントを送られてきたIDによって分岐するマルチメソッド</span>
+(<span class="hljs-keyword">defmulti</span> <span class="hljs-title">-event-msg-handler</span>
+          <span class="hljs-string">"Multimethod to handle Sente `event-msg`s"</span>
+          <span class="hljs-symbol">:id</span>)
+
+<span class="hljs-comment">;; :idが何にもマッチしなかった場合</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span>
+  <span class="hljs-symbol">:default</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [event id ?data ring-req ?reply-fn send-fn]}]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [session (<span class="hljs-symbol">:session</span> ring-req)
+        uid     (<span class="hljs-symbol">:uid</span>     session)]
+    (<span class="hljs-name">debugf</span> <span class="hljs-string">"Unhandled event: %s"</span> event)
+    (<span class="hljs-name"><span class="hljs-built_in">when</span></span> ?reply-fn
+      (<span class="hljs-name">?reply-fn</span> {<span class="hljs-symbol">:umatched-event-as-echoed-from-from-server</span> event})))) 
+<span class="hljs-comment">;; 初期化処理</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span>
+  <span class="hljs-symbol">:chat/init</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [event id ?data ring-req ?reply-fn send-fn]}]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [session (<span class="hljs-symbol">:session</span> ring-req)
+        uid     (<span class="hljs-symbol">:uid</span>     session)]
+    (<span class="hljs-name">debugf</span> <span class="hljs-string">"Init event: %s"</span> event)
+    (<span class="hljs-name"><span class="hljs-built_in">when</span></span> ?reply-fn
+      (<span class="hljs-name">?reply-fn</span> (<span class="hljs-name">message/all-messages</span>)))))
+<span class="hljs-comment">;; チャットメッセージ投稿 </span>
+<span class="hljs-comment">;; DBにインサート後ブロードキャストを行う</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span>
+  <span class="hljs-symbol">:chat/post</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [event id ?data ring-req ?reply-fn send-fn]}]
+  (<span class="hljs-name">message/add-messages</span> (<span class="hljs-name"><span class="hljs-built_in">get-in</span></span> ring-req [<span class="hljs-symbol">:session</span> <span class="hljs-symbol">:identity</span>]) ?data)
+  (<span class="hljs-name">msgs-broadcast</span>))
+
+<span class="hljs-comment">;; イベントハンドラ発火元関数</span>
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">event-msg-handler</span>
+  <span class="hljs-string">"Wraps `-event-msg-handler` with logging, error catching, etc."</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [id ?data event]}]
+  (<span class="hljs-name">-event-msg-handler</span> ev-msg) <span class="hljs-comment">; Handle event-msgs on a single thread</span>
+  <span class="hljs-comment">;; Handle event-msgs on a thread pool</span>
+  #_(<span class="hljs-name"><span class="hljs-built_in">future</span></span> (<span class="hljs-name">-event-msg-handler</span> ev-msg)))
+
+<span class="hljs-comment">;; コネクションを開始する関数群</span>
+(<span class="hljs-keyword">defonce</span> <span class="hljs-title">router_</span> (<span class="hljs-name"><span class="hljs-built_in">atom</span></span> <span class="hljs-literal">nil</span>))
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">stop-router!</span> [] (<span class="hljs-name"><span class="hljs-built_in">when-let</span></span> [stop-f @router_] (<span class="hljs-name">stop-f</span>)))
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">start-router!</span> []
+  (<span class="hljs-name">stop-router!</span>)
+  (<span class="hljs-name"><span class="hljs-built_in">reset!</span></span> router_
+          <span class="hljs-comment">;; 実際にはgo-loopに変換される。go-loopにしても似たようなものが取得できる</span>
+          <span class="hljs-comment">;; 実際にドキュメントでは熟練者ならそのようにするような記載有り</span>
+          (<span class="hljs-name">sente/start-server-chsk-router!</span>
+           ch-chsk event-msg-handler))) <span class="hljs-comment">;; イベントが来るたびにevent-msg-handlerが呼ばれる</span>
+</code></pre>
+<p>DBへのインサート処理とか、ページレンダリングの部分とか `earth-clj.core` での初期起動とかは面倒なので割愛です。</p>
+<p>ほぼほぼ <a href="https://github.com/ptaoussanis/sente/tree/master/example-project">公式サンプル</a> 丸パクリですが、自分で幾つかイベント追加してます。 マルチメソッドによって `:id` の値で分岐してるので、初期化用のメソッドとメッセージ投稿用のメソッドを追加してます。</p>
+<p>また、コメントにもありますが、 `sente/start-server-chsk-router!` の実態は `go-loop` のようです。 実際にソース見てないので、 <a href="http://ptaoussanis.github.io/sente/taoensso.sente.html#var-start-server-chsk-router.21">ドキュメント頼り</a> ですが、 お試しで以下のようなコード書いた感じは大体同じレスポンスが取れるのでまぁ間違ってないのかなと。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-name">go-loop</span> []
+ (<span class="hljs-name"><span class="hljs-built_in">when-let</span></span> [data (<span class="hljs-name">&lt;!</span> ch-chsk)] 
+   (<span class="hljs-name">println</span> data)
+   (<span class="hljs-name"><span class="hljs-built_in">recur</span></span>)))  
+</code></pre>
+<p>以下みたいな感じ</p>
+<pre><code class="language-Clojure hljs">{<span class="hljs-symbol">:?reply-fn</span> <span class="hljs-literal">nil</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:ch-recv</span> #object[clojure.core.async.impl.channels.ManyToManyChannel <span class="hljs-number">0x1e6dc10e</span> <span class="hljs-string">"clojure.core.async.impl.channels.ManyToManyChannel@1e6dc10e"</span>]<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:client-id</span> <span class="hljs-string">"48eafbcd-f0c2-441a-9129-05278e039c97"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:connected-uids</span> #atom[{<span class="hljs-symbol">:ws</span> #{<span class="hljs-symbol">:taoensso.sente/nil-uid</span>}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:ajax</span> #{}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:any</span> #{<span class="hljs-symbol">:taoensso.sente/nil-uid</span>}} <span class="hljs-number">0x77ce4d53</span>]<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:uid</span> <span class="hljs-symbol">:taoensso.sente/nil-uid</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:event</span> [<span class="hljs-symbol">:chat/post</span> <span class="hljs-string">"bbb"</span>]<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:id</span> <span class="hljs-symbol">:chat/post</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:ring-req</span> {<span class="hljs-symbol">:identity</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:cookies</span> {<span class="hljs-string">"io"</span> {<span class="hljs-symbol">:value</span> <span class="hljs-string">"2uQMNqiEQ0OUNAqGAAAD"</span>}<span class="hljs-punctuation">,</span> <span class="hljs-string">"ring-session"</span> {<span class="hljs-symbol">:value</span> <span class="hljs-string">"9b0e2ba2-6918-459f-8352-3b6bfe9251f5"</span>}}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:remote-addr</span> <span class="hljs-string">"0:0:0:0:0:0:0:1"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:params</span> {<span class="hljs-symbol">:client-id</span> <span class="hljs-string">"48eafbcd-f0c2-441a-9129-05278e039c97"</span>}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:flash</span> <span class="hljs-literal">nil</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:route-params</span> {}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:headers</span> {<span class="hljs-string">"origin"</span> <span class="hljs-string">"http://localhost:4000"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"host"</span> <span class="hljs-string">"localhost:4000"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"upgrade"</span> <span class="hljs-string">"websocket"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"user-agent"</span> <span class="hljs-string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"cookie"</span> <span class="hljs-string">"io=2uQMNqiEQ0OUNAqGAAAD; ring-session=9b0e2ba2-6918-459f-8352-3b6bfe9251f5"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"connection"</span> <span class="hljs-string">"Upgrade"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"pragma"</span> <span class="hljs-string">"no-cache"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"sec-websocket-key"</span> <span class="hljs-string">"H3cJYBZ1veyIIpl09QkvVA=="</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"accept-language"</span> <span class="hljs-string">"ja,en-US;q=0.9,en;q=0.8,de;q=0.7,zh-CN;q=0.6,zh;q=0.5,fr;q=0.4,zh-TW;q=0.3"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"sec-websocket-version"</span> <span class="hljs-string">"13"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"accept-encoding"</span> <span class="hljs-string">"gzip, deflate, br"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"sec-websocket-extensions"</span> <span class="hljs-string">"permessage-deflate; client_max_window_bits"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"cache-control"</span> <span class="hljs-string">"no-cache"</span>}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:async-channel</span> #object[org.httpkit.server.AsyncChannel <span class="hljs-number">0x79821c77</span> <span class="hljs-string">"/0:0:0:0:0:0:0:1:4000&lt;-&gt;/0:0:0:0:0:0:0:1:51664"</span>]<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:server-port</span> <span class="hljs-number">4000</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:content-length</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:form-params</span> {}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:compojure/route</span> [<span class="hljs-symbol">:get</span> <span class="hljs-string">"/chsk"</span>]<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:websocket?</span> <span class="hljs-literal">true</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:session/key</span> <span class="hljs-string">"9b0e2ba2-6918-459f-8352-3b6bfe9251f5"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:query-params</span> {<span class="hljs-string">"client-id"</span> <span class="hljs-string">"48eafbcd-f0c2-441a-9129-05278e039c97"</span>}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:content-type</span> <span class="hljs-literal">nil</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:character-encoding</span> <span class="hljs-string">"utf8"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:uri</span> <span class="hljs-string">"/chsk"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:server-name</span> <span class="hljs-string">"localhost"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:query-string</span> <span class="hljs-string">"client-id=48eafbcd-f0c2-441a-9129-05278e039c97"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:body</span> <span class="hljs-literal">nil</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:multipart-params</span> {}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:scheme</span> <span class="hljs-symbol">:http</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:request-method</span> <span class="hljs-symbol">:get</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:session</span> {<span class="hljs-symbol">:identity</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:ring.middleware.anti-forgery/anti-forgery-token</span> <span class="hljs-string">"NmfuFYMg+lHHS2opYqxkSPzoxDP0sGd6Hr0Xa2AWq4E3lDY1tfTTi/G+wQAS62RvHo0hUFodvQzXsyhF"</span>}}<span class="hljs-punctuation">,</span> <span class="hljs-symbol">:?data</span> <span class="hljs-string">"bbb"</span><span class="hljs-punctuation">,</span> <span class="hljs-symbol">:send-fn</span> #function[taoensso.sente/make-channel-socket-server!/send-fn--23743]}
+</code></pre>
+</section>
+</section>
+<section id="クライアント側の実装
+">
+<h2>クライアント側の実装</h2>
+<p>基本的に `ClojureScript` で実装することになります。 サーバー側と似たような感じで、 `earth-cljs.socket` ネームスペースとしました。</p>
+<p>初期設定もサーバーと同じようにREADMEに書いてある物そのままです。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-name"><span class="hljs-built_in">ns</span></span> earth-cljs.socket
+  (<span class="hljs-symbol">:require-macros</span> [cljs.core.async.macros <span class="hljs-symbol">:as</span> asyncm <span class="hljs-symbol">:refer</span> (<span class="hljs-name">go</span> go-loop)])
+  (<span class="hljs-symbol">:require</span> [cljs.core.async <span class="hljs-symbol">:as</span> async <span class="hljs-symbol">:refer</span> (<span class="hljs-name">&lt;!</span> &gt;! put! chan)]
+            [earth-cljs.util <span class="hljs-symbol">:as</span> util <span class="hljs-symbol">:refer</span> ($)]
+            [taoensso.timbre <span class="hljs-symbol">:as</span> timbre <span class="hljs-symbol">:refer-macros</span> (<span class="hljs-name">tracef</span> debugf infof warnf errorf)]
+            [taoensso.encore <span class="hljs-symbol">:as</span> encore <span class="hljs-symbol">:refer-macros</span> (<span class="hljs-name">have</span> have?)]
+            [goog.string <span class="hljs-symbol">:as</span> gstring]
+            [gravatar.core <span class="hljs-symbol">:as</span> gr]
+            [taoensso.sente  <span class="hljs-symbol">:as</span> sente <span class="hljs-symbol">:refer</span> (<span class="hljs-name">cb-success?</span>)]))
+
+<span class="hljs-comment">;;; Add this: ---&gt;</span>
+(<span class="hljs-name"><span class="hljs-built_in">let</span></span> [{<span class="hljs-symbol">:keys</span> [chsk ch-recv send-fn state]}
+      (<span class="hljs-name">sente/make-channel-socket!</span> <span class="hljs-string">"/chsk"</span> <span class="hljs-comment">; Note the same path as before</span>
+                                  {<span class="hljs-symbol">:type</span> <span class="hljs-symbol">:auto</span>})] <span class="hljs-comment">; e/o #{:auto :ajax :ws}</span>
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">chsk</span> chsk)
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">ch-chsk</span> ch-recv) <span class="hljs-comment">; ChannelSocket's receive channel</span>
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">chsk-send!</span> send-fn) <span class="hljs-comment">; ChannelSocket's send API fn</span>
+  (<span class="hljs-keyword">def</span> <span class="hljs-title">chsk-state</span> state)) <span class="hljs-comment">; Watchable, read-only atom</span>
+</code></pre>
+<p>中身もコードの意味もほとんどサーバー側と同じでちょっと感動します。 ちなみに恥ずかしい限りですが `sente` の中身覗いて `cljc` の存在を知りました。</p>
+<section id="描画用の関数と初期化用関数
+">
+<h3>描画用の関数と初期化用関数</h3>
+<p>DOM生成用関数とアクセス時に初期データを取ってくる関数を定義してます。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">defn-</span> <span class="hljs-title">update-msgs</span> [data]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [output-el ($ <span class="hljs-string">"comment-container"</span>)]
+    (<span class="hljs-name"><span class="hljs-built_in">set!</span></span> (<span class="hljs-name">.-innerHTML</span> output-el)
+          (<span class="hljs-name"><span class="hljs-built_in">reduce</span></span> #(<span class="hljs-name"><span class="hljs-built_in">let</span></span> [{<span class="hljs-symbol">:keys</span> [email name date message]} %<span class="hljs-number">2</span>]
+                     (<span class="hljs-name"><span class="hljs-built_in">str</span></span> %<span class="hljs-number">1</span>
+                          <span class="hljs-string">"&lt;div class='comment'&gt;"</span>
+                          <span class="hljs-string">"&lt;a class='avatar'&gt;"</span>
+                          <span class="hljs-string">"&lt;img src='"</span> (<span class="hljs-name">gr/avatar-url</span> (<span class="hljs-name"><span class="hljs-built_in">if</span></span> email email <span class="hljs-string">""</span>) <span class="hljs-symbol">:https</span> <span class="hljs-literal">true</span>) <span class="hljs-string">"' /&gt;"</span>
+                          <span class="hljs-string">"&lt;/a&gt;"</span>
+                          <span class="hljs-string">"&lt;div class='content'&gt;"</span>
+                          <span class="hljs-string">"&lt;a class='author'&gt;"</span>
+                          (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name"><span class="hljs-built_in">if</span></span> name name <span class="hljs-string">"Anonymous"</span>))
+                          <span class="hljs-string">"&lt;/a&gt;"</span>
+                          <span class="hljs-string">"&lt;div class='metadata'&gt;"</span>
+                          <span class="hljs-string">"&lt;span class='date'&gt;"</span>
+                          (<span class="hljs-name">gstring/htmlEscape</span> date)
+                          <span class="hljs-string">"&lt;/span&gt;"</span>
+                          <span class="hljs-string">"&lt;/div&gt;"</span>
+                          <span class="hljs-string">"&lt;div class='text'&gt;"</span>
+                          (<span class="hljs-name">gstring/htmlEscape</span> message)
+                          <span class="hljs-string">"&lt;/div&gt;"</span>
+                          <span class="hljs-string">"&lt;/div&gt;"</span>
+                          <span class="hljs-string">"&lt;/div&gt;"</span>)) <span class="hljs-string">""</span> data))
+    (<span class="hljs-name"><span class="hljs-built_in">set!</span></span> (<span class="hljs-name">.-scrollTop</span> output-el) (<span class="hljs-name">.-scrollHeight</span> output-el))))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">init-msg-handler</span> []
+  (<span class="hljs-name">chsk-send!</span>
+    [<span class="hljs-symbol">:chat/init</span>]
+    <span class="hljs-number">8000</span>
+    (<span class="hljs-name"><span class="hljs-built_in">fn</span></span> [reply]
+      (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name">sente/cb-success?</span> reply)
+        (<span class="hljs-name">update-msgs</span> reply)
+        #(<span class="hljs-name">.log</span> js/console %)))))
+</code></pre>
+<p>画面表示用の関数は普通に文字列としてDOM生成してるだけです。ちなみにここだけ `semantic ui` 使ってます。</p>
+<p>`init-msg-handler` は初期化時に呼び出すことを想定しています。 `chsk-send!` 関数の最後の引数にコールバック用の関数をおいておくとこれ勝手に呼んでくれて便利です。</p>
+</section>
+<section id="クライアント側のイベント
+">
+<h3>クライアント側のイベント</h3>
+<p>まぁサーバー側とほとんど同じなのでソースだけ貼っておきます。</p>
+<pre><code class="language-Clojure hljs"><span class="hljs-comment">;; マルチメソッドによるサーバーからのイベント待受</span>
+<span class="hljs-comment">;; :idで判別される</span>
+<span class="hljs-comment">;;</span>
+(<span class="hljs-keyword">defmulti</span> <span class="hljs-title">-event-msg-handler</span>
+  <span class="hljs-string">"Multimethod to handle Sente `event-msg`s"</span>
+  <span class="hljs-symbol">:id</span>) <span class="hljs-comment">; Dispatch on event-id</span>
+
+<span class="hljs-comment">;; デフォルトメソッド</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span>
+  <span class="hljs-symbol">:default</span> <span class="hljs-comment">; Default/fallback case (no other matching handler)</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [event]}]
+  (<span class="hljs-name">.log</span> js/console (<span class="hljs-name"><span class="hljs-built_in">str</span></span> <span class="hljs-string">"Unhandled event: "</span> event)))
+
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span> <span class="hljs-symbol">:chsk/state</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [?data]}]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [[old-state-map new-state-map] (<span class="hljs-name">have</span> vector? ?data)]
+    (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-symbol">:first-open?</span> new-state-map)
+      (<span class="hljs-name">.log</span> js/console (<span class="hljs-name"><span class="hljs-built_in">str</span></span> <span class="hljs-string">"Channel socket successfully established!: "</span> new-state-map))
+      (<span class="hljs-name">.log</span> js/console (<span class="hljs-name"><span class="hljs-built_in">str</span></span> <span class="hljs-string">"Channel socket state change: "</span> new-state-map)))))
+
+<span class="hljs-comment">;; broadcastの受信を行う</span>
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span> <span class="hljs-symbol">:chsk/recv</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [?data]}]
+  (<span class="hljs-name"><span class="hljs-built_in">case</span></span> (<span class="hljs-name"><span class="hljs-built_in">first</span></span> ?data)
+    <span class="hljs-symbol">:chat/msgs</span> (<span class="hljs-name">update-msgs</span> (<span class="hljs-name"><span class="hljs-built_in">second</span></span> ?data))
+    (<span class="hljs-name">.log</span> js/console (<span class="hljs-name"><span class="hljs-built_in">str</span></span> ?data))))
+
+(<span class="hljs-keyword">defmethod</span> <span class="hljs-title">-event-msg-handler</span> <span class="hljs-symbol">:chsk/handshake</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [?data]}]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [[?uid ?csrf-token ?handshake-data] ?data]
+    (<span class="hljs-name">.log</span> js/console (<span class="hljs-name"><span class="hljs-built_in">str</span></span> <span class="hljs-string">"Handshake: "</span> ?data))
+    (<span class="hljs-name">init-msg-handler</span>)))
+
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">event-msg-handler</span>
+  <span class="hljs-string">"Wraps `-event-msg-handler` with logging, error catching, etc."</span>
+  [{<span class="hljs-symbol">:as</span> ev-msg <span class="hljs-symbol">:keys</span> [id ?data event]}]
+  (<span class="hljs-name">-event-msg-handler</span> ev-msg))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">send-msg-handler</span> [e]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [e ($ <span class="hljs-string">"chat-msg"</span>)
+        v (<span class="hljs-name">.-value</span> e)]
+    (<span class="hljs-name">chsk-send!</span> [<span class="hljs-symbol">:chat/post</span> v])
+    (<span class="hljs-name"><span class="hljs-built_in">set!</span></span> (<span class="hljs-name">.-value</span> e) <span class="hljs-string">""</span>)))
+
+(<span class="hljs-keyword">defonce</span> <span class="hljs-title">router_</span> (<span class="hljs-name"><span class="hljs-built_in">atom</span></span> <span class="hljs-literal">nil</span>))
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">stop-router!</span> [] (<span class="hljs-name"><span class="hljs-built_in">when-let</span></span> [stop-f @router_] (<span class="hljs-name">stop-f</span>)))
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">start-router!</span> []
+  (<span class="hljs-name">stop-router!</span>)
+  (<span class="hljs-name"><span class="hljs-built_in">reset!</span></span> router_
+          (<span class="hljs-name">sente/start-client-chsk-router!</span>
+           ch-chsk event-msg-handler)))
+
+(<span class="hljs-name"><span class="hljs-built_in">when-let</span></span> [target-el ($ <span class="hljs-string">"chat-form"</span>)]
+  (<span class="hljs-name">start-router!</span>))
+
+(<span class="hljs-name"><span class="hljs-built_in">when-let</span></span> [target-el ($ <span class="hljs-string">"chat-send"</span>)]
+  (<span class="hljs-name">.addEventListener</span> target-el <span class="hljs-string">"click"</span> send-msg-handler))
+</code></pre>
+<p>こんな感じです。</p>
+</section>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p>`core.async` についてちょっと理解した。</p><ul><li><p>他のライブラリとか覗いても `core.async` をラップしたようなのとか、そもそも `core.async` だけでWebSocketしているような方もいたりでもうちょっと勉強したいです。</p></li></ul></li>
+<li><p>知らないライブラリ調べながら使うと自分が余り使ってなかった構文とかの練習になる</p><ul><li><p>マルチメソッドとか積極的には使ってなかったのでいい勉強になります。</p></li></ul></li>
+<li><p>Webアプリ楽しい</p><ul>
+<li><p>仕事でも結構作ってますがやっぱり楽しいですね。</p></li>
+<li><p>個人的にはHerokuに上げるだとかデプロイするだとかのいざこざ含めて結構好きです。</p></li>
+</ul></li>
+</ul>
+<p>一応次作るものは考えているのでそのうちまた何か書きます。 あ、あと最近Professional Clojureも平行して読んでいるのでそのまとめもそのうちということで。</p>
+<p>こう遊んでるとますますClojureを仕事にしたくなる。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/clojure-web/" rel="prev">ClojureでWebアプリ</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/clojure-web3/" rel="next">ClojureでWebアプリ続きの続き(外部APIと連携するchannel)</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/clojure-web2/ -->
+  
+
+</body></html>

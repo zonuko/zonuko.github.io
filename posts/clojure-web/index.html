@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        ClojureでWebアプリ | zonukoブログ
+      
+    </title>
+    <meta name="description" content="ClojureでWebアプリ作ってみた">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">ClojureでWebアプリ</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/clojure/" class="tag">clojure</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2018-04-05 23:00:00">
+      April 5th, 2018
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="clojureでwebアプリ
+">
+<h1>ClojureでWebアプリ</h1>
+<p>前回に引き続きClojureです。</p>
+<p>結構好きなので <a href="http://ayato-p.github.io/clojure-beginner/intro_web_development/">これ</a> を参考にしつつ 色々追加してWebアプリ作ってみました。</p>
+<p>基本的には会社でのサンプル用に作ってた <a href="https://bitbucket.org/y_fujiwara/earthdemo">Webアプリ</a> がありまして・・・ 今回はそれをリプレイス＆機能追加って感じで、天気みたり、検索した地域ブックマークしたりするWebアプリにしました。</p>
+<ul>
+<li><p><a href="https://earth-clj.herokuapp.com/">作ったもの</a></p></li>
+<li><p><a href="https://gitlab.com/y-fujiwara/earth-clj.git">リポジトリ。master一本なのは愛嬌</a></p></li>
+</ul>
+<section id="使ったもの
+">
+<h2>使ったもの</h2>
+<ul>
+<li><p>認証</p><ul>
+<li><p>buddy</p></li>
+<li><p>特に苦労しなかった。</p></li>
+<li><p>パスワードのハッシュ化とかも。</p></li>
+</ul></li>
+<li><p>ルーティング</p><ul>
+<li><p>Compojure</p></li>
+<li><p>参考にしたやつそのまんまですね。</p></li>
+</ul></li>
+<li><p>マイグレーション</p><ul>
+<li><p>migratus</p></li>
+<li><p>そんなに困らなかったですが、herokuに上げるときにはかなり悩みました。</p></li>
+</ul></li>
+<li><p>クライアント側</p><ul>
+<li><p>ClojureScript</p><ul><li><p><code>lein cljsbuild auto</code> で使ってた。</p></li></ul></li>
+<li><p>Reagent</p><ul><li><p>ClojureScriptでReact使えるやつ。hiccupと似たシンタックスが使いやすかったです。</p><p>Reactの経験はあったのでそことの差に戸惑ったけど、どちらかと言うとClojureScriptと普通のJavaScriptの差ですかね。</p></li></ul></li>
+</ul></li>
+</ul>
+<p>  - cljsjs/chartjs   - cljsjs/leaflet   - cljsjs/moment</p>
+<p>    - 各JavaScriptライブリのClojureラッパー</p>
+<p>上記の物以外は上に書いた参考サイトと同じです。 (hiccup使ってたりとか)</p>
+</section>
+<section id="苦労したところ
+">
+<h2>苦労したところ</h2>
+<ul>
+<li><p><code>jdbc</code> が必ずリストで返してくること。</p><ul><li><p>知ってはいたが結構ハマりました。セッションからユーザー情報引っ張るところだったかな？</p></li></ul></li>
+<li><p><code>ClojureScript</code> と既存のJavaScriptライブラリの接続</p><ul><li><p><code>new</code> されたものを変数に置くこと前提にしていたりしてどうしようか悩みました。結局DOMに関することだったので</p><p>一回対象の要素の中身消して作り直すとかにしてしまいましたが。</p></li></ul></li>
+</ul>
+<ul><li><p><code>environ</code> ライブラリのアップデート</p><ul><li><p>調べたら、<code>env</code> で読み出す <code>project.clj</code> に書いた内容は必ず文字列として持ってくるようになってみたいでした。</p><p><a href="https://github.com/weavejester/environ/issues/36">参考</a></p></li></ul></li></ul>
+<p>  - 結局DB設定は <code>read-string</code> で読むことで解決   - booleanみたいなものを付けている場合は設定されているstringからif文掛けてboolean返すような関数を作って回避しました。</p>
+<ul><li><p>DOMのAPI触る分にはそこまで楽にならないのかなと思いました。</p></li></ul>
+<p>     - 結局直接API触る必要がある。</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">defn-</span> <span class="hljs-title">update-html</span> [elem tag]
+  (<span class="hljs-name"><span class="hljs-built_in">set!</span></span> (<span class="hljs-name">.-innerHTML</span> elem) tag))
+</code></pre>
+<ul><li><p>herokuデプロイ周り</p></li></ul>
+<p>     - まぁいつもデプロイはハマるんですがやっぱりハマりました。   - migratusどうやって実行させるか。結局参考サイトと同様に <code>main.clj</code> での実行前にやらせてしまう方向にしてしまいました。   - mainメソッド使うのどうせデプロイ時だけだし良いかなと・・・</p>
+<pre><code class="language-Clojure hljs">(<span class="hljs-name"><span class="hljs-built_in">ns</span></span> earth-clj.main
+(<span class="hljs-symbol">:require</span> [earth-clj.core <span class="hljs-symbol">:as</span> core]
+          [migratus.core <span class="hljs-symbol">:as</span> migratus]
+          [earth-clj.db <span class="hljs-symbol">:as</span> db])
+<span class="hljs-comment">; mainクラスの生成</span>
+(<span class="hljs-symbol">:gen-class</span>))
+
+<span class="hljs-comment">; 第一引数にthisを取らないとstatic</span>
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">-main</span> [&amp; {<span class="hljs-symbol">:as</span> args}]
+  <span class="hljs-comment">;; 起動時にmigratusのマイグレーション</span>
+  (<span class="hljs-name">migratus/migrate</span> db/migrate-spec)
+  (<span class="hljs-name">core/start-server</span>
+    <span class="hljs-symbol">:host</span> (<span class="hljs-name"><span class="hljs-built_in">get</span></span> args <span class="hljs-string">"host"</span>) <span class="hljs-symbol">:port</span> (<span class="hljs-name"><span class="hljs-built_in">get</span></span> args <span class="hljs-string">"port"</span>) <span class="hljs-symbol">:join?</span> <span class="hljs-literal">true</span>))
+</code></pre>
+</section>
+<section id="楽しかったところとか良かったところとか
+">
+<h2>楽しかったところとか良かったところとか</h2>
+<ul>
+<li><p>適当に関数を小分けにするだけでも効果を感じられる。</p><ul>
+<li><p>DOMのエレメント取るだけとかそういうのも関数にしましたが、スレッドマクロとかと組み合わせると単純な関数の小分けでも結構効果を感じられました。</p></li>
+<li><p>関数型の複数の関数を組み合わせる抽象化が結構実感できた気がします。特にClojureScriptで一つのイベントで複数の変更をするだとかのときは。</p></li>
+</ul></li>
+<li><p>hiccupめっちゃ良い</p><ul>
+<li><p>html書くのが苦にならない</p></li>
+<li><p><code>jade</code> とか <code>haml</code> とかも触ったことありましたが、一番感触よかったです。</p><p>特殊構文ではなくて言語に沿ったデータ構造になっているからな気もします。</p></li>
+</ul></li>
+</ul>
+<ul><li><p><code>ClojureScript</code> でのDOM更新とかは結構スマートにかける気がしました。</p><ul>
+<li><p><code>document.getElementById</code> とかで取った要素に対して何かつけるとかが、 スレッドマクロ使うとわかりやすいと思いました。</p></li>
+<li><p>ただし、一つの関数で複数のDOMに関して操作したいときは悩みました。結局普通に複数の式書いちゃいましたが・・・</p></li>
+</ul></li></ul>
+<pre><code class="language-Clojure hljs">(<span class="hljs-keyword">defn-</span> <span class="hljs-title">owm-ajax-handler</span> [callback response]
+  (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [weather (<span class="hljs-name"><span class="hljs-built_in">first</span></span> (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"weather"</span>))
+        sys (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"sys"</span>)
+        main (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"main"</span>)
+        wind (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"wind"</span>)
+        clouds (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"clouds"</span>)
+        coord (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"coord"</span>)]
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"weather"</span>)
+        (<span class="hljs-name">update-html</span> (<span class="hljs-name">image-elem</span> weather)))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"city-name"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name">title-text</span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"name"</span>)))))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"weekly-city"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> response <span class="hljs-string">"name"</span>))))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"temperature"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">util/calc-temp</span> (<span class="hljs-name">get-edn</span> main <span class="hljs-string">"temp"</span>)))))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"sunrise"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name">util/unix-to-time-full</span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> sys <span class="hljs-string">"sunrise"</span>)))))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"sunset"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name">util/unix-to-time-full</span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> sys <span class="hljs-string">"sunset"</span>)))))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"pressure"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name"><span class="hljs-built_in">str</span></span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> main <span class="hljs-string">"pressure"</span>)) <span class="hljs-string">"hpa"</span>)))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"humidity"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name"><span class="hljs-built_in">str</span></span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> main <span class="hljs-string">"humidity"</span>)) <span class="hljs-string">"%"</span>)))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"wind"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name"><span class="hljs-built_in">str</span></span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> wind <span class="hljs-string">"speed"</span>)) <span class="hljs-string">"m/s"</span>)))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"cloud"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name"><span class="hljs-built_in">str</span></span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> clouds <span class="hljs-string">"all"</span>)) <span class="hljs-string">"%"</span>)))
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> (<span class="hljs-name">util/$</span> <span class="hljs-string">"latlon"</span>)
+        (<span class="hljs-name">update-text</span> (<span class="hljs-name"><span class="hljs-built_in">str</span></span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> coord <span class="hljs-string">"lat"</span>)) <span class="hljs-string">" "</span> (<span class="hljs-name">gstring/htmlEscape</span> (<span class="hljs-name">get-edn</span> coord <span class="hljs-string">"lon"</span>)))))
+    (<span class="hljs-name">callback</span> (<span class="hljs-name">get-edn</span> coord <span class="hljs-string">"lat"</span>) (<span class="hljs-name">get-edn</span> coord <span class="hljs-string">"lon"</span>))))
+</code></pre>
+<p>Ajaxでコールバックするときに <code>partial</code> したりとか言う工夫もしてましたが、通常のJavaScriptでも変わらない気がしました。</p>
+<p>その他にもクロージャ作って状態を閉じ込める <code>Reagent</code> とかも触っててなるほどなと思いました。</p>
+</section>
+<section id="まとめとか
+">
+<h2>まとめとか</h2>
+<ul>
+<li><p>全体的に <code>Clojure</code> でのデータ構造とかはかなり触ってて気持ちがいいです。</p><ul>
+<li><p>『プログラミングClojure』とかにもありますが、APIからデータそのものについて考えるべしって思想が感じられるのがすごい感触良いです。</p></li>
+<li><p>学生自体はPython使ってましたが、いい意味で言語の思想を押し付けられる系の言語が好きなようです。</p></li>
+</ul></li>
+<li><p>まだまだこの書き方で良いの？って部分がある。</p></li>
+</ul>
+<p>     - 上記の例でも貼り付けましたが、一つの関数の中で複数の式書いたりしてるのありなの？って気分です。</p>
+<ul><li><p>サーバー側はほとんど最初に出した参考サイトのままなのでもうちょっといろいろいじれたら良いかなと思います。</p><ul>
+<li><p>ClojureScriptは1からだったので結構頑張りました。</p></li>
+<li><p>個人的にはクライアント側はそこまで趣味じゃないのでその他の部分を頑張りたいところです。別に嫌いなわけではないですが・・・</p></li>
+</ul></li></ul>
+<p>多分しばらくClojureで遊んでいると思うので4Clojureやるかアルゴリズムクイックリファレンス続きやるかでもしていると思います。 仕事にできれば良いなと思いますがもうちょっと精進が必要ですかね。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/clojure-intro/" rel="prev">プログラミングClojureまとめ</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/clojure-web2/" rel="next">ClojureでWebアプリ続き(WebSocketとチャット)</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/clojure-web/ -->
+  
+
+</body></html>

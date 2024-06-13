@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その15 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその15">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その15</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-02-03 00:18:00">
+      February 3rd, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その15
+">
+<h1>Programming Phoenix勉強その15</h1>
+<p>その15です。ここからChapter10の <code>Channel</code> です。Phoenixの目玉機能の一つな気もするので楽しみです。</p>
+<section id="channelについて
+">
+<h2>Channelについて</h2>
+<ul>
+<li><p>ステートを持つ双方向通信である</p><ul><li><p>ステートフルなので <code>Cookie</code> などを意識しなくて良い</p></li></ul></li>
+<li><p>トピックと呼ばれる単位で各会話は管理される</p></li>
+<li><p>各々の会話はプロセスで管理され、一つがバグっても他に影響を与えないし、並列性も持つ</p></li>
+<li><p>クライアント側はES6(ES2015)で記述する</p></li>
+<li><p>実装するにあたりクライアントとサーバーで以下3つを意識する</p><ul>
+<li><p>接続と切断</p></li>
+<li><p>メッセージの送信</p></li>
+<li><p>メッセージの受信</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="クライアントサイドの実装
+">
+<h2>クライアントサイドの実装</h2>
+<p>というわけで、ES6でクライアントサイドから実装していきます。まず <code>video.js</code> を作成します。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">import</span> <span class="hljs-title class_">Player</span> <span class="hljs-keyword">from</span> <span class="hljs-string">"./player"</span>
+
+<span class="hljs-keyword">let</span> <span class="hljs-title class_">Video</span> = {
+    <span class="hljs-title function_">init</span>(<span class="hljs-params">socket, element</span>) {
+        <span class="hljs-keyword">if</span> (!element) { <span class="hljs-keyword">return</span>; }
+        <span class="hljs-keyword">let</span> playerId = element.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">"data-player-id"</span>);
+        <span class="hljs-keyword">let</span> videoId = element.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">"data-id"</span>);
+        socket.<span class="hljs-title function_">connect</span>()
+        <span class="hljs-title class_">Player</span>.<span class="hljs-title function_">init</span>(element.<span class="hljs-property">id</span>, playerId, <span class="hljs-function">() =&gt;</span> {
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">onReady</span>(videoId, socket);
+        });
+    },
+
+    <span class="hljs-title function_">onReady</span>(<span class="hljs-params">videoId, socket</span>) {
+        <span class="hljs-keyword">let</span> msgContainer = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-container"</span>);
+        <span class="hljs-keyword">let</span> msgInput = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-input"</span>);
+        <span class="hljs-keyword">let</span> postButton = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-submit"</span>);
+        <span class="hljs-comment">// トピックの識別</span>
+        <span class="hljs-keyword">let</span> voidChannel = socket.<span class="hljs-title function_">channel</span>(<span class="hljs-string">"videos:"</span> + videoId);
+        <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> join the vidChannel</span>
+    }
+}
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">Video</span>;
+</code></pre>
+<p><code>player</code> の <code>import</code> をこっちに移設しています。また、 <code>init</code> メソッドと <code>onReady</code> メソッドを定義しています。 <code>onReady</code> はコールバックとして使っているようです。 コメントにあるようにトピックの識別子は <code>videoId</code> としています。</p>
+<p><code>app.js</code> を上の実装に合わせて変えておきます。 <code>Player</code> を作成していた部分に変わって <code>Video</code> の利用にします。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">import</span> socket <span class="hljs-keyword">from</span> <span class="hljs-string">"./socket"</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Video</span> <span class="hljs-keyword">from</span> <span class="hljs-string">"./video"</span>;
+<span class="hljs-title class_">Video</span>.<span class="hljs-title function_">init</span>(socket, <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"video"</span>));
+</code></pre>
+<p>デフォルトで用意されている <code>socket.js</code> のインポートも行っています。 このファイルについては後で触るようです。</p>
+<p>通常のリクエストと <code>socket</code> のデータの流れの違いについても触れられています。 前の章で見たように通常のアクセスではデータは <code>conn</code> という形で各パイプラインを流れて、 その中で変換されていきます。 <code>conn</code> は新しい接続ごとに新しいものが作られて使われます。</p>
+<p>一方 <code>socket</code> の方ではステートフルなためソケットの寿命まで一つの接続が変換され続けます。</p>
+</section>
+<section id="socket.jsの変更
+">
+<h2>socket.jsの変更</h2>
+<p>最初のソケットを作成します。 <code>socket.js</code> の中身を変更して実装していきます。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Socket</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">"phoenix"</span>
+
+<span class="hljs-keyword">let</span> socket = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Socket</span>(<span class="hljs-string">"/socket"</span>, {
+    <span class="hljs-attr">params</span>: { <span class="hljs-attr">token</span>: <span class="hljs-variable language_">window</span>.<span class="hljs-property">userToken</span> },
+    <span class="hljs-comment">// バッククオートで囲んだものがテンプレートリテラルとして値を文字に埋め込める</span>
+    <span class="hljs-attr">logger</span>: <span class="hljs-function">(<span class="hljs-params">kind, msg, data</span>) =&gt;</span> { <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`<span class="hljs-subst">${kind}</span>: <span class="hljs-subst">${msg}</span>`</span>, data); }
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> socket
+</code></pre>
+<p>余計な部分を消してしまって問題ないです。ログをコンソールに出すように変更しただけです。</p>
+<p><code>Phoenix</code> 側でのソケットのエンドポイントは <code>endpoint.ex</code> に記述されています。</p>
+<pre><code class="language-Elixir hljs">socket <span class="hljs-string">"/socket"</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">UserSocket</span>
+</code></pre>
+</section>
+<section id="サーバーサイドの実装
+">
+<h2>サーバーサイドの実装</h2>
+<p><code>Rumbl.UserSocket</code> がエントリポイントになっていることがわかったので中身を見てみます。 <code>channel/user_socket.ex</code> です。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.UserSocket</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Socket</span>
+
+  transport <span class="hljs-symbol">:websocket</span>, <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Transports</span>.<span class="hljs-title class_">WebSocket</span>
+  <span class="hljs-comment"># transport :longpoll, Phoenix.Transports.LongPoll</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">connect</span></span>(_params, socket) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, socket}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">id</span></span>(_socket), <span class="hljs-symbol">do:</span> <span class="hljs-literal">nil</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>余計なコメントは消してます。</p>
+<ul>
+<li><p><code>transport</code> のところをコメントと合わせて見るとわかるように、二種類サポートされているようです。</p><p>通常の <code>websocket</code> と <code>longpoll</code> のロングポーリングです。 これは接続方法が抽象化され、他の部分の処理は同じで良いということです。</p></li>
+<li><p><code>connect/2</code> 関数はユーザの接続制御に用いられる。現在は全てのユーザが接続可能。認証は後で追加するらしい。</p></li>
+<li><p><code>id/1</code> 関数はソケットの識別を行っています。 <code>nil</code> なので全ユーザが匿名です。</p></li>
+</ul>
+<p>実際に実装していきます。まず <code>user_socket.ex</code> に以下を追加します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-comment">## Channels</span>
+channel <span class="hljs-string">"videos:*"</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">VideoChannel</span>
+</code></pre>
+<p><code>Phoenix</code> ではトピックはリソース名（ <code>:videos</code> とか）でサブトピックは付随するIDになるようです。</p>
+<p>上記に書いた通り、 <code>VideoChannel</code> にディスパッチしているのでこれを実装していきます。 <code>channels/video_channel.ex</code> を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoChannel</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:channel</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">join</span></span>(<span class="hljs-string">"videos:"</span> &lt;&gt; video_id, _params, socket) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, assign(socket, <span class="hljs-symbol">:video_id</span>, <span class="hljs-title class_">String</span>.to_integer(video_id))}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>join/3</code> コールバック関数を作りました。（コールバックという呼び方はOTPに習っているようです。）</p>
+<p>引数に与えられている <code>socket</code> は接続されている間状態を保持します。 なので、 <code>assign</code> などでデータを追加するとそれもずっと保持されて参照可能です。</p>
+<p>クライアント側でも <code>join</code> 出来るようにします。 <code>video.js</code> を変更します。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-title function_">onReady</span>(<span class="hljs-params">videoId, socket</span>) {
+      <span class="hljs-keyword">let</span> msgContainer = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-container"</span>);
+      <span class="hljs-keyword">let</span> msgInput = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-input"</span>);
+      <span class="hljs-keyword">let</span> postButton = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-submit"</span>);
+      <span class="hljs-comment">// トピックの識別</span>
+      <span class="hljs-keyword">let</span> vidChannel = socket.<span class="hljs-title function_">channel</span>(<span class="hljs-string">"videos:"</span> + videoId);
+      <span class="hljs-comment">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span>
+      vidChannel.<span class="hljs-title function_">join</span>()
+          .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"ok"</span>, <span class="hljs-function"><span class="hljs-params">resp</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"joined the video channel"</span>, resp))
+          .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-params">reason</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"join failed"</span>, reason));
+  }
+</code></pre>
+<p>抜粋しました。クライアントサイドでサーバーサイドの関数呼んでるような見た目です。 また、 <code>receive</code> はOTPでよく出てくるメッセージを受信するやつと同じっぽい感じで使っているみたいです。</p>
+<p>次に、試しに5秒毎にクライアントに通知を投げる処理を追加してみます。 <code>video_channel.ex</code> を以下のように実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoChannel</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:channel</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">join</span></span>(<span class="hljs-string">"videos:"</span> &lt;&gt; video_id, _params, socket) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 5秒ごとにクライアントにメッセージを送る</span>
+    <span class="hljs-comment"># send_interval/2関数は最終的にはsend_interval(Time, self(), Message)という形で呼び出される</span>
+    <span class="hljs-symbol">:timer</span>.send_interval(<span class="hljs-number">5_000</span>, <span class="hljs-symbol">:ping</span>)
+    <span class="hljs-comment"># socket.assignsにvideo_idを保存</span>
+    {<span class="hljs-symbol">:ok</span>, assign(socket, <span class="hljs-symbol">:video_id</span>, <span class="hljs-title class_">String</span>.to_integer(video_id))}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># OTPのコールバックhandle_castやhandle_callの仲間</span>
+  <span class="hljs-comment"># castやcallで処理される以外のメッセージを処理するらしい</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_info</span></span>(<span class="hljs-symbol">:ping</span>, socket) <span class="hljs-keyword">do</span>
+    count = socket.assigns[<span class="hljs-symbol">:count</span>] || <span class="hljs-number">1</span>
+    push socket, <span class="hljs-string">"ping"</span>, %{<span class="hljs-symbol">count:</span> count}
+
+    {<span class="hljs-symbol">:noreply</span>, assign(socket, <span class="hljs-symbol">:count</span>, count + <span class="hljs-number">1</span>)}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>コメントに書いてあるように、 <code>join</code> されると5秒ごとに自分自身にメッセージを投げて <code>handle_info</code> コールバックで受け取っています。 <code>handle_info</code> では <code>socket</code> に追加された <code>count</code> をインクリメントしていっているだけです。 <code>push</code> されるとクライアント側に通知が行くようです。</p>
+</section>
+<section id="リアルタイムアノテーションの実装
+">
+<h2>リアルタイムアノテーションの実装</h2>
+<p>基本的なところはわかったので動画にリアルタイムコメントを付けられるようにします。 ちなみに <a href="http://www.weblio.jp/content/%E3%82%A2%E3%83%8E%E3%83%86%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3">ここ</a> によるとYouTubeの動画へのコメントとかをアノテーションって呼ぶときもあるらしいですよ。</p>
+<p><code>video.js</code> を変更します。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-title function_">onReady</span>(<span class="hljs-params">videoId, socket</span>) {
+        <span class="hljs-keyword">let</span> msgContainer = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-container"</span>);
+        <span class="hljs-keyword">let</span> msgInput = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-input"</span>);
+        <span class="hljs-keyword">let</span> postButton = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-submit"</span>);
+        <span class="hljs-comment">// トピックの識別</span>
+        <span class="hljs-keyword">let</span> vidChannel = socket.<span class="hljs-title function_">channel</span>(<span class="hljs-string">"videos:"</span> + videoId);
+
+        postButton.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">"click"</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> {
+            <span class="hljs-keyword">let</span> payload = { <span class="hljs-attr">body</span>: msgInput.<span class="hljs-property">value</span>, <span class="hljs-attr">at</span>: <span class="hljs-title class_">Player</span>.<span class="hljs-title function_">getCurrentTime</span>() };
+            vidChannel.<span class="hljs-title function_">push</span>(<span class="hljs-string">"new_annotation"</span>, payload)
+                .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(e));
+            msgInput.<span class="hljs-property">value</span> = <span class="hljs-string">""</span>;
+        });
+
+        <span class="hljs-comment">// サーバーからのプッシュイベントを受け取るイベントハンドラを設定</span>
+        vidChannel.<span class="hljs-title function_">on</span>(<span class="hljs-string">"new_annotation"</span>, <span class="hljs-function">(<span class="hljs-params">resp</span>) =&gt;</span> {
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">renderAnnotation</span>(msgContainer, resp);
+        });
+
+        <span class="hljs-comment">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span>
+        vidChannel.<span class="hljs-title function_">join</span>()
+            .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"ok"</span>, <span class="hljs-function"><span class="hljs-params">resp</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"joined the video channel"</span>, resp))
+            .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-params">reason</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"join failed"</span>, reason));
+    },
+
+    <span class="hljs-title function_">esc</span>(<span class="hljs-params">str</span>) {
+        <span class="hljs-keyword">let</span> div = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">"div"</span>);
+        div.<span class="hljs-title function_">appendChild</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createTextNode</span>(str));
+        <span class="hljs-keyword">return</span> div.<span class="hljs-property">innerHTML</span>;
+    },
+
+    <span class="hljs-title function_">renderAnnotation</span>(<span class="hljs-params">msgContainer, { user, body, at }</span>) {
+        <span class="hljs-keyword">let</span> template = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">"div"</span>);
+
+        template.<span class="hljs-property">innerHTML</span> = <span class="hljs-string">`
+        &lt;a href="#" data-seek="<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.esc(at)}</span>"&gt;
+            &lt;b&gt;<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.esc(user.username)}</span>&lt;/b&gt;: <span class="hljs-subst">${<span class="hljs-variable language_">this</span>.esc(body)}</span>
+        &lt;/a&gt;
+        `</span>;
+
+        msgContainer.<span class="hljs-title function_">appendChild</span>(template);
+        msgContainer.<span class="hljs-property">scrollTop</span> = msgContainer.<span class="hljs-property">scrollHeight</span>;
+    }
+}
+</code></pre>
+<p>サーバーからのプッシュイベントを受け取る用に設定したのと、受け取った物をレンダリングする関数を作成しました。 また、 <code>esc</code> 関数でXSS対策を行っています。</p>
+<p><code>count</code> のやり取りからコメントのやり取りに変更したのでサーバー側も合わせて変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoChannel</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:channel</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">join</span></span>(<span class="hljs-string">"videos:"</span> &lt;&gt; video_id, _params, socket) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, socket}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># クライアントから直接送信された時に受け取るコールバック</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_in</span></span>(<span class="hljs-string">"new_annotation"</span>, params, socket) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 接続しているクライアント全てにブロードキャストする</span>
+    <span class="hljs-comment"># ユーザが任意のメッセージを送れないようにparamsを分解する</span>
+    broadcast! socket, <span class="hljs-string">"new_annotation"</span>, %{
+      <span class="hljs-symbol">user:</span> %{<span class="hljs-symbol">username:</span> <span class="hljs-string">"anon"</span>},
+      <span class="hljs-symbol">body:</span> params[<span class="hljs-string">"body"</span>],
+      <span class="hljs-symbol">at:</span> params[<span class="hljs-string">"at"</span>]
+    }
+
+    {<span class="hljs-symbol">:reply</span>, <span class="hljs-symbol">:ok</span>, socket}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>join</code> 関数をもとに戻したのと <code>handle_in/3</code> 関数を新たに追加しました。 <code>handle_in</code> では <code>Map.put</code> とかでメッセージを作っていないのはセキュリティ対策のようです。 メッセージはユーザから任意で入力されるので <code>params</code> をバラして好き勝手入れられない様にしています。</p>
+</section>
+<section id="認証の追加
+">
+<h2>認証の追加</h2>
+<p>誰が送ったメッセージか知りたいので認証を行います。 普通のアプリケーションはセッションでの認証が主ですが、 <code>websocket</code> では接続が長く続くため、 トークン認証で行います。まずテンプレートにトークンを埋め込みます。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml">...
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span> <span class="hljs-comment">&lt;!-- /container --&gt;</span>
+<span class="hljs-comment">&lt;!-- websocket用ユーザトークンの埋め込み Rumbl.Authでの認証が通っていることが条件 --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript"><span class="hljs-variable language_">window</span>.<span class="hljs-property">userToken</span> = <span class="hljs-string">"&lt;%=</span></span></span><span class="language-ruby"> assigns[<span class="hljs-symbol">:user_token</span>] </span><span class="language-xml">%&gt;"<span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"&lt;%=</span></span></span><span class="language-ruby"> static_path(<span class="hljs-variable">@conn</span>, <span class="hljs-string">"/js/app.js"</span>) </span><span class="language-xml"><span class="hljs-tag"><span class="hljs-string">%&gt;"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+...
+</span></code></pre>
+<p><code>user_token</code> を <code>assign</code> するように <code>auth.ex</code> を変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Auth</span></span> <span class="hljs-keyword">do</span>
+  ...
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span></span>(conn, repo) <span class="hljs-keyword">do</span>
+    user_id = get_session(conn, <span class="hljs-symbol">:user_id</span>)
+    <span class="hljs-keyword">cond</span> <span class="hljs-keyword">do</span>
+      user = conn.assigns[<span class="hljs-symbol">:current_user</span>] -&gt;
+        put_current_user(conn, user) <span class="hljs-comment"># 変更</span>
+      user = user_id &amp;&amp; repo.get(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>, user_id) -&gt;
+        put_current_user(conn, user) <span class="hljs-comment"># 変更</span>
+      <span class="hljs-literal">true</span> -&gt;
+        assign(conn, <span class="hljs-symbol">:current_user</span>, <span class="hljs-literal">nil</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">login</span></span>(conn, user) <span class="hljs-keyword">do</span>
+    conn
+    |&gt; put_current_user(user) <span class="hljs-comment"># 変更</span>
+    |&gt; put_session(<span class="hljs-symbol">:user_id</span>, user.id)
+    |&gt; configure_session(<span class="hljs-symbol">renew:</span> <span class="hljs-literal">true</span>) 
+  <span class="hljs-keyword">end</span>
+  ...
+  <span class="hljs-comment"># 追加</span>
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">put_current_user</span></span>(conn, user) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 第二引数はsalt</span>
+    token = <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Token</span>.sign(conn, <span class="hljs-string">"user socket"</span>, user.id)
+
+    conn
+    |&gt; assign(<span class="hljs-symbol">:current_user</span>, user)
+    |&gt; assign(<span class="hljs-symbol">:user_token</span>, token) <span class="hljs-comment"># トークンを突っ込んでapp.html.eexより使う</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>特に不思議なところはなくて、 <code>Phoenix.Token.sign</code> を使ってトークンを作っているだけです。</p>
+<p><code>user_socket.ex</code> を変更してセッションに割り当てられた <code>:user_token</code> から <code>user_id</code> を判別し、 <code>socket</code> に割り当てるようにします。</p>
+<pre><code class="language-Elixir hljs">...
+  <span class="hljs-comment"># 2週間有効</span>
+  <span class="hljs-variable">@max_age</span> <span class="hljs-number">2</span> * <span class="hljs-number">7</span> * <span class="hljs-number">24</span> * <span class="hljs-number">60</span> * <span class="hljs-number">60</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">connect</span></span>(%{<span class="hljs-string">"token"</span> =&gt; token}, socket) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 第二引数はsalt</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Token</span>.verify(socket, <span class="hljs-string">"user socket"</span>, token, <span class="hljs-symbol">max_age:</span> <span class="hljs-variable">@max_age</span>) <span class="hljs-keyword">do</span>
+      {<span class="hljs-symbol">:ok</span>, user_id} -&gt;
+        {<span class="hljs-symbol">:ok</span>, assign(socket, <span class="hljs-symbol">:user_id</span>, user_id)}
+      {<span class="hljs-symbol">:error</span>, _reason} -&gt;
+        <span class="hljs-symbol">:error</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">connect</span></span>(_params, _socket), <span class="hljs-symbol">do:</span> <span class="hljs-symbol">:error</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">id</span></span>(socket), <span class="hljs-symbol">do:</span> <span class="hljs-string">"user_socket:<span class="hljs-subst">#{socket.assigns.user_id}</span>"</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>これも余り不思議なところはなくて、 <code>Phoenix.Token.verify</code> を使ってトークンから <code>user_id</code> を取っているだけです。 これでログインしていなければコメントが投稿できなくなりました。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>Channel</code> はサーバーとクライアントの双方向リアルタイム通信を行う。</p></li>
+<li><p><code>Channel</code> はOTPの上に成り立っていて、コールバック関数などもそれに従っている。</p></li>
+<li><p><code>Phoenix</code> には最初からクライアント側の <code>weboscket</code> 用ライブラリも用意されている。</p></li>
+<li><p>接続が長期間続くため、認証はトークンを利用して行う。</p></li>
+</ul>
+<p><code>websocket</code> その1でした。今まで余りやったことがないことをしている感があって面白いです。 次は投稿されたコメントの永続化からです。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix14/" rel="prev">Programming Phoenix勉強その14</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix16/" rel="next">Programming Phoenix勉強その16</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix15/ -->
+  
+
+</body></html>

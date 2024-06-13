@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その18 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその18">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その18</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-02-09 23:52:00">
+      February 9th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その18
+">
+<h1>Programming Phoenix勉強その18</h1>
+<p>その18です。実際に <code>OTP</code> を使ったアプリを <code>Rumbl</code> に組み込みます。</p>
+<section id="infosysアプリの追加
+">
+<h2>InfoSysアプリの追加</h2>
+<p><code>WolframAlpha</code> のようなサービスを利用して動画の再生中に何かしらの質問をすると何か答えが返ってくるAPI を追加します。</p>
+<p>まず <code>Supervisor</code> を追加します。 <code>lib/info_sys/supervisor.ex</code> を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.InfoSys.Supervisor</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Supervisor</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start_link</span></span>() <span class="hljs-keyword">do</span>
+    <span class="hljs-title class_">Supervisor</span>.start_link(__MODULE__, [], <span class="hljs-symbol">name:</span> __MODULE__)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">init</span></span>(_opts) <span class="hljs-keyword">do</span>
+    children = [
+      worker(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">InfoSys</span>, [], <span class="hljs-symbol">restart:</span> <span class="hljs-symbol">:temporary</span>)
+    ]
+
+    supervise children, <span class="hljs-symbol">strategy:</span> <span class="hljs-symbol">:simple_one_for_one</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>今まで習ったとおりですが、戦略は <code>:simple_one_for_one</code> を使っています。</p>
+<p>処理の本体が必要なので <code>worker</code> となる <code>lib/info_sys.ex</code> を実装します。これはバックエンドサービスが <code>WolframAlpha</code> 以外でも使えるように抽象化しておきます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.InfoSys</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-comment"># デフォルトのバックエンドサービス</span>
+  <span class="hljs-variable">@backends</span> [<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">InfoSys</span>.<span class="hljs-title class_">Wolfram</span>]
+
+  <span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Result</span></span> <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">defstruct</span> <span class="hljs-symbol">score:</span> <span class="hljs-number">0</span>, <span class="hljs-symbol">text:</span> <span class="hljs-literal">nil</span>, <span class="hljs-symbol">url:</span> <span class="hljs-literal">nil</span>, <span class="hljs-symbol">backend:</span> <span class="hljs-literal">nil</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># バックエンドサービスのプロセスを開始する</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">start_link</span></span>(backend, query, query_ref, owner, limit) <span class="hljs-keyword">do</span>
+    backend.start_link(query, query_ref, owner, limit)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">compute</span></span>(query, opts \\ []) <span class="hljs-keyword">do</span>
+    limit = opts[<span class="hljs-symbol">:limit</span>] || <span class="hljs-number">10</span>
+    <span class="hljs-comment"># 引数でバックエンドサービスが提示されてなければデフォルトを使う</span>
+    backends = opts[<span class="hljs-symbol">:backends</span>] || <span class="hljs-variable">@backends</span>
+
+    <span class="hljs-comment"># 各バックエンドサービスに関してプロセスを開始する</span>
+    backends
+    |&gt; <span class="hljs-title class_">Enum</span>.map(&amp;spawn_query(&amp;<span class="hljs-number">1</span>, query, limit)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">spawn_query</span></span>(backend, query, limit) <span class="hljs-keyword">do</span>
+    query_ref = make_ref()
+    opts = [backend, query, query_ref, self(), limit]
+    <span class="hljs-comment"># 起動済みのSupervisorに自分自身のプロセスを子として監視してもらう</span>
+    <span class="hljs-comment"># これを呼び出すと自動でstart_linkが呼び出されてプロセス開始する</span>
+    {<span class="hljs-symbol">:ok</span>, pid} = <span class="hljs-title class_">Supervisor</span>.start_child(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">InfoSys</span>.<span class="hljs-title class_">Supervisor</span>, opts)
+    {pid, query_ref}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>モジュールのアトリビュート（ <a href="mailto:``@backends">``@backends</a><code> ）でバックエンドサービスを管理しています。
+</code>compute<code> 関数を見てもらえればわかりますが、このアトリビュートに対して一つずつプロセスを起動しています。
+
+戦略が </code>:simple_one_for_one<code> になっているので、子となるプロセスから </code>Supervisor.start_child<code> でプロセスを監視下に追加しています。
+
+次に具体的なシステムを構築していきます。
+
+============================================
+Wolframを利用するアプリの構築
+============================================
+
+まず </code>WolframAlpha<code> を使うアプリを構築します。 </code>mix.exs<code> の </code>deps<code> に </code>{:sweet_xml, "~&gt; 0.5.0"},<code> 
+を追加して </code>mix deps.get<code> を実行しておきます。
+この追加したモジュールはXMLのパーサーです。
+
+また、 `ここから &lt;https://www.wolframalpha.com/&gt;`_ </code>WolframAlpha<code> のユーザ登録をしてAPIキーを取得します。ただし、当然ですがこのキーは </code>dev.exs<code> に直接書くのはNGです。
+従って、 </code>config/dev.secret.exs<code> を用意して </code>.gitignore<code> に追加しておきます。
+このファイルには </code>WolframAlpha<code> の設定を書いておきます。
+
+.. code-block:: Elixir
+
+   use Mix.Config
+   
+   config :rumbl, :wolfram, app_id: "XXXXXX-XXXXXXXXXX"
+
+最後に、元々の </code>dev.exs<code> に </code>import_config "dev.secret.exs"<code> を一行追加して準備完了です。
+
+準備が終わったので </code>lib/rumbl/info_sys/wolfram.ex<code> を実装します。
+
+.. code-block:: Elixir
+
+   defmodule Rumbl.InfoSys.Wolfram do
+     import SweetXml
+     alias Rumbl.InfoSys.Result
+ 
+     def start_link(query, query_ref, owner, limit) do
+       Task.start_link(__MODULE__, :fetch, [query, query_ref, owner, limit])
+     end
+ 
+     def fetch(query_str, query_ref, owner, _limit) do
+       query_str
+       |&gt; fetch_xml()
+       |&gt; xpath(~x"/queryresult/pod[contains(@title, 'Result') or
+                                    contains(@title, 'Definitions')]
+                               /subpod/plaintext/text()")
+       |&gt; send_result(query_ref, owner)
+     end
+ 
+     defp send_result(nil, query_ref, owner) do
+       send(owner, {:results, query_ref, []})
+     end
+ 
+     defp send_result(answer, query_ref, owner) do
+       results = [%Result{backend: "wolfram", score: 95, text: to_string(answer)}]
+       send(owner, {:results, query_ref, results})
+     end
+ 
+     defp fetch_xml(query_str) do
+       {:ok, {_, _, body}} = :httpc.request(
+         String.to_char_list("http://api.wolframalpha.com/v2/query" &lt;&gt; "?appid=#{app_id()}" &lt;&gt;
+                                                                       "&amp;input=#{URI.encode(query_str)}&amp;format=plaintext"))
+     end
+ 
+     defp app_id, do: Application.get_env(:rumbl, :wolfram)[:app_id]
+   end
+
+- </code>Task.start_link` でプロセスを起動しています。 <code>Task</code> は <code>Agent</code> と異なり、状態の保存ではなく、バックグラウンドでの関数起動に特化した <code>OTP</code> です。</p>
+<ul>
+<li><p>API呼び出しをしている部分は <code>fetch_xml/1</code> 関数です。 <code>Erlang</code> の <code>:httpc</code> を使ってリクエストを投げているみたいです。</p></li>
+<li><p>API呼び出しの結果を解析するのは <code>SweetXml</code> に含まれている <code>xpath</code> 関数です。自分も余り理解していないですが、 <a href="https://github.com/awetzel/sweet_xml">サンプル</a> とか見るとなんとなくわかります。</p></li>
+<li><p><code>xml</code> のエレメントの <code>queryresult/pod</code> の属性 <code>title</code> が <code>Result</code> か <code>Definitions</code> の物の <code>/subpod/plaintext/</code> の要素をテキストで取れという感じのようです。</p></li>
+<li><p>最後に <code>send_result</code> をパターンマッチによって呼び出します。呼び出し元の <code>PID</code> に結果を送り返します。</p></li>
+</ul>
+<p>動きを試すには <code>iex -S mix</code> から以下のコマンドで確かめられます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Rumbl.InfoSys.compute(<span class="hljs-string">"what is elixir?"</span>)</span>
+[{#PID&lt;0.566.0&gt;, #Reference&lt;0.0.3.1660&gt;}]
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">flush()</span>
+{:results, #Reference&lt;0.0.3.1660&gt;,
+<span class="hljs-meta prompt_"> [%</span><span class="language-bash">Rumbl.InfoSys.Result{backend: <span class="hljs-string">"wolfram"</span>, score: 95,</span>
+   text: "1 | noun | a sweet flavored liquid (usually containing a small amount of
+ alcohol) used in compounding medicines to be taken by mouth in order to mask an u
+npleasant taste\n2 | noun | hypothetical substance that the alchemists believed to
+ be capable of changing base metals into gold\n3 | noun | a substance believed to
+cure all ills",
+   url: nil}]}
+:ok
+</code></pre>
+<p>良さそうですが、このままだとプロセスが死んだときも待ち続けてしまいます。 また、機能強化としてスコア順での整列と、タイムアウト処理を入れる必要もあります。</p>
+</section>
+<section id="infosysアプリの機能拡張
+">
+<h2>InfoSysアプリの機能拡張</h2>
+<p>API問い合わせの結果の値の畳み込みとプロセスが死んだときの処理を追加します。 <code>info_sys.ex</code> を変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.InfoSys</span></span> <span class="hljs-keyword">do</span>
+  ...
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">compute</span></span>(query, opts \\ []) <span class="hljs-keyword">do</span>
+    limit = opts[<span class="hljs-symbol">:limit</span>] || <span class="hljs-number">10</span>
+    <span class="hljs-comment"># 引数でバックエンドサービスが提示されてなければデフォルトを使う</span>
+    backends = opts[<span class="hljs-symbol">:backends</span>] || <span class="hljs-variable">@backends</span>
+
+    <span class="hljs-comment"># 各バックエンドサービスに関してプロセスを開始する</span>
+    backends
+    |&gt; <span class="hljs-title class_">Enum</span>.map(&amp;spawn_query(&amp;<span class="hljs-number">1</span>, query, limit))
+    |&gt; await_result(opts)
+    |&gt; <span class="hljs-title class_">Enum</span>.sort(&amp;(&amp;<span class="hljs-number">1</span>.score &gt;= &amp;<span class="hljs-number">2</span>.score))
+    |&gt; <span class="hljs-title class_">Enum</span>.take(limit)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">spawn_query</span></span>(backend, query, limit) <span class="hljs-keyword">do</span>
+    query_ref = make_ref()
+    <span class="hljs-comment"># 送り返される時に自分のPIDが必要なので第4引数はself()</span>
+    opts = [backend, query, query_ref, self(), limit]
+    <span class="hljs-comment"># 起動済みのSupervisorに自分自身のプロセスを子として監視してもらう</span>
+    <span class="hljs-comment"># これを呼び出すと自動でstart_linkが呼び出されてプロセス開始する</span>
+    {<span class="hljs-symbol">:ok</span>, pid} = <span class="hljs-title class_">Supervisor</span>.start_child(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">InfoSys</span>.<span class="hljs-title class_">Supervisor</span>, opts)
+
+    <span class="hljs-comment"># プロセスの死活監視</span>
+    monitor_ref = <span class="hljs-title class_">Process</span>.monitor(pid)
+
+    {pid, monitor_ref, query_ref}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">await_result</span></span>(children, _opts) <span class="hljs-keyword">do</span>
+    await_result(children, [], <span class="hljs-symbol">:infinity</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">await_result</span></span>([head|tail], acc, timeout) <span class="hljs-keyword">do</span>
+    {pid, monitor_ref, query_ref} = head
+
+    <span class="hljs-comment"># wolframなどでsendされた結果を待ち受けてパターンマッチする</span>
+    <span class="hljs-keyword">receive</span> <span class="hljs-keyword">do</span>
+      {<span class="hljs-symbol">:results</span>, ^query_ref, results} -&gt;
+        <span class="hljs-title class_">Process</span>.demonitor(monitor_ref, [<span class="hljs-symbol">:flush</span>])
+        <span class="hljs-comment"># 再帰でmapの結果を処理する</span>
+        await_result(tail, results ++ acc, timeout)
+      {<span class="hljs-symbol">:DOWN</span>, ^monitor_ref, <span class="hljs-symbol">:process</span>, ^pid, _reason} -&gt;
+        <span class="hljs-comment"># モニタリングの結果失敗していた時</span>
+        await_result(tail, acc, timeout)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">await_result</span></span>([], acc, _) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 最終的には結果を合体したものを返す</span>
+    acc
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>await_result</code> 関数の再帰によって <code>receive</code> 結果の畳み込みを実装しました。 また、 <code>Process.monitor</code> によってプロセスの監視を追加しています。 プロセスが死んでいた場合は <code>receive</code> のパターンマッチによって正しく処理することができるようになりました。</p>
+</section>
+<section id="タイムアウトの追加
+">
+<h2>タイムアウトの追加</h2>
+<p>タイムアウトを追加しますが、 <code>receive</code> と <code>after</code> を使ってしまうとブロッキングが発生してしまいます。 3つシステムがあって5秒ずつタイムアウトすると15秒待つことになります。 これを避けるために違う方法を使います。 <code>await_result</code> 関数を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.InfoSys</span></span> <span class="hljs-keyword">do</span>
+  ...
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">await_result</span></span>(children, opts) <span class="hljs-keyword">do</span>
+    timeout = opts[<span class="hljs-symbol">:timeout</span>] || <span class="hljs-number">5000</span>
+    <span class="hljs-comment"># 非同期で起動して決められた時間のあとメッセージを送信してくる</span>
+    timer = <span class="hljs-title class_">Process</span>.send_after(self(), <span class="hljs-symbol">:timedout</span>, timeout)
+    results = await_result(children, [], <span class="hljs-symbol">:infinity</span>)
+    <span class="hljs-comment"># タイマー実験用</span>
+    <span class="hljs-comment"># :timer.sleep(5001)</span>
+    cleanup(timer)
+    results
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">await_result</span></span>([head|tail], acc, timeout) <span class="hljs-keyword">do</span>
+    {pid, monitor_ref, query_ref} = head
+
+    <span class="hljs-comment"># wolframなどでsendされた結果を待ち受けてパターンマッチする</span>
+    <span class="hljs-comment"># メッセージが来るまで待ち続ける</span>
+    <span class="hljs-keyword">receive</span> <span class="hljs-keyword">do</span>
+      {<span class="hljs-symbol">:results</span>, ^query_ref, results} -&gt;
+        <span class="hljs-title class_">Process</span>.demonitor(monitor_ref, [<span class="hljs-symbol">:flush</span>])
+        <span class="hljs-comment"># 再帰でmapの結果を処理する</span>
+        await_result(tail, results ++ acc, timeout)
+      {<span class="hljs-symbol">:DOWN</span>, ^monitor_ref, <span class="hljs-symbol">:process</span>, ^pid, _reason} -&gt;
+        <span class="hljs-comment"># モニタリングの結果失敗していた時</span>
+        await_result(tail, acc, timeout)
+      <span class="hljs-comment"># Process.send_afterによって送られるメッセージ</span>
+      <span class="hljs-symbol">:timedout</span> -&gt;
+        kill(pid, monitor_ref)
+        await_result(tail, acc, <span class="hljs-number">0</span>)
+    <span class="hljs-keyword">after</span>
+      timeout -&gt;
+        kill(pid, monitor_ref)
+        <span class="hljs-comment"># ひたすらここにはいることになるのでタイムアウト後は何もせずに終わる</span>
+        await_result(tail, acc, <span class="hljs-number">0</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">await_result</span></span>([], acc, _) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># 最終的には結果を合体したものを返す</span>
+    acc
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">kill</span></span>(pid, ref) <span class="hljs-keyword">do</span>
+    <span class="hljs-title class_">Process</span>.demonitor(ref, [<span class="hljs-symbol">:flush</span>])
+    <span class="hljs-title class_">Process</span>.exit(pid, <span class="hljs-symbol">:kill</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">cleanup</span></span>(timer) <span class="hljs-keyword">do</span>
+    <span class="hljs-symbol">:erlang</span>.cancel_timer(timer)
+    <span class="hljs-keyword">receive</span> <span class="hljs-keyword">do</span>
+      <span class="hljs-comment"># ここでもタイムアウトメッセージが来る可能性があるため？</span>
+      <span class="hljs-symbol">:timedout</span> -&gt; <span class="hljs-symbol">:ok</span>
+    <span class="hljs-keyword">after</span>
+      <span class="hljs-number">0</span> -&gt; <span class="hljs-symbol">:ok</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>Process.send_after</code> を使って非同期タイムアウトを入れました。 設定された秒数立つとメッセージが送信されるのでそれを待ち受けるようにしました。</p>
+</section>
+<section id="infosysアプリの組み込み
+">
+<h2>InfoSysアプリの組み込み</h2>
+<p>準備が整ったので <code>InfoSys</code> を <code>Rumbl</code> に組み込みます。 今まで作った <code>OTP</code> アプリを <code>VideoChannel</code> に組み込みます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoChannel</span></span> <span class="hljs-keyword">do</span>
+  ...
+  <span class="hljs-comment"># クライアントから直接送信された時に受け取るコールバック</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_in</span></span>(<span class="hljs-string">"new_annotation"</span>, params, user, socket) <span class="hljs-keyword">do</span>
+    changeset =
+      user
+      |&gt; build_assoc(<span class="hljs-symbol">:annotations</span>, <span class="hljs-symbol">video_id:</span> socket.assigns.video_id)
+      |&gt; <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Annotation</span>.changeset(params)
+
+    <span class="hljs-keyword">case</span> <span class="hljs-title class_">Repo</span>.insert(changeset) <span class="hljs-keyword">do</span>
+      {<span class="hljs-symbol">:ok</span>, ann} -&gt;
+        <span class="hljs-comment"># コメントを取り敢えず保存</span>
+        broadcast_annotation(socket, ann)
+        <span class="hljs-comment"># コメントに対するInfoSysの結果を取得する(非同期)</span>
+        <span class="hljs-comment"># 取得結果はwolframユーザのannotationとして保存される</span>
+        <span class="hljs-title class_">Task</span>.start_link(<span class="hljs-keyword">fn</span> -&gt; compute_additional_info(ann, socket) <span class="hljs-keyword">end</span>)
+        {<span class="hljs-symbol">:reply</span>, <span class="hljs-symbol">:ok</span>, socket}
+      {<span class="hljs-symbol">:error</span>, changeset} -&gt;
+        {<span class="hljs-symbol">:reply</span>, {<span class="hljs-symbol">:error</span>, %{<span class="hljs-symbol">errors:</span> changeset}}, socket}
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">compute_additional_info</span></span>(ann, socket) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># computeには結果をスコア順で先頭一つだけ取るように指示</span>
+    <span class="hljs-comment"># googleとかの結果もほしいならlimit2とかにすれば良いはず </span>
+    <span class="hljs-comment"># 結果は要らないのでリスト内包表記の結果は呼び出し元でも受け取っていない</span>
+    <span class="hljs-keyword">for</span> result &lt;- <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">InfoSys</span>.compute(ann.body, <span class="hljs-symbol">limit:</span> <span class="hljs-number">1</span>, <span class="hljs-symbol">timeout:</span> <span class="hljs-number">10_000</span>) <span class="hljs-keyword">do</span>
+      attrs = %{<span class="hljs-symbol">url:</span> result.url, <span class="hljs-symbol">body:</span> result.text, <span class="hljs-symbol">at:</span> ann.at}
+
+      info_changeset = 
+        <span class="hljs-title class_">Repo</span>.get_by!(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>, <span class="hljs-symbol">username:</span> result.backend) <span class="hljs-comment"># ユーザを取得</span>
+        |&gt; build_assoc(<span class="hljs-symbol">:annotations</span>, <span class="hljs-symbol">video_id:</span> ann.video_id) <span class="hljs-comment"># ユーザに紐づくannotationを作成</span>
+        |&gt; <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Annotation</span>.changeset(attrs) <span class="hljs-comment"># annotationのchangesetを作成</span>
+
+      <span class="hljs-keyword">case</span> <span class="hljs-title class_">Repo</span>.insert(info_changeset) <span class="hljs-keyword">do</span>
+        <span class="hljs-comment"># インサート出来たらInfoSysの結果を共通関数でブロードキャストする</span>
+        {<span class="hljs-symbol">:ok</span>, info_ann} -&gt; broadcast_annotation(socket, info_ann)
+        {<span class="hljs-symbol">:error</span>, _changeset} -&gt; <span class="hljs-symbol">:ignore</span>
+      <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">broadcast_annotation</span></span>(socket, annotation) <span class="hljs-keyword">do</span>
+    annotation = <span class="hljs-title class_">Repo</span>.preload(annotation, <span class="hljs-symbol">:user</span>)
+    rendered_ann = <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">View</span>.render(<span class="hljs-title class_">AnnotationView</span>, <span class="hljs-string">"annotation.json"</span>, %{
+      <span class="hljs-symbol">annotation:</span> annotation
+    })
+    broadcast! socket, <span class="hljs-string">"new_annotation"</span>, rendered_ann
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>ほとんどコメントのままですが、 <code>Task.start_link</code> を使って他の処理をブロッキングしないように、 <code>InfoSys.compute</code> を呼び出しています。 <code>compute_additional_info</code> を見てもらうとわかるように <code>result.backend</code> がユーザとして存在することが 前提となっているので <code>seed</code> で追加します。</p>
+<p><code>backend_seeds.exs</code> を以下のように実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>
+<span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>
+
+<span class="hljs-title class_">Repo</span>.insert!(%<span class="hljs-title class_">User</span>{<span class="hljs-symbol">name:</span> <span class="hljs-string">"Wolfram"</span>, <span class="hljs-symbol">username:</span> <span class="hljs-string">"wolfram"</span>})
+</code></pre>
+<p>これでいつものようにスクリプトを実行すれば組み込みは完成です。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>simple_one_for_one</code> を使ったときは <code>Supervisor.start_child</code> を使って子側からリンクする</p></li>
+<li><p><code>Task.start_link</code> で非同期で関数実行を行う。 <code>Agent</code> と異なり単なる結果を返す関数を実行する <code>OTP</code></p></li>
+<li><p>タイムアウト処理は <code>Process.send_after</code> で行い、 <code>receive</code> で受け取る</p></li>
+</ul>
+<p>色々でてきて処理を追うのが大変でした。 <code>IO.inspect</code> とかでメッセージの表示順とかを見ると分かりやすいかもしれません。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix17/" rel="prev">Programming Phoenix勉強その17</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix19/" rel="next">Programming Phoenix勉強その19</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix18/ -->
+  
+
+</body></html>

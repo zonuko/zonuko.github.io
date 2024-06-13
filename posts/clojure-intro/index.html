@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        プログラミングClojureまとめ | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Clojure入門Clojureで画像を集めてみた">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">プログラミングClojureまとめ</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/clojure/" class="tag">clojure</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2018-03-02 01:00:00">
+      March 2nd, 2018
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="プログラミングclojureまとめ
+">
+<h1>プログラミングClojureまとめ</h1>
+<p>大分久しぶりの投稿。ブロックチェーンで遊んだりしてました。</p>
+<p>プログラミングClojureちょっと前にやったので気になったところをまとめておきます。 ついでにアルゴリズムクイックリファレンスの探索のところをClojureでやったので適当にのせつつ</p>
+<section id="再帰
+">
+<h2>再帰</h2>
+<p>用意されているライブラリ &gt; `lazy-seq` &gt; `recur` &gt; 再帰って感じのおすすめらしいです。なので、ライブラリに合った関数がなければ `lazy-seq` を使う。 `lazy-seq` にすることで再帰によって起こされるJVMの問題を解決しようとしているらしい。 ただ、正直 `lazy-seq` について理解するのが若干難しいと感じてます。</p>
+<p>二部探索を `recur` で書いたやつ。 `loop` と `recur`</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">defn</span> <span class="hljs-title">binary-search</span> [array target]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [harf (<span class="hljs-name"><span class="hljs-built_in">sort</span></span> array)]
+        (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [mid (<span class="hljs-name"><span class="hljs-built_in">quot</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> harf) <span class="hljs-number">2</span>)]
+            (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+                (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> harf) <span class="hljs-number">0</span>) <span class="hljs-literal">false</span>
+                (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">nth</span></span> harf mid) target) <span class="hljs-literal">true</span>
+                (<span class="hljs-name"><span class="hljs-built_in">&lt;</span></span> (<span class="hljs-name"><span class="hljs-built_in">nth</span></span> harf mid) target) (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">drop</span></span> (<span class="hljs-name"><span class="hljs-built_in">+</span></span> mid <span class="hljs-number">1</span>) harf))
+                (<span class="hljs-name"><span class="hljs-built_in">&gt;</span></span> (<span class="hljs-name"><span class="hljs-built_in">nth</span></span> harf mid) target) (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">take</span></span> mid harf))
+                <span class="hljs-symbol">:else</span> <span class="hljs-literal">false</span>))))
+</code></pre>
+<p>`lazy-seq` をつかったやつその１。これは本からの写し。この手の無限シーケンスつくって `take` とかで取り出すのはなんとなく理解できる。</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">defn</span> <span class="hljs-title">fibo</span>
+  ([] (<span class="hljs-name"><span class="hljs-built_in">concat</span></span> [<span class="hljs-number">0</span> <span class="hljs-number">1</span>] (<span class="hljs-name">fibo</span> <span class="hljs-number">0N</span> <span class="hljs-number">1N</span>)))
+  ([a b]
+    (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [n (<span class="hljs-name"><span class="hljs-built_in">+</span></span> a b)]
+      (<span class="hljs-name"><span class="hljs-built_in">lazy-seq</span></span> cons n (<span class="hljs-name">fibo</span> b n)))))
+</code></pre>
+<p>無限のものではなくて、与えられたリストとかに対して使おうとすると理解が難しくなる印象。 以下の二部探索木のノードを追加する部分で使ってみたがあっているかわからない。</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">defn-</span> <span class="hljs-title">add-node</span>
+    [{value <span class="hljs-symbol">:value</span> left <span class="hljs-symbol">:left</span> right <span class="hljs-symbol">:right</span> height <span class="hljs-symbol">:height</span> <span class="hljs-symbol">:as</span> node} data]
+        (<span class="hljs-name"><span class="hljs-built_in">into</span></span> {} (<span class="hljs-name"><span class="hljs-built_in">lazy-seq</span></span> <span class="hljs-comment">;そもそも使い方あってんの？</span>
+            (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">&lt;=</span></span> data value)
+                (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">nil?</span></span> left)
+                    (<span class="hljs-name"><span class="hljs-built_in">assoc</span></span> node <span class="hljs-symbol">:left</span> (<span class="hljs-name">create-node</span> data))
+                    (<span class="hljs-name"><span class="hljs-built_in">assoc</span></span> node <span class="hljs-symbol">:left</span> (<span class="hljs-name">add-node</span> (<span class="hljs-name">node</span> <span class="hljs-symbol">:left</span>) data)))
+                (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">nil?</span></span> right)
+                    (<span class="hljs-name"><span class="hljs-built_in">assoc</span></span> node <span class="hljs-symbol">:right</span> (<span class="hljs-name">create-node</span> data))
+                    (<span class="hljs-name"><span class="hljs-built_in">assoc</span></span> node <span class="hljs-symbol">:right</span> (<span class="hljs-name">add-node</span> (<span class="hljs-name">node</span> <span class="hljs-symbol">:right</span>) data)))))))
+</code></pre>
+<p>なんでここで使おうと思ったかというと、 `assoc` とかの引数で再帰することになるので末尾再帰にならないんじゃね？から こういう場面で `recur` は良いのだろうかとか考えた結果という具合。なのでそもそも使い方があっているのかすらわからない。</p>
+<p>とりあえずは動いている感じ。ちなみに以下6つのルールが紹介されてました。</p>
+<ul>
+<li><p>直接再帰しない</p></li>
+<li><p>要素数が決まっているものは `recur` を使って再帰する</p></li>
+<li><p>巨大だったり要素数がわからないものについては `lazy-seq`</p></li>
+<li><p>遅延シーケンスをやたらと実体化しない</p></li>
+<li><p>シーケンスライブラリに熟知する</p></li>
+<li><p>問題を細かくする</p></li>
+</ul>
+<p>自分で書いてて思いましたが、二部探索木だと要素数わかっているし `recur` でよいのでは？あと `into {}` すると実体化されている気もする。</p>
+</section>
+<section id="状態管理
+">
+<h2>状態管理</h2>
+<p>超うろおぼえ</p>
+<p>普通はClojureではほとんどのものが変更不可能ですが、 `ref` とか `alter` とか `commute` だとか使うと変更可能にできる。</p>
+<p>ただし、変更可能にすることで非同期とか並行処理とかで競合が発生する可能性は当然高まるので、そこら辺で使い分けるとのこと。</p>
+<p>正直ほとんど覚えてないので読み返さないと・・・並行処理周りを支えているっぽいので。</p>
+</section>
+<section id="オブジェクト指向的なの色々
+">
+<h2>オブジェクト指向的なの色々</h2>
+<p>Java側のAPIを呼ぶ方法は結構前のほうで出てきてましたが、Clojureらしくこの手のことをやるにはどうするかが書いてありました。</p>
+<p>一番おもしろいなと思ったのはプロトコル使ってデータ型に対して外からの拡張が出来る点です。</p>
+<p>`extend-type` とか使って既存のデータ型に後付するのが面白そう。</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">defprotocol</span> <span class="hljs-title">Hoge</span>
+  (<span class="hljs-name">hoge</span> [this])
+  (<span class="hljs-name">hogehoge</span> [this i]))
+
+(<span class="hljs-name"><span class="hljs-built_in">extend-type</span></span> Integer
+  Hoge
+  (<span class="hljs-name">hoge</span> [a] a)
+  (<span class="hljs-name">hogehoge</span> [a i] (<span class="hljs-name"><span class="hljs-built_in">+</span></span> a i)))
+</code></pre>
+<p>ただ、この章でJavaで言うところのクラス定義的なやり方がいくつか出てきたが使い分けがよくわからない。 とりあえず `defrecord` にしている感じ。</p>
+<p>それ以外にはマルチメソッドとかも面白かったです。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<p>`Lisp` 系の言語初めてでしたがかなり面白かったので継続して触り中です。</p>
+<p>カッコいかがなものかと思っていましたが、書いてみるとしっくりきます。</p>
+<p>ただ、JavaのサンプルをClojureに変更しようとすると無駄にクラスとかメソッドに意識を持っていかれて 無意味な `defprotocol` とか `defrecord` とかしちゃうのでここらへんは使わないで済むのならなるべく使わない方向が良いのかなぁとか思っています。</p>
+</section>
+<section id="おまけ
+">
+<h2>おまけ</h2>
+<p>冒頭でも書きましたがアルゴリズムクイックリファレンスのサンプルをClojureで幾つか書き直してので貼ってみます。</p>
+<p>ハッシュサーチ</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">def</span> ^<span class="hljs-symbol">:private</span> <span class="hljs-title">table-size</span> <span class="hljs-number">6</span>)
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">generate-hash</span> [val]
+    (<span class="hljs-name"><span class="hljs-built_in">if</span></span> (<span class="hljs-name"><span class="hljs-built_in">not</span></span> val) 
+        <span class="hljs-literal">nil</span>
+        (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [code (<span class="hljs-name">.hashCode</span> val)]
+            (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+                (<span class="hljs-name"><span class="hljs-built_in">&lt;</span></span> code <span class="hljs-number">0</span>) (<span class="hljs-name"><span class="hljs-built_in">mod</span></span> (<span class="hljs-name"><span class="hljs-built_in">*</span></span> <span class="hljs-number">-1</span> code) table-size)
+                <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">mod</span></span> code table-size)))))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">hash-load</span> [array]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [hash-table (<span class="hljs-name"><span class="hljs-built_in">vec</span></span> (<span class="hljs-name"><span class="hljs-built_in">repeat</span></span> table-size [])) array array]
+        (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [head (<span class="hljs-name"><span class="hljs-built_in">first</span></span> array) rest (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> array) hash-val (<span class="hljs-name">generate-hash</span> head)]
+            (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+                (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> array) <span class="hljs-number">0</span>) hash-table
+                <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">assoc</span></span> hash-table hash-val (<span class="hljs-name"><span class="hljs-built_in">conj</span></span> (<span class="hljs-name"><span class="hljs-built_in">nth</span></span> hash-table hash-val) head)) rest)))))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">inner-check</span> [inner-array target]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [head (<span class="hljs-name"><span class="hljs-built_in">first</span></span> inner-array) array inner-array]
+        (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+            (<span class="hljs-name">.equals</span> head target) <span class="hljs-literal">true</span>
+            (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> array) <span class="hljs-number">0</span>) <span class="hljs-literal">false</span>
+            <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">first</span></span> array) (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> array)))))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">search-exec</span> [table target]
+    (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [table-val (<span class="hljs-name"><span class="hljs-built_in">nth</span></span> table (<span class="hljs-name">generate-hash</span> target))] 
+        (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+            (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> table-val) <span class="hljs-number">0</span>) <span class="hljs-literal">false</span>
+            (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> table-val) <span class="hljs-number">1</span>) <span class="hljs-literal">true</span>
+            <span class="hljs-symbol">:else</span> (<span class="hljs-name">inner-check</span> table-val target))))
+
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">hash-search</span> [array target]
+    (<span class="hljs-name"><span class="hljs-built_in">-&gt;</span></span> array
+        hash-load
+        (<span class="hljs-name">search-exec</span> target)))
+</code></pre>
+<p>線形探索</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">defn</span> <span class="hljs-title">linear-search</span> [array target]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [head (<span class="hljs-name"><span class="hljs-built_in">first</span></span> array) tail (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> array)]
+        (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+            (<span class="hljs-name"><span class="hljs-built_in">=</span></span> head target) <span class="hljs-literal">true</span>
+            (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name"><span class="hljs-built_in">count</span></span> tail) <span class="hljs-number">0</span>) <span class="hljs-literal">false</span>
+            <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">first</span></span> tail) (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> tail)))))
+</code></pre>
+<p>ブルームフィルタ</p>
+<pre><code class="language-clojure hljs">(<span class="hljs-keyword">defn-</span> <span class="hljs-title">add-bits</span> [bit data size fns]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [bit bit func (<span class="hljs-name"><span class="hljs-built_in">first</span></span> fns) funcs (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> fns)]
+        (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+            (<span class="hljs-name"><span class="hljs-built_in">nil?</span></span> func) bit
+            <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name">bit-or</span> bit (<span class="hljs-name">bit-shift-left</span> <span class="hljs-number">1</span> (<span class="hljs-name">func</span> data size))) (<span class="hljs-name"><span class="hljs-built_in">first</span></span> funcs) (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> funcs)))))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">contains</span> [bit value size fns]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [func (<span class="hljs-name"><span class="hljs-built_in">first</span></span> fns) funcs (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> fns)]
+        (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+            (<span class="hljs-name"><span class="hljs-built_in">nil?</span></span> func) <span class="hljs-literal">true</span>
+            (<span class="hljs-name"><span class="hljs-built_in">=</span></span> (<span class="hljs-name">bit-and</span> bit (<span class="hljs-name">bit-shift-left</span> <span class="hljs-number">1</span> (<span class="hljs-name">func</span> value size))) <span class="hljs-number">0</span>) <span class="hljs-literal">false</span>
+            <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name"><span class="hljs-built_in">first</span></span> funcs) (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> funcs)))))
+
+(<span class="hljs-keyword">defn-</span> <span class="hljs-title">array-add-bits</span> [array size fns]
+    (<span class="hljs-name"><span class="hljs-built_in">loop</span></span> [bit <span class="hljs-number">0</span> head (<span class="hljs-name"><span class="hljs-built_in">first</span></span> array) tail (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> array)]
+        (<span class="hljs-name"><span class="hljs-built_in">cond</span></span>
+            (<span class="hljs-name"><span class="hljs-built_in">nil?</span></span> head) bit
+            <span class="hljs-symbol">:else</span> (<span class="hljs-name"><span class="hljs-built_in">recur</span></span> (<span class="hljs-name">add-bits</span> bit head size fns) (<span class="hljs-name"><span class="hljs-built_in">first</span></span> tail) (<span class="hljs-name"><span class="hljs-built_in">rest</span></span> tail)))))
+
+(<span class="hljs-keyword">defn</span> <span class="hljs-title">bloom-filter</span>
+    ([array value] 
+        (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [size <span class="hljs-number">1000</span> fns [(<span class="hljs-name"><span class="hljs-built_in">fn</span></span> [e s] (<span class="hljs-name"><span class="hljs-built_in">mod</span></span> (<span class="hljs-name">.hashCode</span> e) s))]]
+            (<span class="hljs-name">contains</span> (<span class="hljs-name">array-add-bits</span> array size fns) value size fns)))
+    ([array value size] 
+        (<span class="hljs-name"><span class="hljs-built_in">let</span></span> [fns [(<span class="hljs-name"><span class="hljs-built_in">fn</span></span> [e size] (<span class="hljs-name"><span class="hljs-built_in">mod</span></span> (<span class="hljs-name">.hashCode</span> e) size))]]
+            (<span class="hljs-name">contains</span> (<span class="hljs-name">array-add-bits</span> array size fns) value size fns)))
+    ([array value size fns] (<span class="hljs-name">contains</span> (<span class="hljs-name">array-add-bits</span> array size fns) value size fns)))
+</code></pre>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/phoenix-webpack/" rel="prev">Phoenixのフロントエンドをwebpackに置き換える</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/clojure-web/" rel="next">ClojureでWebアプリ</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/clojure-intro/ -->
+  
+
+</body></html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Phoenixのフロントエンドをwebpackに置き換える | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Phoenixのフロントンドをwebpackにします">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Phoenixのフロントエンドをwebpackに置き換える</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/webpack/" class="tag">webpack</a>
+    
+      <a href="/tags/javascript/" class="tag">javascript</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-06-18 23:40:00">
+      June 18th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="phoenixのフロントエンドをwebpackに置き換える
+">
+<h1>Phoenixのフロントエンドをwebpackに置き換える</h1>
+<p>Phoenixのフロントエンドのツールをwebpackにするのに思いの外手こずったので備忘録としておきます。</p>
+<section id="前提事項
+">
+<h2>前提事項</h2>
+<ul>
+<li><p><code>mix phoenix.new hogehoge</code> はしてある前提です。</p></li>
+<li><p>参考にしたのは以下あたりです。勝手に感謝です。</p><ul>
+<li><p><a href="https://daruiapprentice.blogspot.jp/2016/04/using-webpack-with-phoenix-framework.html">https://daruiapprentice.blogspot.jp/2016/04/using-webpack-with-phoenix-framework.html</a></p></li>
+<li><p><a href="https://www.dailydrip.com/topics/elixirsips/drips/webpack-phoenix-and-elm">https://www.dailydrip.com/topics/elixirsips/drips/webpack-phoenix-and-elm</a></p></li>
+</ul></li>
+</ul>
+</section>
+<section id="要らないファイルの削除
+">
+<h2>要らないファイルの削除</h2>
+<p><code>brunch-config.js</code> を削除します。大概忘れるので早めにやっておきます。</p>
+</section>
+<section id="package.jsonの作成
+">
+<h2>package.jsonの作成</h2>
+<p><code>package.json</code> を書き換えます。</p>
+<p>また、 <code>TypeScript</code> と <code>React.js</code> で試したので以下のような感じになりました。 <code>dependencies</code> とかは各自 <code>npm install --save hoge</code> とか <code>npm install --save-dev hoge</code> とかしてもらえればいいと思います。</p>
+<p>また、コマンドで <code>watch</code> と <code>compile</code> だけ指定してあります。</p>
+<pre><code class="language-JavaScript hljs">{
+  <span class="hljs-string">"repository"</span>: {},
+  <span class="hljs-string">"license"</span>: <span class="hljs-string">"MIT"</span>,
+  <span class="hljs-string">"scripts"</span>: {
+    <span class="hljs-string">"watch"</span>: <span class="hljs-string">"webpack --watch-stdin --progress --color"</span>,
+    <span class="hljs-string">"compile"</span>: <span class="hljs-string">"webpack -p"</span>
+  },
+  <span class="hljs-string">"dependencies"</span>: {
+    <span class="hljs-string">"flux"</span>: <span class="hljs-string">"^3.1.2"</span>,
+    <span class="hljs-string">"react"</span>: <span class="hljs-string">"^15.5.4"</span>,
+    <span class="hljs-string">"react-dom"</span>: <span class="hljs-string">"^15.5.4"</span>,
+    <span class="hljs-string">"redux"</span>: <span class="hljs-string">"^3.6.0"</span>,
+    <span class="hljs-string">"typescript"</span>: <span class="hljs-string">"^2.3.4"</span>,
+    <span class="hljs-string">"phoenix"</span>: <span class="hljs-string">"file:deps/phoenix"</span>,
+    <span class="hljs-string">"phoenix_html"</span>: <span class="hljs-string">"file:deps/phoenix_html"</span>
+  },
+  <span class="hljs-string">"devDependencies"</span>: {
+    <span class="hljs-string">"@types/flux"</span>: <span class="hljs-string">"^3.1.0"</span>,
+    <span class="hljs-string">"@types/material-ui"</span>: <span class="hljs-string">"^0.17.10"</span>,
+    <span class="hljs-string">"@types/phoenix"</span>: <span class="hljs-string">"0.0.4"</span>,
+    <span class="hljs-string">"@types/react"</span>: <span class="hljs-string">"^15.0.27"</span>,
+    <span class="hljs-string">"@types/react-dom"</span>: <span class="hljs-string">"^15.5.0"</span>,
+    <span class="hljs-string">"awesome-typescript-loader"</span>: <span class="hljs-string">"^3.1.3"</span>,
+    <span class="hljs-string">"bootstrap-sass"</span>: <span class="hljs-string">"^3.3.7"</span>,
+    <span class="hljs-string">"copy-webpack-plugin"</span>: <span class="hljs-string">"^4.0.1"</span>,
+    <span class="hljs-string">"css-loader"</span>: <span class="hljs-string">"^0.28.4"</span>,
+    <span class="hljs-string">"extract-text-webpack-plugin"</span>: <span class="hljs-string">"^2.1.2"</span>,
+    <span class="hljs-string">"file-loader"</span>: <span class="hljs-string">"^0.11.2"</span>,
+    <span class="hljs-string">"node-sass"</span>: <span class="hljs-string">"^4.5.3"</span>,
+    <span class="hljs-string">"sass-loader"</span>: <span class="hljs-string">"^6.0.6"</span>,
+    <span class="hljs-string">"source-map-loader"</span>: <span class="hljs-string">"^0.2.1"</span>,
+    <span class="hljs-string">"style-loader"</span>: <span class="hljs-string">"^0.18.2"</span>,
+    <span class="hljs-string">"url-loader"</span>: <span class="hljs-string">"^0.5.9"</span>,
+    <span class="hljs-string">"webpack"</span>: <span class="hljs-string">"^2.6.1"</span>
+  }
+}
+</code></pre>
+<p><code>phoenix_html</code> とかのインストールがたまにおかしくなるので、以下を参照にアップデートをかけます。</p>
+<p><a href="https://github.com/phoenixframework/phoenix/issues/1622">https://github.com/phoenixframework/phoenix/issues/1622</a></p>
+</section>
+<section id="webpack.config.jsonの作成
+">
+<h2>webpack.config.jsonの作成</h2>
+<p>webpackの設定ファイルを以下のような感じで作ります。 webpackのバージョンの差異かなんかで前まで <code>url</code> だとか <code>file</code> だとかで指定されていた部分を <code>url-loader</code> などの形式にしてます。</p>
+<p>また、 <code>ExtractTextPlugin.extract</code> の部分も参考サイトをそのままやると怒られるので怒られた内容通りに変更します。</p>
+<p>それ以外だと <code>TypeScript</code> ゆえにそれに準じているという程度かと。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">var</span> <span class="hljs-title class_">ExtractTextPlugin</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">"extract-text-webpack-plugin"</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-title class_">CopyWebpackPlugin</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">"copy-webpack-plugin"</span>);
+
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = {
+  <span class="hljs-attr">entry</span>: [<span class="hljs-string">"./web/static/js/App.tsx"</span>, <span class="hljs-string">"./web/static/css/app.scss"</span>],
+  <span class="hljs-attr">output</span>: {
+    <span class="hljs-attr">filename</span>: <span class="hljs-string">"js/app.js"</span>,
+    <span class="hljs-attr">path</span>: __dirname + <span class="hljs-string">"/priv/static/"</span>
+  },
+
+  <span class="hljs-attr">devtool</span>: <span class="hljs-string">"source-map"</span>,
+
+  <span class="hljs-attr">resolve</span>: {
+    <span class="hljs-attr">extensions</span>: [<span class="hljs-string">".ts"</span>, <span class="hljs-string">".tsx"</span>, <span class="hljs-string">".js"</span>, <span class="hljs-string">".json"</span>],
+    <span class="hljs-attr">modules</span>: [
+      __dirname + <span class="hljs-string">"/web/static/js"</span>,
+      __dirname + <span class="hljs-string">"/node_modules"</span>
+    ],
+    <span class="hljs-attr">alias</span>: {
+      <span class="hljs-attr">phoenix_html</span>: __dirname + <span class="hljs-string">"/deps/phoenix_html/web/static/js/phoenix_html.js"</span>,
+      <span class="hljs-attr">phoenix</span>: __dirname + <span class="hljs-string">"/deps/phoenix/web/static/js/phoenix.js"</span>
+    }
+  },
+
+  <span class="hljs-attr">module</span>: {
+    <span class="hljs-attr">rules</span>: [
+      { <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.tsx?$/</span>, <span class="hljs-attr">loader</span>: <span class="hljs-string">"awesome-typescript-loader"</span> },
+      { <span class="hljs-attr">enforce</span>: <span class="hljs-string">"pre"</span>, <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.js$/</span>, <span class="hljs-attr">loader</span>: <span class="hljs-string">"source-map-loader"</span> },
+      {
+        <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/</span>,
+        <span class="hljs-attr">loader</span>: <span class="hljs-string">"url-loader?limit=10000&amp;mimetype=application/font-woff"</span>
+      },
+      {
+        <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.ttf(\?v=\d+\.\d+\.\d+)?$/</span>,
+        <span class="hljs-attr">loader</span>: <span class="hljs-string">"url-loader?limit=10000&amp;mimetype=application/octet-stream"</span>
+      },
+      {
+        <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.eot(\?v=\d+\.\d+\.\d+)?$/</span>,
+        <span class="hljs-attr">loader</span>: <span class="hljs-string">"file-loader"</span>
+      },
+      {
+        <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.svg(\?v=\d+\.\d+\.\d+)?$/</span>,
+        <span class="hljs-attr">loader</span>: <span class="hljs-string">"url-loader?limit=10000&amp;mimetype=image/svg+xml"</span>
+      },
+      {
+        <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.scss$/</span>,
+        <span class="hljs-attr">use</span>: <span class="hljs-title class_">ExtractTextPlugin</span>.<span class="hljs-title function_">extract</span>({ <span class="hljs-attr">fallback</span>: <span class="hljs-string">"style-loader"</span>, <span class="hljs-attr">use</span>: [<span class="hljs-string">"css-loader"</span>, <span class="hljs-string">"sass-loader"</span>] })
+      },
+      { <span class="hljs-attr">test</span>: <span class="hljs-regexp">/\.css$/</span>, <span class="hljs-attr">loader</span>: <span class="hljs-title class_">ExtractTextPlugin</span>.<span class="hljs-title function_">extract</span>({ <span class="hljs-attr">fallback</span>: <span class="hljs-string">'style-loader'</span>, <span class="hljs-attr">use</span>: <span class="hljs-string">'css-loader'</span> }) },
+    ]
+  },
+  <span class="hljs-attr">plugins</span>: [
+    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ExtractTextPlugin</span>(<span class="hljs-string">"css/app.css"</span>),
+    <span class="hljs-keyword">new</span> <span class="hljs-title class_">CopyWebpackPlugin</span>([{ <span class="hljs-attr">from</span>: <span class="hljs-string">"./web/static/assets"</span> }])
+  ]
+};
+</code></pre>
+<p>ざっとは理解してるはずですが、細かいところまでは理解しきれてません・・・</p>
+</section>
+<section id="phoenixの設定ファイル変更
+">
+<h2>Phoenixの設定ファイル変更</h2>
+<p><code>phoenix</code> 側で <code>brunch</code> 前提の設定になっていたところを変えます。</p>
+<p><code>config/dev.exs</code> です。</p>
+<pre><code class="language-elixir hljs"><span class="hljs-keyword">use</span> <span class="hljs-title class_">Mix</span>.<span class="hljs-title class_">Config</span>
+
+<span class="hljs-comment"># For development, we disable any cache and enable</span>
+<span class="hljs-comment"># debugging and code reloading.</span>
+<span class="hljs-comment">#</span>
+<span class="hljs-comment"># The watchers configuration can be used to run external</span>
+<span class="hljs-comment"># watchers to your application. For example, we use it</span>
+<span class="hljs-comment"># with brunch.io to recompile .js and .css sources.</span>
+config <span class="hljs-symbol">:test</span>, <span class="hljs-title class_">Test</span>.<span class="hljs-title class_">Endpoint</span>,
+  <span class="hljs-symbol">http:</span> [<span class="hljs-symbol">port:</span> <span class="hljs-number">4000</span>],
+  <span class="hljs-symbol">debug_errors:</span> <span class="hljs-literal">true</span>,
+  <span class="hljs-symbol">code_reloader:</span> <span class="hljs-literal">true</span>,
+  <span class="hljs-symbol">check_origin:</span> <span class="hljs-literal">false</span>,
+  <span class="hljs-symbol">watchers:</span> [<span class="hljs-symbol">node:</span> [<span class="hljs-string">"node_modules/webpack/bin/webpack.js"</span>,
+                   <span class="hljs-string">"--watch-stdin"</span>, <span class="hljs-string">"--progress"</span>, <span class="hljs-string">"--colors"</span>]]
+…
+</code></pre>
+</section>
+<section id="cssの変更
+">
+<h2>cssの変更</h2>
+<p>さらに、このままだと <code>css</code> 周りが色々とうまくいかないです。</p>
+<p>まず <code>app.css</code> を <code>app.scss</code> に変更し、以下のような感じにします。</p>
+<pre><code class="language-css hljs">$<span class="hljs-attribute">icon</span>-<span class="hljs-attribute">font</span>-path: <span class="hljs-string">'~bootstrap-sass/assets/fonts/bootstrap/'</span>;
+<span class="hljs-keyword">@import</span> <span class="hljs-string">"~bootstrap-sass/assets/stylesheets/_bootstrap.scss"</span>;
+
+<span class="hljs-comment">/* Space out content a bit */</span>
+
+<span class="hljs-selector-tag">body</span>,
+<span class="hljs-selector-tag">form</span>,
+<span class="hljs-selector-tag">ul</span>,
+<span class="hljs-selector-tag">table</span> {
+  <span class="hljs-attribute">margin-top</span>: <span class="hljs-number">20px</span>;
+  <span class="hljs-attribute">margin-bottom</span>: <span class="hljs-number">20px</span>;
+}
+
+
+<span class="hljs-comment">/* Phoenix flash messages */</span>
+
+<span class="hljs-selector-class">.alert</span><span class="hljs-selector-pseudo">:empty</span> {
+  <span class="hljs-attribute">display</span>: none;
+}
+
+
+<span class="hljs-comment">/* Phoenix inline forms in links and buttons */</span>
+
+<span class="hljs-selector-tag">form</span><span class="hljs-selector-class">.link</span>,
+<span class="hljs-selector-tag">form</span><span class="hljs-selector-class">.button</span> {
+  <span class="hljs-attribute">display</span>: inline;
+}
+
+
+<span class="hljs-comment">/* Custom page header */</span>
+
+<span class="hljs-selector-class">.header</span> {
+  <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#e5e5e5</span>;
+}
+
+<span class="hljs-selector-class">.logo</span> {
+  <span class="hljs-attribute">width</span>: <span class="hljs-number">519px</span>;
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">71px</span>;
+  <span class="hljs-attribute">display</span>: inline-block;
+  <span class="hljs-attribute">margin-bottom</span>: <span class="hljs-number">1em</span>;
+  <span class="hljs-attribute">background-image</span>: <span class="hljs-built_in">url</span>(<span class="hljs-string">"/images/phoenix.png"</span>);
+  <span class="hljs-attribute">background-size</span>: <span class="hljs-number">519px</span> <span class="hljs-number">71px</span>;
+}
+
+
+<span class="hljs-comment">/* Everything but the jumbotron gets side spacing for mobile first views */</span>
+
+<span class="hljs-selector-class">.header</span>,
+<span class="hljs-selector-class">.marketing</span> {
+  <span class="hljs-attribute">padding-right</span>: <span class="hljs-number">15px</span>;
+  <span class="hljs-attribute">padding-left</span>: <span class="hljs-number">15px</span>;
+}
+
+
+<span class="hljs-comment">/* Customize container */</span>
+
+<span class="hljs-keyword">@media</span> (<span class="hljs-attribute">min-width</span>: <span class="hljs-number">768px</span>) {
+  <span class="hljs-selector-class">.container</span> {
+    <span class="hljs-attribute">max-width</span>: <span class="hljs-number">730px</span>;
+  }
+}
+
+<span class="hljs-selector-class">.container-narrow</span>&gt;hr {
+  <span class="hljs-attribute">margin</span>: <span class="hljs-number">30px</span> <span class="hljs-number">0</span>;
+}
+
+
+<span class="hljs-comment">/* Main marketing message */</span>
+
+<span class="hljs-selector-class">.jumbotron</span> {
+  <span class="hljs-attribute">text-align</span>: center;
+  <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#e5e5e5</span>;
+}
+
+
+<span class="hljs-comment">/* Supporting marketing content */</span>
+
+<span class="hljs-selector-class">.marketing</span> {
+  <span class="hljs-attribute">margin</span>: <span class="hljs-number">35px</span> <span class="hljs-number">0</span>;
+}
+
+
+<span class="hljs-comment">/* Responsive: Portrait tablets and up */</span>
+
+<span class="hljs-keyword">@media</span> screen <span class="hljs-keyword">and</span> (<span class="hljs-attribute">min-width</span>: <span class="hljs-number">768px</span>) {
+  <span class="hljs-comment">/* Remove the padding we set earlier */</span>
+  <span class="hljs-selector-class">.header</span>,
+  <span class="hljs-selector-class">.marketing</span> {
+    <span class="hljs-attribute">padding-right</span>: <span class="hljs-number">0</span>;
+    <span class="hljs-attribute">padding-left</span>: <span class="hljs-number">0</span>;
+  }
+  <span class="hljs-comment">/* Space out the masthead */</span>
+  <span class="hljs-selector-class">.header</span> {
+    <span class="hljs-attribute">margin-bottom</span>: <span class="hljs-number">30px</span>;
+  }
+  <span class="hljs-comment">/* Remove the bottom border on the jumbotron for visual effect */</span>
+  <span class="hljs-selector-class">.jumbotron</span> {
+    <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">0</span>;
+  }
+</code></pre>
+<p><code>import</code> 部分以降が何かというと <code>phoenix.css</code> にかかれていたやつです。</p>
+<p>組み込みの <code>phoenix.css</code> を眺めた感じ、ここに <code>bootstrap</code> の内容+αが書かれていたようでした。 <code>bootstrap</code> は外部から持ってくるようにしたので不要です。</p>
+<p>従って+α部分をこっちに持ってきた形です。</p>
+</section>
+<section id="実行
+">
+<h2>実行</h2>
+<p><code>npm run compile</code> もしくは <code>Phoenix</code> を起動し、ファイル監視が始まればOKです。</p>
+<p><code>TypeScript</code> 周りは簡単でしたが、 <code>css</code> 周りが大変でした・・・</p>
+<p>適当に書いたので間違っているところも多そうですが、単なる備忘録なのでこのへんで終わりです。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/recently-bought-ost/" rel="prev">最近買ったゲームサントラ</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/clojure-intro/" rel="next">プログラミングClojureまとめ</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/phoenix-webpack/ -->
+  
+
+</body></html>

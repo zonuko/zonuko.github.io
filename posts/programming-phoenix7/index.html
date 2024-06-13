@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その7 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその7">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その7</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-01-19 00:00:00">
+      January 19th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その7
+">
+<h1>Programming Phoenix勉強その7</h1>
+<p>その7です。 ここからchapter5です。認証周りをやるらしいです。</p>
+<section id="パスワードのハッシュ化
+">
+<h2>パスワードのハッシュ化</h2>
+<p>まずはパスワードのハッシュ化を行います。必要なライブラリをインストールするために <code>mix.exs</code> に以下のように追記を行います。</p>
+<pre><code class="language-Elixir hljs">...
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">application</span></span> <span class="hljs-keyword">do</span>
+  [<span class="hljs-symbol">mod:</span> {<span class="hljs-title class_">Rumbl</span>, []},
+   <span class="hljs-symbol">applications:</span> [<span class="hljs-symbol">:phoenix</span>, <span class="hljs-symbol">:phoenix_pubsub</span>, <span class="hljs-symbol">:phoenix_html</span>, <span class="hljs-symbol">:cowboy</span>, <span class="hljs-symbol">:logger</span>, <span class="hljs-symbol">:gettext</span>,
+                  <span class="hljs-symbol">:phoenix_ecto</span>, <span class="hljs-symbol">:postgrex</span>, <span class="hljs-symbol">:comeonin</span>]] <span class="hljs-comment"># comeoninを追加</span>
+<span class="hljs-keyword">end</span>
+  ...
+<span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">deps</span></span> <span class="hljs-keyword">do</span>
+  [{<span class="hljs-symbol">:phoenix</span>, <span class="hljs-string">"~&gt; 1.2.1"</span>},
+   {<span class="hljs-symbol">:phoenix_pubsub</span>, <span class="hljs-string">"~&gt; 1.0"</span>},
+   {<span class="hljs-symbol">:phoenix_ecto</span>, <span class="hljs-string">"~&gt; 3.0"</span>},
+   {<span class="hljs-symbol">:postgrex</span>, <span class="hljs-string">"&gt;= 0.0.0"</span>},
+   {<span class="hljs-symbol">:phoenix_html</span>, <span class="hljs-string">"~&gt; 2.6"</span>},
+   {<span class="hljs-symbol">:phoenix_live_reload</span>, <span class="hljs-string">"~&gt; 1.0"</span>, <span class="hljs-symbol">only:</span> <span class="hljs-symbol">:dev</span>},
+   {<span class="hljs-symbol">:gettext</span>, <span class="hljs-string">"~&gt; 0.11"</span>},
+   {<span class="hljs-symbol">:cowboy</span>, <span class="hljs-string">"~&gt; 1.0"</span>},
+   {<span class="hljs-symbol">:comeonin</span>, <span class="hljs-string">"~&gt; 2.0"</span>}] <span class="hljs-comment"># 追加</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>application</code> に対して追加しているのはこのアプリの依存ライブラリを書いているようです。 <code>comeonin</code> とか言うライブラリを追加しています。 <a href="https://github.com/riverrun/comeonin">リポジトリ</a> を見るとそのまんまパスワードをハッシュ化してくれるライブラリだとわかります。 <code>mix deps.get</code> で追加できたらモデルでこいつを使うように変更してやります。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(model, params \\ %{}) <span class="hljs-keyword">do</span>
+  model
+  |&gt; cast(params, [<span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:username</span>]) <span class="hljs-comment"># 更新予定のパラメータカラムを第三引数でとる(?)</span>
+  |&gt; validate_required([<span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:username</span>]) <span class="hljs-comment"># このリストがcastが返すchangesetに存在するか検証</span>
+  |&gt; validate_length(<span class="hljs-symbol">:username</span>, <span class="hljs-symbol">min:</span> <span class="hljs-number">1</span>, <span class="hljs-symbol">max:</span> <span class="hljs-number">20</span>)
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">registration_changeset</span></span>(model, params) <span class="hljs-keyword">do</span>
+  model
+  |&gt; changeset(params)
+  |&gt; cast(params, [<span class="hljs-symbol">:password</span>])
+  |&gt; validate_required([<span class="hljs-symbol">:password</span>])
+  |&gt; validate_length(<span class="hljs-symbol">:password</span>, <span class="hljs-symbol">min:</span> <span class="hljs-number">6</span>, <span class="hljs-symbol">max:</span> <span class="hljs-number">100</span>)
+  |&gt; put_pass_hash()
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">put_pass_hash</span></span>(changeset) <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">case</span> changeset <span class="hljs-keyword">do</span>
+    %<span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Changeset</span>{<span class="hljs-symbol">valid?:</span> <span class="hljs-literal">true</span>, <span class="hljs-symbol">changes:</span> %{<span class="hljs-symbol">password:</span> pass}} -&gt;
+      put_change(changeset, <span class="hljs-symbol">:password_hash</span>, <span class="hljs-title class_">Comeonin</span>.<span class="hljs-title class_">Bcrypt</span>.hashpwsalt(pass))
+    _ -&gt;
+      changeset
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>Ecto</code> の最新版を使っているので書籍と若干異なっています。新しい方の <code>Ecto</code> では <code>cast/4</code> は推奨されなくなっているようです。 なので、 <a href="http://www.phoenixframework.org/docs/ecto-models">Phoenixのガイド</a> とか、 <a href="https://hexdocs.pm/ecto/Ecto.Changeset.html">Ectoのドキュメント</a> とかを見て適当に修正してます。（このやり方でいいか不安ですが・・・） また、 <code>:empty</code> もWarningになるので、空のハッシュに変えています。 ついでに <code>create</code> アクションで <code>User.changeset</code> の部分を <code>User.registration_changeset</code> に変更します。 ここまでやってMacだとOKでしたが、Windowsだとエラーになりました。</p>
+</section>
+<section id="windowsでのエラー（comeonin）
+">
+<h2>Windowsでのエラー（comeonin）</h2>
+<p>Windowsから <code>comeonin</code> を使おうとするとコンパイルを促すエラーが出るので <a href="https://github.com/riverrun/comeonin/wiki/Requirements">ここ</a> を参考にコンパイルします。 ちなみにVisualStudioインストールしてあったので最下部付近にあるVSインストール済みの場合の方法を取っています。</p>
+<ul>
+<li><p>VSに付属している開発者コマンドプロンプトを起動します。</p></li>
+<li><p>開発者コマンドプロンプト上で以下のコマンドを実行しておきます。</p></li>
+</ul>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">&gt; </span><span class="language-bash">vcvarsall.bat amd64</span>
+</code></pre>
+<ul>
+<li><p><code>vcvarsall.bat</code> にパスが通ってない場合は、適当にフルパスで指定すればいいと思います。これを行わなくてもコンパイル自体は出来ますが、実行時にエラーになりました。（ <code>vcvarsall.bat</code> については <a href="https://msdn.microsoft.com/ja-jp/library/x4d2c09s.aspx">MSDN</a> ）</p></li>
+<li><p>本プロジェクト（ <code>rumbl</code> ）のディレクトリまで移動して以下のコマンドを実行します。</p></li>
+</ul>
+<pre><code class="language-shell hljs">rumbl &gt; mix deps.compile
+</code></pre>
+<p>自分の環境ではこれでうまくいきました。</p>
+</section>
+<section id="plugについて
+">
+<h2>Plugについて</h2>
+<p><code>Plug</code> を使ってログイン機能を作る前に <code>Plug</code> についてちょっと掘ります。</p>
+<ul>
+<li><p><code>Plug</code> にはモジュールプラグと関数プラグの二種類が存在する。</p></li>
+<li><p>モジュールプラグは名前の通り幾つかの関数を集めたモジュールのプラグ</p></li>
+<li><p>関数プラグは関数名をアトムとして指定したプラグ</p></li>
+</ul>
+<p>ログイン機能としてモジュールプラグを作成します。</p>
+<section id="モジュールプラグ
+">
+<h3>モジュールプラグ</h3>
+<p>モジュールプラグとして設定するモジュールには <code>init/1</code> 関数と <code>call/2</code> 関数が必要とされます。 以下は何もしないモジュールプラグの例です。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">NothingPlug</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">init</span></span>(opts) <span class="hljs-keyword">do</span>
+    opts
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span></span>(conn, _opts) <span class="hljs-keyword">do</span>
+    conn
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>call</code> 関数の引数を見るとわかりますが、モジュールプラグは <code>conn</code> を変換するようです。</p>
+</section>
+<section id="plug.connについて(conn)
+">
+<h3>Plug.Connについて(conn)</h3>
+<p><code>Plug.Conn</code> が持つフィールドについて見てみます。 書籍の方には色々書いてありますが割愛します。 <a href="https://hexdocs.pm/plug/Plug.Conn.html">Plug.Connの公式ドキュメント</a> を参照して下さい。ここではリクエストフィールドが持つものだけを見てみます。</p>
+<ul><li><p><code>host</code></p><p>  リクエストのホスト名 ex) www.pragprog.com</p></li></ul>
+<ul><li><p><code>method</code></p><p>  リクエストのWebメソッド（GETとかPOSTとか）</p></li></ul>
+<ul><li><p><code>path_info</code></p><p>  パスを分割したリスト</p></li></ul>
+<ul><li><p><code>req_headers</code></p><p>  リクエストヘッダ</p></li></ul>
+<ul><li><p><code>scheme</code></p><p>  プロトコル（httpとか）</p></li></ul>
+<p>Webのリクエスト周りに関係するものが存在していることがわかります。</p>
+</section>
+<section id="認証プラグの実装
+">
+<h3>認証プラグの実装</h3>
+<p>やっと認証用のプラグを実装します。 <code>controllers/auth.ex</code> を以下の内容で実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Auth</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">import</span> <span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Conn</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">init</span></span>(opts) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># キーワードリストから:repoの箇所の値を取得する</span>
+    <span class="hljs-comment"># 無ければexception(つまりは必須)</span>
+    <span class="hljs-title class_">Keyword</span>.fetch!(opts, <span class="hljs-symbol">:repo</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">call</span></span>(conn, repo) <span class="hljs-keyword">do</span>
+    user_id = get_session(conn, <span class="hljs-symbol">:user_id</span>)
+    user = user_id &amp;&amp; repo.get(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>, user_id)
+    <span class="hljs-comment"># assignでconnを変更する(importされた関数)</span>
+    <span class="hljs-comment"># これによって:current_userがコントローラやビューで使えるようになる</span>
+    assign(conn, <span class="hljs-symbol">:current_user</span>, user)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>コメント通りなので余り言うことはないです。 <code>init</code> で <code>repo</code> を取得してそれが <code>conn</code> の第二引数に渡されるようです。セッションにあるユーザIDからユーザを取得しています。 パイプラインの流れの一部として処理してほしいので <code>router.ex</code> を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs">pipeline <span class="hljs-symbol">:browser</span> <span class="hljs-keyword">do</span>
+  plug <span class="hljs-symbol">:accepts</span>, [<span class="hljs-string">"html"</span>]
+  plug <span class="hljs-symbol">:fetch_session</span>
+  plug <span class="hljs-symbol">:fetch_flash</span>
+  plug <span class="hljs-symbol">:protect_from_forgery</span>
+  plug <span class="hljs-symbol">:put_secure_browser_headers</span>
+  plug <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Auth</span>, <span class="hljs-symbol">repo:</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span> <span class="hljs-comment"># 追加</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+</section>
+<section id="アクセス制限の実装
+">
+<h3>アクセス制限の実装</h3>
+<p><code>Plug</code> は出来たのでアクセス制限とログインを作ります。ログインしない限りは <code>:index</code> アクションと <code>:show</code> アクションにアクセス出来ないようにします。 <code>user_controller.ex</code> を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.UserController</span></span> <span class="hljs-keyword">do</span>
+  ...
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">index</span></span>(conn, _params) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">case</span> authenticate(conn) <span class="hljs-keyword">do</span>
+      <span class="hljs-comment"># 構造体connのhaltedメンバのパターンマッチによる振り分け</span>
+      %<span class="hljs-title class_">Plug</span>.<span class="hljs-title class_">Conn</span>{<span class="hljs-symbol">halted:</span> <span class="hljs-literal">true</span>} = conn -&gt;
+        conn
+      conn -&gt;
+        users = <span class="hljs-title class_">Repo</span>.all(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>)
+        render conn, <span class="hljs-string">"index.html"</span>, <span class="hljs-symbol">users:</span> users
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+  ...
+  <span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">authenticate</span></span>(conn) <span class="hljs-keyword">do</span>
+    <span class="hljs-comment"># Plugで追加したassignの呼び出しが可能かどうか</span>
+    <span class="hljs-keyword">if</span> conn.assigns.current_user <span class="hljs-keyword">do</span>
+      conn
+    <span class="hljs-keyword">else</span>
+      conn
+      |&gt; put_flash(<span class="hljs-symbol">:error</span>, <span class="hljs-string">"You must be logged in to access that page"</span>)
+      |&gt; redirect(<span class="hljs-symbol">to:</span> page_path(conn, <span class="hljs-symbol">:index</span>))
+      |&gt; halt()
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>先程の <code>Plug</code> で変更した値を <code>authenticate/1</code> 関数で使っています。また、 <code>:index</code> アクションのアクセス時に <code>authenticate</code> 関数で認証済みかチェック掛けています。</p>
+</section>
+<section id="``authenticate``-の関数プラグ化
+">
+<h3><code>authenticate</code> の関数プラグ化</h3>
+<p><code>user_controller.ex</code> の <code>Rumbl.Web</code> の直下のあたりに以下を追加します。</p>
+<pre><code class="language-Elixir hljs">plug <span class="hljs-symbol">:authenticate</span> <span class="hljs-keyword">when</span> action <span class="hljs-keyword">in</span> [<span class="hljs-symbol">:index</span>, <span class="hljs-symbol">:show</span>]
+</code></pre>
+<p>また、 <code>index</code> アクションを <code>case</code> 文を使う以前のものに戻しておきます。 <code>authenticate</code> 関数も以下のように2引数にしておきます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">authenticate</span></span>(conn, _opts) <span class="hljs-keyword">do</span>
+  <span class="hljs-comment"># Plugで追加したassignの呼び出しが可能かどうか</span>
+  <span class="hljs-keyword">if</span> conn.assigns.current_user <span class="hljs-keyword">do</span>
+    conn
+  <span class="hljs-keyword">else</span>
+    conn
+    |&gt; put_flash(<span class="hljs-symbol">:error</span>, <span class="hljs-string">"You must be logged in to access that page"</span>)
+    |&gt; redirect(<span class="hljs-symbol">to:</span> page_path(conn, <span class="hljs-symbol">:index</span>))
+    |&gt; halt()
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>_opts</code> を追加しただけです。関数 <code>Plug</code> 化したためです。 <code>Plug</code> をマクロ展開したときの例が出てますが割愛します。</p>
+</section>
+<section id="ログインの実装
+">
+<h3>ログインの実装</h3>
+<p>認証までしか無いので実際のログイン処理を実装します。取り敢えず <code>create</code> アクションでユーザが作成された時に自動でログインするようにしてみます。 先程作った <code>auth.ex</code> に以下の関数を追加します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">login</span></span>(conn, user) <span class="hljs-keyword">do</span>
+  conn
+  |&gt; assign(<span class="hljs-symbol">:current_user</span>, user)
+  |&gt; put_session(<span class="hljs-symbol">:user_id</span>, user.id)
+  |&gt; configure_session(<span class="hljs-symbol">renew:</span> <span class="hljs-literal">true</span>) <span class="hljs-comment"># セッションキーとかを新しくしている(セキュリティのため)</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>次に <code>create</code> アクションでこの関数を呼び出すようにしてやります。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create</span></span>(conn, %{<span class="hljs-string">"user"</span> =&gt; user_params}) <span class="hljs-keyword">do</span>
+  changeset = <span class="hljs-title class_">User</span>.registration_changeset(%<span class="hljs-title class_">User</span>{}, user_params)
+  <span class="hljs-keyword">case</span> <span class="hljs-title class_">Repo</span>.insert(changeset) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, user} -&gt;
+      conn
+      |&gt; <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Auth</span>.login(user) <span class="hljs-comment"># ユーザを作成したらログイン</span>
+      |&gt; put_flash(<span class="hljs-symbol">:info</span>, <span class="hljs-string">"<span class="hljs-subst">#{user.name}</span> created!"</span>)
+      |&gt; redirect(<span class="hljs-symbol">to:</span> user_path(conn, <span class="hljs-symbol">:index</span>))
+    {<span class="hljs-symbol">:error</span>, changeset} -&gt;
+      render(conn, <span class="hljs-string">"new.html"</span>, <span class="hljs-symbol">changeset:</span> changeset)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>これで完了です。</p>
+</section>
+<section id="ログイン画面の実装
+">
+<h3>ログイン画面の実装</h3>
+<p>ここまででログインするための素材は揃ったので、ログイン/ログアウト画面を作ります。今まで作ったものの合わせ技なので一気に行きます。 <code>session_controller.ex</code> を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.SessionController</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:controller</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">new</span></span>(conn, _) <span class="hljs-keyword">do</span>
+    render conn, <span class="hljs-string">"new.html"</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create</span></span>(conn, %{<span class="hljs-string">"session"</span> =&gt; %{<span class="hljs-string">"username"</span> =&gt; user, <span class="hljs-string">"password"</span> =&gt; pass}}) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Auth</span>.login_by_username_add_pass(conn, user, pass, <span class="hljs-symbol">repo:</span> <span class="hljs-title class_">Repo</span>) <span class="hljs-keyword">do</span>
+      {<span class="hljs-symbol">:ok</span>, conn} -&gt;
+        conn
+        |&gt; put_flash(<span class="hljs-symbol">:info</span>, <span class="hljs-string">"Welcome back!"</span>)
+        |&gt; redirect(<span class="hljs-symbol">to:</span> page_path(conn, <span class="hljs-symbol">:index</span>))
+      {<span class="hljs-symbol">:error</span>, _reason, conn} -&gt;
+        conn
+        |&gt; put_flash(<span class="hljs-symbol">:error</span>, <span class="hljs-string">"Invalid username/password combination"</span>)
+        |&gt; render(<span class="hljs-string">"new.html"</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete</span></span>(conn, _) <span class="hljs-keyword">do</span>
+    conn
+    |&gt; <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Auth</span>.logout()
+    |&gt; redirect(<span class="hljs-symbol">to:</span> page_path(conn, <span class="hljs-symbol">:index</span>))
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>session_view.ex</code> も作っておきます。内容は割愛します。関数などは定義しなくて良いです。 <code>router.ex</code> も上で作った <code>session_controller.ex</code> 用に追加しておきます。</p>
+<pre><code class="language-Elixir hljs">scope <span class="hljs-string">"/"</span>, <span class="hljs-title class_">Rumbl</span> <span class="hljs-keyword">do</span>
+  pipe_through <span class="hljs-symbol">:browser</span> <span class="hljs-comment"># Use the default browser stacks.</span>
+
+  get <span class="hljs-string">"/"</span>, <span class="hljs-title class_">PageController</span>, <span class="hljs-symbol">:index</span>
+  resources <span class="hljs-string">"/users"</span>, <span class="hljs-title class_">UserController</span>, <span class="hljs-symbol">only:</span> [<span class="hljs-symbol">:index</span>, <span class="hljs-symbol">:show</span>, <span class="hljs-symbol">:new</span>, <span class="hljs-symbol">:create</span>]
+  resources <span class="hljs-string">"/sessions"</span>, <span class="hljs-title class_">SessionController</span>, <span class="hljs-symbol">only:</span> [<span class="hljs-symbol">:new</span>, <span class="hljs-symbol">:create</span>, <span class="hljs-symbol">:delete</span>] <span class="hljs-comment"># 追加</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>usernameとpasswordでログインするための関数とログアウト用の関数を <code>auth.ex</code> に用意しておきます。</p>
+<pre><code class="language-Elixir hljs">...
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Comeonin</span>.<span class="hljs-title class_">Bcrypt</span>, <span class="hljs-symbol">only:</span> [<span class="hljs-symbol">checkpw:</span> <span class="hljs-number">2</span>, <span class="hljs-symbol">dummy_checkpw:</span> <span class="hljs-number">0</span>]
+
+...
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">logout</span></span>(conn) <span class="hljs-keyword">do</span>
+  configure_session(conn, <span class="hljs-symbol">drop:</span> <span class="hljs-literal">true</span>)
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">login_by_username_add_pass</span></span>(conn, username, given_pass, opts) <span class="hljs-keyword">do</span>
+  repo = <span class="hljs-title class_">Keyword</span>.fetch!(opts, <span class="hljs-symbol">:repo</span>)
+  user = repo.get_by(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>, <span class="hljs-symbol">username:</span> username)
+
+  <span class="hljs-comment"># 複数の値で分岐しているためcaseではなくcond(caseは与えられた1つの値に対する分岐)</span>
+  <span class="hljs-keyword">cond</span> <span class="hljs-keyword">do</span>
+    user &amp;&amp; checkpw(given_pass, user.password_hash) -&gt;
+      {<span class="hljs-symbol">:ok</span>, login(conn, user)}
+    user -&gt;
+      {<span class="hljs-symbol">:error</span>, <span class="hljs-symbol">:unauthorized</span>, conn}
+    <span class="hljs-literal">true</span> -&gt;
+      dummy_checkpw()
+      {<span class="hljs-symbol">:error</span>, <span class="hljs-symbol">:not_found</span>, conn}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>ログイン画面用のテンプレートも作ります。まず <code>session/new.html.eex</code> を以下のように実装します。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Login<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+
+&lt;%=</span><span class="language-ruby"> form_for <span class="hljs-variable">@conn</span>, session_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:create</span>), [<span class="hljs-symbol">as:</span> <span class="hljs-symbol">:session</span>], fn f-&gt; </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> text_input f, <span class="hljs-symbol">:username</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Username"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> password_input f, <span class="hljs-symbol">:password</span>, <span class="hljs-symbol">placeholder:</span> <span class="hljs-string">"Password"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  &lt;%=</span><span class="language-ruby"> submit <span class="hljs-string">"Log in"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"btn btn-primary"</span> </span><span class="language-xml">%&gt;
+&lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+</span></code></pre>
+<p>最後に今まで作ったもののリンクを表示します。 <code>layout/app.html.eex</code> を以下のように変更します。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">header</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"header"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">ol</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"breadcrumb text-right"</span>&gt;</span>
+    <span class="hljs-comment">&lt;!-- assignsで突っ込んだものが使えている --&gt;</span>
+    &lt;%=</span><span class="language-ruby"> <span class="hljs-keyword">if</span> <span class="hljs-variable">@current_user</span> <span class="hljs-keyword">do</span> </span><span class="language-xml">%&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>&lt;%=</span><span class="language-ruby"> <span class="hljs-variable">@current_user</span>.username </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
+        &lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"Log out"</span>, <span class="hljs-symbol">to:</span> session_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:delete</span>, <span class="hljs-variable">@current_user</span>),
+                            <span class="hljs-symbol">method:</span> <span class="hljs-string">"delete"</span> </span><span class="language-xml">%&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    &lt;%</span><span class="language-ruby"> <span class="hljs-keyword">else</span> </span><span class="language-xml">%&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>&lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"Register"</span>, <span class="hljs-symbol">to:</span> user_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:new</span>) </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>&lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"Log in"</span>, <span class="hljs-symbol">to:</span> session_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:new</span>) </span><span class="language-xml">%&gt;<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    &lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">ol</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"logo"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span>
+</span></code></pre>
+<p>これでOKなはずです。</p>
+</section>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>Plug.Conn</code> を使ったセッションやコネクションの管理はスマートだし中身が分かればわかりやすいと思いました。関数の引数に毎回 <code>conn</code> が出てきちゃいますが・・・</p></li>
+<li><p>本のおかげかもしれませんが余りブラックボックスな部分を残さないよう理解出来ている感があるのが良いです。</p></li>
+<li><p>関数型だけあってかロジックを関数毎に分離しているのがとても良かったです。書いてて理解し易い気がします。</p></li>
+</ul>
+<p>1記事がやたらと長くなりましたが実験ということで・・・</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix6/" rel="prev">Programming Phoenix勉強その6</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix8/" rel="next">Programming Phoenix勉強その8</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix7/ -->
+  
+
+</body></html>

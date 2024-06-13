@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その16 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその16">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その16</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-02-04 23:18:00">
+      February 4th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その16
+">
+<h1>Programming Phoenix勉強その16</h1>
+<p>その16です。 <code>Channel</code> の続きからですが、コメント管理するモデルの作成からです。</p>
+<section id="モデルの作成
+">
+<h2>モデルの作成</h2>
+<p>いつものコマンドからモデルを作成&amp;マイグレーションします。</p>
+<pre><code class="language-shell hljs">rumbl $ mix phoenix.gen.model Annotation annotations body:text at:integer user_id:references:users video_id:references:videos
+rumbl $ mix ecto.migrate
+</code></pre>
+<p>完了したら <code>user.ex</code> と <code>video.ex</code> に <code>has_many :annotations, Rumbl.Annotation</code> を追加しておきます。 作成したらモデルを使うようにしてやります。 <code>video_channel.ex</code> を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.VideoChannel</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:channel</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">join</span></span>(<span class="hljs-string">"videos:"</span> &lt;&gt; video_id, _params, socket) <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, assign(socket, <span class="hljs-symbol">:video_id</span>, <span class="hljs-title class_">String</span>.to_integer(video_id))}
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-comment"># 最初に入ってきてuserを取得後各関数に処理をディスパッチする</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_in</span></span>(event, params, socket) <span class="hljs-keyword">do</span>
+    user = <span class="hljs-title class_">Repo</span>.get(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>, socket.assigns.user_id)
+    handle_in(event, params, user, socket)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">handle_in</span></span>(<span class="hljs-string">"new_annotation"</span>, params, user, socket) <span class="hljs-keyword">do</span>
+    changeset =
+      user
+      |&gt; build_assoc(<span class="hljs-symbol">:annotations</span>, <span class="hljs-symbol">video_id:</span> socket.assigns.video_id)
+      |&gt; <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Annotation</span>.changeset(params)
+
+    <span class="hljs-keyword">case</span> <span class="hljs-title class_">Repo</span>.insert(changeset) <span class="hljs-keyword">do</span>
+      {<span class="hljs-symbol">:ok</span>, annotation} -&gt;
+        <span class="hljs-comment"># 接続しているクライアント全てにブロードキャストする</span>
+        <span class="hljs-comment"># ユーザが任意のメッセージを送れないようにparamsを分解する</span>
+        broadcast! socket, <span class="hljs-string">"new_annotation"</span>, %{
+          <span class="hljs-symbol">id:</span> annotation.id,
+          <span class="hljs-symbol">user:</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">UserView</span>.render(<span class="hljs-string">"user.json"</span>, %{<span class="hljs-symbol">user:</span> user}),
+          <span class="hljs-symbol">body:</span> annotation.body,
+          <span class="hljs-symbol">at:</span> annotation.at
+        }
+        {<span class="hljs-symbol">:reply</span>, <span class="hljs-symbol">:ok</span>, socket}
+
+      {<span class="hljs-symbol">:error</span>, changeset} -&gt;
+        {<span class="hljs-symbol">:reply</span>, {<span class="hljs-symbol">:error</span>, %{<span class="hljs-symbol">errors:</span> changeset}}, socket}
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>handle_in/3</code> 関数と <code>handle_in/4</code> 関数を追加しました。 <code>user</code> を必ず取得してから次の処理に移行するように しています。</p>
+<p>この中で <code>UserVide.render</code> 関数を使っているのでそちらも <code>user_view.ex</code> に実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.UserView</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:view</span>
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">first_name</span></span>(%<span class="hljs-title class_">User</span>{<span class="hljs-symbol">name:</span> name}) <span class="hljs-keyword">do</span>
+    name
+    |&gt; <span class="hljs-title class_">String</span>.split(<span class="hljs-string">" "</span>)
+    |&gt; <span class="hljs-title class_">Enum</span>.at(<span class="hljs-number">0</span>)
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">render</span></span>(<span class="hljs-string">"user.json"</span>, %{<span class="hljs-symbol">user:</span> user}) <span class="hljs-keyword">do</span>
+    %{<span class="hljs-symbol">id:</span> user.id, <span class="hljs-symbol">username:</span> user.username}
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>render</code> 関数を追加しました。普通の <code>render</code> 関数は第一引数にテンプレート名を受けますが、 jsonを受けるようにして作りました。</p>
+</section>
+<section id="コメントの時系列順表示
+">
+<h2>コメントの時系列順表示</h2>
+<p><code>annotation</code> の永続化は行ったので、以下を行います。</p>
+<ul>
+<li><p>永続化されたコメントを取り出して表示する処理</p></li>
+<li><p>クリックしたときに投稿した時間に動画を飛ばす処理</p></li>
+</ul>
+<p><code>video_channel.ex</code> の <code>join</code> 関数を以下のように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">AnnotationView</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">join</span></span>(<span class="hljs-string">"videos:"</span> &lt;&gt; video_id, _params, socket) <span class="hljs-keyword">do</span>
+  video_id = <span class="hljs-title class_">String</span>.to_integer(video_id)
+  video = <span class="hljs-title class_">Repo</span>.get!(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Video</span>, video_id)
+
+  annotations = <span class="hljs-title class_">Repo</span>.all(
+    <span class="hljs-comment"># videoに紐づくannotationsを取得</span>
+    from a <span class="hljs-keyword">in</span> assoc(video, <span class="hljs-symbol">:annotations</span>),
+      <span class="hljs-symbol">order_by:</span> [<span class="hljs-symbol">asc:</span> a.at, <span class="hljs-symbol">asc:</span> a.id],
+      <span class="hljs-symbol">limit:</span> <span class="hljs-number">200</span>,
+      <span class="hljs-symbol">preload:</span> [<span class="hljs-symbol">:user</span>]
+  )
+
+  resp = %{<span class="hljs-symbol">annotations:</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">View</span>.render_many(annotations, <span class="hljs-title class_">AnnotationView</span>, <span class="hljs-string">"annotation.json"</span>)}
+
+  <span class="hljs-comment"># socket.assignsにvideo_idを保存</span>
+  {<span class="hljs-symbol">:ok</span>, resp, assign(socket, <span class="hljs-symbol">:video_id</span>, video_id)}
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>接続直後にその <code>video</code> に関連する <code>annotation</code> を取得して送信しています。 <code>Rumbl.AnnotationView</code> を使っているのでこれも実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.AnnotationView</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:view</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">render</span></span>(<span class="hljs-string">"annotation.json"</span>, %{<span class="hljs-symbol">annotation:</span> ann}) <span class="hljs-keyword">do</span>
+    %{
+      <span class="hljs-symbol">id:</span> ann.id,
+      <span class="hljs-symbol">body:</span> ann.body,
+      <span class="hljs-symbol">at:</span> ann.at,
+      <span class="hljs-symbol">user:</span> render_one(ann.user, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">UserView</span>, <span class="hljs-string">"user.json"</span>)
+    }
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>render_many</code> や <code>render_one</code> 見たいな関数は  <a href="https://hexdocs.pm/phoenix/Phoenix.View.html#functions">公式ドキュメント</a> を参考にすればわかると思います。</p>
+<p>これに伴い、 <code>join</code> した時のクライアントサイドコードも変更しておく必要があります。</p>
+<pre><code class="language-JavaScript hljs"><span class="hljs-keyword">import</span> <span class="hljs-title class_">Player</span> <span class="hljs-keyword">from</span> <span class="hljs-string">"./player"</span>
+
+<span class="hljs-keyword">let</span> <span class="hljs-title class_">Video</span> = {
+...
+    <span class="hljs-title function_">onReady</span>(<span class="hljs-params">videoId, socket</span>) {
+        <span class="hljs-keyword">let</span> msgContainer = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-container"</span>);
+        <span class="hljs-keyword">let</span> msgInput = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-input"</span>);
+        <span class="hljs-keyword">let</span> postButton = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">"msg-submit"</span>);
+        <span class="hljs-comment">// トピックの識別</span>
+        <span class="hljs-keyword">let</span> vidChannel = socket.<span class="hljs-title function_">channel</span>(<span class="hljs-string">"videos:"</span> + videoId);
+
+        postButton.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">"click"</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> {
+            <span class="hljs-keyword">let</span> payload = { <span class="hljs-attr">body</span>: msgInput.<span class="hljs-property">value</span>, <span class="hljs-attr">at</span>: <span class="hljs-title class_">Player</span>.<span class="hljs-title function_">getCurrentTime</span>() };
+            vidChannel.<span class="hljs-title function_">push</span>(<span class="hljs-string">"new_annotation"</span>, payload)
+                .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(e));
+            msgInput.<span class="hljs-property">value</span> = <span class="hljs-string">""</span>;
+        });
+
+        <span class="hljs-comment">// サーバーからのプッシュイベントを受け取るイベントハンドラを設定</span>
+        vidChannel.<span class="hljs-title function_">on</span>(<span class="hljs-string">"new_annotation"</span>, <span class="hljs-function">(<span class="hljs-params">resp</span>) =&gt;</span> {
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">renderAnnotation</span>(msgContainer, resp);
+        });
+
+        msgContainer.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">"click"</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> {
+            e.<span class="hljs-title function_">preventDefault</span>();
+            <span class="hljs-keyword">let</span> seconds = e.<span class="hljs-property">target</span>.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">"data-seek"</span>) ||
+                e.<span class="hljs-property">target</span>.<span class="hljs-property">parentNode</span>.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">"data-seek"</span>);
+
+            <span class="hljs-keyword">if</span> (!seconds) { <span class="hljs-keyword">return</span>; }
+
+            <span class="hljs-title class_">Player</span>.<span class="hljs-title function_">seekTo</span>(seconds);
+        });
+
+        <span class="hljs-comment">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span>
+        vidChannel.<span class="hljs-title function_">join</span>()
+            .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"ok"</span>, <span class="hljs-function"><span class="hljs-params">resp</span> =&gt;</span> {
+                <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">scheduleMessages</span>(msgContainer, resp.<span class="hljs-property">annotations</span>)
+            })
+            .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-params">reason</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"join failed"</span>, reason));
+    },
+
+    <span class="hljs-title function_">esc</span>(<span class="hljs-params">str</span>) {
+        <span class="hljs-keyword">let</span> div = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">"div"</span>);
+        div.<span class="hljs-title function_">appendChild</span>(<span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createTextNode</span>(str));
+        <span class="hljs-keyword">return</span> div.<span class="hljs-property">innerHTML</span>;
+    },
+
+    <span class="hljs-title function_">renderAnnotation</span>(<span class="hljs-params">msgContainer, { user, body, at }</span>) {
+        <span class="hljs-keyword">let</span> template = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">"div"</span>);
+
+        template.<span class="hljs-property">innerHTML</span> = <span class="hljs-string">`
+        &lt;a href="#" data-seek="<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.esc(at)}</span>"&gt;
+            [<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.formatTime(at)}</span>]
+            &lt;b&gt;<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.esc(user.username)}</span>&lt;/b&gt;: <span class="hljs-subst">${<span class="hljs-variable language_">this</span>.esc(body)}</span>
+        &lt;/a&gt;
+        `</span>;
+
+        msgContainer.<span class="hljs-title function_">appendChild</span>(template);
+        msgContainer.<span class="hljs-property">scrollTop</span> = msgContainer.<span class="hljs-property">scrollHeight</span>;
+    },
+
+    <span class="hljs-title function_">scheduleMessages</span>(<span class="hljs-params">msgContainer, annotations</span>) {
+        <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> {
+            <span class="hljs-keyword">let</span> ctime = <span class="hljs-title class_">Player</span>.<span class="hljs-title function_">getCurrentTime</span>();
+            <span class="hljs-keyword">let</span> remaining = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">renderAtTime</span>(annotations, ctime, msgContainer);
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">scheduleMessages</span>(msgContainer, remaining);
+        }, <span class="hljs-number">1000</span>);
+    },
+
+    <span class="hljs-title function_">renderAtTime</span>(<span class="hljs-params">annotations, seconds, msgContainer</span>) {
+        <span class="hljs-keyword">return</span> annotations.<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">ann</span> =&gt;</span> {
+            <span class="hljs-keyword">if</span> (ann.<span class="hljs-property">at</span> &gt; seconds) {
+                <span class="hljs-comment">// コメントした時間以降で無ければ表示しない</span>
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-comment">// 表示してリストから除外する</span>
+                <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">renderAnnotation</span>(msgContainer, ann);
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+            }
+        });
+    },
+
+    <span class="hljs-title function_">formatTime</span>(<span class="hljs-params">at</span>) {
+        <span class="hljs-keyword">let</span> date = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>(<span class="hljs-literal">null</span>);
+        date.<span class="hljs-title function_">setSeconds</span>(at / <span class="hljs-number">1000</span>);
+        <span class="hljs-keyword">return</span> date.<span class="hljs-title function_">toISOString</span>().<span class="hljs-title function_">substr</span>(<span class="hljs-number">14</span>, <span class="hljs-number">5</span>);
+    }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">Video</span>;
+</code></pre>
+<p>何かいっぱい追加しましたが、大したことはしていないです。</p>
+<ul>
+<li><p><code>join</code> 時にリストで受け取るコメント一覧を保持</p></li>
+<li><p><code>renderAtTime</code> 関数で投稿時間を過ぎていたらレンダリングする</p></li>
+<li><p>コメントをクリックしたら時間のところに動画をシークするイベント追加</p></li>
+</ul>
+<p>こんなところでしょうか。</p>
+</section>
+<section id="切断処理の実装
+">
+<h2>切断処理の実装</h2>
+<p>切断処理を適切にハンドリングするようにします。 現状では切断後そのまま再接続すると同じコメントがかぶってしまったりするケースがあります。 これを回避するために最後に参照した <code>annotation</code> のidを保持しておいて、再接続後はそれ以降のものを取得するようにします。</p>
+<p>はじめにクライアント側で最後に取得したコメントのIDを保持するように変更します。 <code>video.js</code> を修正します。</p>
+<pre><code class="language-JavaScript hljs">...
+<span class="hljs-comment">// サーバーからのプッシュイベントを受け取るイベントハンドラを設定</span>
+vidChannel.<span class="hljs-title function_">on</span>(<span class="hljs-string">"new_annotation"</span>, <span class="hljs-function">(<span class="hljs-params">resp</span>) =&gt;</span> {
+    <span class="hljs-comment">// 投稿したものが最新のIDなので保持する</span>
+    vidChannel.<span class="hljs-property">params</span>.<span class="hljs-property">last_seen_id</span> = resp.<span class="hljs-property">id</span>;
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">renderAnnotation</span>(msgContainer, resp);
+});
+...
+<span class="hljs-comment">// チャンネルへのjoin receiveで帰ってきたものを受け取る(OTPっぽい)</span>
+vidChannel.<span class="hljs-title function_">join</span>()
+    .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"ok"</span>, <span class="hljs-function"><span class="hljs-params">resp</span> =&gt;</span> {
+        <span class="hljs-keyword">let</span> ids = resp.<span class="hljs-property">annotations</span>.<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">ann</span> =&gt;</span> ann.<span class="hljs-property">id</span>);
+        <span class="hljs-keyword">if</span> (ids.<span class="hljs-property">length</span> &gt; <span class="hljs-number">0</span>) {
+            <span class="hljs-comment">// 再生したコメントの最後のものを取得</span>
+            vidChannel.<span class="hljs-property">params</span>.<span class="hljs-property">last_seen_id</span> = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(...ids);
+        }
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(vidChannel.<span class="hljs-property">params</span>.<span class="hljs-property">last_seen_id</span>);
+        <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">scheduleMessages</span>(msgContainer, resp.<span class="hljs-property">annotations</span>)
+    })
+    .<span class="hljs-title function_">receive</span>(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-params">reason</span> =&gt;</span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">"join failed"</span>, reason));
+</code></pre>
+<p>最後に取得したコメントIDを <code>last_seen_id</code> を <code>params</code> のパラメータとして保持します。 <code>vidChannel.params</code> は最初から用意されており、自動でサーバー側にも送信されるパラメータです。</p>
+<p><code>last_seen_id</code> を使うように <code>video_channel.ex</code> の <code>join</code> 関数を変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">join</span></span>(<span class="hljs-string">"videos:"</span> &lt;&gt; video_id, params, socket) <span class="hljs-keyword">do</span>
+  last_seen_id = params[<span class="hljs-string">"last_seen_id"</span>] || <span class="hljs-number">0</span>
+  video_id = <span class="hljs-title class_">String</span>.to_integer(video_id)
+  video = <span class="hljs-title class_">Repo</span>.get!(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Video</span>, video_id)
+
+  annotations = <span class="hljs-title class_">Repo</span>.all(
+    <span class="hljs-comment"># videoに紐づくannotationsを取得</span>
+    from a <span class="hljs-keyword">in</span> assoc(video, <span class="hljs-symbol">:annotations</span>),
+      <span class="hljs-symbol">where:</span> a.id &gt; ^last_seen_id,
+      <span class="hljs-symbol">order_by:</span> [<span class="hljs-symbol">asc:</span> a.at, <span class="hljs-symbol">asc:</span> a.id],
+      <span class="hljs-symbol">limit:</span> <span class="hljs-number">200</span>,
+      <span class="hljs-symbol">preload:</span> [<span class="hljs-symbol">:user</span>]
+  )
+
+  resp = %{<span class="hljs-symbol">annotations:</span> <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">View</span>.render_many(annotations, <span class="hljs-title class_">AnnotationView</span>, <span class="hljs-string">"annotation.json"</span>)}
+
+  {<span class="hljs-symbol">:ok</span>, resp, assign(socket, <span class="hljs-symbol">:video_id</span>, video_id)}
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>join</code> 関数内では、 <code>params</code> を引数で受け取り <code>Map</code> などのように使えます。 但し、パラメータが渡されていない場合は <code>nil</code> になるのでチェックを掛けています。</p>
+<p>これで切断後の再接続用処理が実装出来ました。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul><li><p>サーバー側とクライアント側で任意のパラメータを共有するときは <code>params</code> を使う</p></li></ul>
+<p>何か新しいことがあったというよりは今まで習ったものを <code>JavaScript</code> とか <code>Elixir</code> から上手いこと使う感じでした。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix15/" rel="prev">Programming Phoenix勉強その15</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix17/" rel="next">Programming Phoenix勉強その17</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix16/ -->
+  
+
+</body></html>

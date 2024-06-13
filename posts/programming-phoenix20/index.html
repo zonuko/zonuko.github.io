@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その20 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその20">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その20</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-02-17 00:12:00">
+      February 17th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その20
+">
+<h1>Programming Phoenix勉強その20</h1>
+<p>なんとその20です。 <code>channel</code> のテストの続きです。 <code>wolfram</code> のテストはしたので <code>channel</code> 周りのテストからです。</p>
+<section id="channelの認証テスト
+">
+<h2>Channelの認証テスト</h2>
+<p><code>wolfram</code> のサービス用テストは作ったのでそれを呼び出す <code>channel</code> 側のテストを書きます。 まず認証をテストします。 <code>rumbl/test/channel/user_socket_test.exs</code> を実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Channels.UserSocketTest</span></span> <span class="hljs-keyword">do</span> 
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">ChannelCase</span>, <span class="hljs-symbol">async:</span> <span class="hljs-literal">true</span> 
+  <span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">UserSocket</span> 
+
+  test <span class="hljs-string">"socket authentication with valid token"</span> <span class="hljs-keyword">do</span> 
+    token = <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Token</span>.sign(<span class="hljs-variable">@endpoint</span>, <span class="hljs-string">"user socket"</span>, <span class="hljs-string">"123"</span>) 
+
+    assert {<span class="hljs-symbol">:ok</span>, socket} = connect(<span class="hljs-title class_">UserSocket</span>, %{<span class="hljs-string">"token"</span> =&gt; token}) 
+    assert socket.assigns.user_id == <span class="hljs-string">"123"</span> 
+  <span class="hljs-keyword">end</span> 
+
+  test <span class="hljs-string">"socket authentication with invalid token"</span> <span class="hljs-keyword">do</span> 
+    assert <span class="hljs-symbol">:error</span> = connect(<span class="hljs-title class_">UserSocket</span>, %{<span class="hljs-string">"token"</span> =&gt; <span class="hljs-string">"123"</span>}) 
+    assert <span class="hljs-symbol">:error</span> = connect(<span class="hljs-title class_">UserSocket</span>, %{}) 
+  <span class="hljs-keyword">end</span> 
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>単純にトークンを作った後にちゃんと処理ができるということを確かめているテストとトークン作らない場合に失敗するテストを書いています。</p>
+</section>
+<section id="channelのテスト
+">
+<h2>Channelのテスト</h2>
+<p>認証が正しく出来ていることは確認できたので、本物の <code>channel</code> のテストを行います。 <code>video_channel_test.exs</code> を以下の内容で実装します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Channels.VideoChannelTest</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">ChannelCase</span>
+  <span class="hljs-keyword">import</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">TestHelpers</span>
+
+  setup <span class="hljs-keyword">do</span>
+    user = insert_user(<span class="hljs-symbol">name:</span> <span class="hljs-string">"Rebecca"</span>)
+    video = insert_video(user, <span class="hljs-symbol">title:</span> <span class="hljs-string">"Testing"</span>)
+    token = <span class="hljs-title class_">Phoenix</span>.<span class="hljs-title class_">Token</span>.sign(<span class="hljs-variable">@endpoint</span>, <span class="hljs-string">"user socket"</span>, user.id)
+    <span class="hljs-comment"># コネクションのシュミレート</span>
+    {<span class="hljs-symbol">:ok</span>, socket} = connect(<span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">UserSocket</span>, %{<span class="hljs-string">"token"</span> =&gt; token})
+
+    {<span class="hljs-symbol">:ok</span>, <span class="hljs-symbol">socket:</span> socket, <span class="hljs-symbol">user:</span> user, <span class="hljs-symbol">video:</span> video}
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"join replies with video annotations"</span>, %{<span class="hljs-symbol">socket:</span> socket, <span class="hljs-symbol">video:</span> vid} <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">for</span> body &lt;- <span class="hljs-string">~w(one two)</span> <span class="hljs-keyword">do</span>
+      vid
+      |&gt; build_assoc(<span class="hljs-symbol">:annotations</span>, %{<span class="hljs-symbol">body:</span> body})
+      |&gt; <span class="hljs-title class_">Repo</span>.insert!()
+    <span class="hljs-keyword">end</span>
+    <span class="hljs-comment"># チャンネルへの参加</span>
+    {<span class="hljs-symbol">:ok</span>, reply, socket} = subscribe_and_join(socket, <span class="hljs-string">"videos:<span class="hljs-subst">#{vid.id}</span>"</span>, %{})
+    <span class="hljs-comment"># 正しいチャンネルに参加していること</span>
+    assert socket.assigns.video_id == vid.id
+    <span class="hljs-comment"># annotationがすべて取得出来ていること</span>
+    assert %{<span class="hljs-symbol">annotations:</span> [%{<span class="hljs-symbol">body:</span> <span class="hljs-string">"one"</span>}, %{<span class="hljs-symbol">body:</span> <span class="hljs-string">"two"</span>}]} = reply
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"inserting new annotations"</span>, %{<span class="hljs-symbol">socket:</span> socket, <span class="hljs-symbol">video:</span> vid} <span class="hljs-keyword">do</span>
+    {<span class="hljs-symbol">:ok</span>, _, socket} = subscribe_and_join(socket, <span class="hljs-string">"videos:<span class="hljs-subst">#{vid.id}</span>"</span>, %{})
+    <span class="hljs-comment"># イベントをチャンネルにプッシュ</span>
+    ref = push socket, <span class="hljs-string">"new_annotation"</span>, %{<span class="hljs-symbol">body:</span> <span class="hljs-string">"the body"</span>, <span class="hljs-symbol">at:</span> <span class="hljs-number">0</span>}
+    assert_reply ref, <span class="hljs-symbol">:ok</span>, %{}
+    assert_broadcast <span class="hljs-string">"new_annotation"</span>, %{}
+  <span class="hljs-keyword">end</span>
+
+  test <span class="hljs-string">"new annotations triggers InfoSys"</span>, %{<span class="hljs-symbol">socket:</span> socket, <span class="hljs-symbol">video:</span> vid} <span class="hljs-keyword">do</span>
+      insert_user(<span class="hljs-symbol">username:</span> <span class="hljs-string">"wolfram"</span>)
+    {<span class="hljs-symbol">:ok</span>, _, socket} = subscribe_and_join(socket, <span class="hljs-string">"videos:<span class="hljs-subst">#{vid.id}</span>"</span>, %{})
+    ref = push socket, <span class="hljs-string">"new_annotation"</span>, %{<span class="hljs-symbol">body:</span> <span class="hljs-string">"1 + 1"</span>, <span class="hljs-symbol">at:</span> <span class="hljs-number">123</span>}
+    assert_reply ref, <span class="hljs-symbol">:ok</span>, %{}
+    assert_broadcast <span class="hljs-string">"new_annotation"</span>, %{<span class="hljs-symbol">body:</span> <span class="hljs-string">"1 + 1"</span>, <span class="hljs-symbol">at:</span> <span class="hljs-number">123</span>}
+    assert_broadcast <span class="hljs-string">"new_annotation"</span>, %{<span class="hljs-symbol">body:</span> <span class="hljs-string">"2"</span>, <span class="hljs-symbol">at:</span> <span class="hljs-number">123</span>} 
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>普通にテストしているので余り書くことも無い気がします・・・ 強いていうなら <code>push</code> でイベントをシュミレートしているのと、ユーザが <code>wolfram</code> であること前提となっているのを カバーしている点くらいな気がします。</p>
+<p>ここまでで <code>mix test</code> を実施すればすべて通るはずです。 書籍の内容はここまでで完了ですが、個人的にリリース方法が知りたかったのもあったので調べてやってみます。</p>
+</section>
+<section id="リリース準備
+">
+<h2>リリース準備</h2>
+<p><code>Phoenix</code> を含む <code>umbrella</code> プロジェクトをリリースしてみます。 プログラミングElixirとかだと <code>Exrm</code> を利用しているようですが、 新しい方ということで <code>distillery</code> を使います。 また、 <code>prod.secret.ex</code> の有無とかも省きます。なければ適当に用意してください。</p>
+<p>これもリリース用のライブラリですが、 <code>Exrm</code> より強化されて <code>umbrella</code> プロジェクトへの 対応など強化されているようです。</p>
+<p><code>rumbrella/mix.exs</code> の <code>deps</code> に以下を追加します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">deps</span></span> <span class="hljs-keyword">do</span>
+  [{<span class="hljs-symbol">:distillery</span>, <span class="hljs-string">"~&gt; 1.0"</span>}]
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>mix deps.get</code> を実行しておきます。 ここから先は <a href="https://medium.com/@brucepomeroy/create-an-elixir-umbrella-project-containing-a-phoenix-app-and-build-a-release-with-distillery-46371f2617df#.6txl9w2cf">ここ</a> とか、 <a href="https://hexdocs.pm/distillery/getting-started.html">公式ドキュメント</a> とかを参考にします。</p>
+<p>まず初めに <code>production</code> 環境で <code>ecto.create</code> とかをしておきます。</p>
+<pre><code class="language-shell hljs">rumbrella $ MIX_ENV=prod mix ecto.create
+rumbrella $ MIX_ENV=prod mix ecto.migrate
+rumbrella $ MIX_ENV=prod mix run ./apps/rumbl/priv/repo/seeds.exs
+rumbrella $ MIX_ENV=prod mix run ./apps/rumbl/priv/repo/backend_seeds.exs
+</code></pre>
+<p>こんな感じで適当にDBを準備しておきます。</p>
+<p>次に <code>assets</code> ファイルを準備します。</p>
+<pre><code class="language-shell hljs">rumbrella $ MIX_ENV=prod mix phoenix.digest
+</code></pre>
+<p>また、 <code>package.json</code> に書いてあるとおり、静的ファイルをリリース用にビルドします。</p>
+<pre><code class="language-shell hljs">rumbrella $ cd ./apps/rumbl
+rumbl $ npm run deploy
+</code></pre>
+<p>次にリリース用に設定ファイルとかを生成します。</p>
+<pre><code class="language-shell hljs">rumbrella $ MIX_ENV=prod mix release.init
+</code></pre>
+<p>これやると <code>rumbrella/rel</code> とかいうフォルダが生成されます。 これでリリースといきたいですが、 <code>:httpc</code> の依存を設定ファイルに切っておきます。 <code>rumbl/mix.exs</code> です。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">application</span></span> <span class="hljs-keyword">do</span>
+  [<span class="hljs-symbol">mod:</span> {<span class="hljs-title class_">Rumbl</span>, []},
+   <span class="hljs-symbol">applications:</span> [<span class="hljs-symbol">:phoenix</span>, <span class="hljs-symbol">:phoenix_pubsub</span>, <span class="hljs-symbol">:phoenix_html</span>, <span class="hljs-symbol">:cowboy</span>, <span class="hljs-symbol">:logger</span>, <span class="hljs-symbol">:gettext</span>,
+                  <span class="hljs-symbol">:phoenix_ecto</span>, <span class="hljs-symbol">:postgrex</span>, <span class="hljs-symbol">:comeonin</span>, <span class="hljs-symbol">:inets</span>, <span class="hljs-symbol">:info_sys</span>]]
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>:inets</code> を追加しました。これがないとリリースビルド後の実行でエラーになります。 また、リリース用設定を <code>rumbl</code> 側にもしておきます。 <code>prod.exs</code> です。</p>
+<pre><code class="language-Elixir hljs">config <span class="hljs-symbol">:rumbl</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Endpoint</span>,
+  <span class="hljs-symbol">http:</span> [<span class="hljs-symbol">port:</span> <span class="hljs-number">4001</span>],
+  <span class="hljs-symbol">url:</span> [<span class="hljs-symbol">host:</span> <span class="hljs-string">"localhost"</span>, <span class="hljs-symbol">port:</span> <span class="hljs-number">8080</span>],
+  <span class="hljs-symbol">cache_static_manifest:</span> <span class="hljs-string">"priv/static/manifest.json"</span>,
+  <span class="hljs-symbol">server:</span> <span class="hljs-literal">true</span> <span class="hljs-comment"># リリース用サーバー開始設定</span>
+</code></pre>
+<p>ここまでやってリリースビルドです。</p>
+<pre><code class="language-shell hljs">rumbrella $ MIX_ENV=prod mix release --env=prod
+==&gt; Assembling release..
+==&gt; Building release rumbrella:0.1.0 using environment prod
+==&gt; Including ERTS 8.2 from /usr/local/Cellar/erlang/19.2/lib/erlang/erts-8.2
+==&gt; Packaging release..
+==&gt; Release successfully built!
+    You can run it in one of the following ways:
+      Interactive: _build/prod/rel/rumbrella/bin/rumbrella console
+      Foreground: _build/prod/rel/rumbrella/bin/rumbrella foreground
+      Daemon: _build/prod/rel/rumbrella/bin/rumbrella start
+</code></pre>
+<p>こんな感じのメッセージがでるので <code>_build/prod/rel/rumbrella/bin/rumbrella console</code> コマンドを実行すると 実行できます。 <code>http://localhost:4001</code> でいけるはずです。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>channel</code> のテストも他のと同様な感覚で書くことが可能</p></li>
+<li><p>リリースには <code>distillery</code> を利用する</p></li>
+</ul>
+<p>これで本の内容+αが終了です。リリースも簡単ですね。 そのうち何か作ろうと思いますが、趣味の言語あさりとかを優先してるかもしれないです。</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix19/" rel="prev">Programming Phoenix勉強その19</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/recently-bought-ost/" rel="next">最近買ったゲームサントラ</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix20/ -->
+  
+
+</body></html>

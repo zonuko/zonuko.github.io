@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: 
+
+Sitemap: https://zonuko.github.io/sitemap.xml
+
+User-agent: bingbot
+Crawl-delay: 30
+
+User-agent: MSNBOT
+Crawl-delay: 30

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その9 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその9">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その9</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-01-22 22:21:00">
+      January 22nd, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その9
+">
+<h1>Programming Phoenix勉強その9</h1>
+<p>その9です ここからchapter7です。 <code>Ecto</code> の続きっぽいです。</p>
+<section id="videoのカテゴリー追加
+">
+<h2>videoのカテゴリー追加</h2>
+<p>ビデオにカテゴリーを付けられるようにします。ジェネレータを使って <code>category</code> モデルを生成します。ついでに色々準備もします。 以下のコマンドを実行します。</p>
+<pre><code class="language-shell hljs">rumbl $ mix phoenix.gen.model Category categories name:string
+</code></pre>
+<p>出来上がったマイグレーションファイルを編集します。 <code>NOT NULL</code> 制約とか付けます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Repo.Migrations.CreateCategory</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Migration</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">change</span></span> <span class="hljs-keyword">do</span>
+    create table(<span class="hljs-symbol">:categories</span>) <span class="hljs-keyword">do</span>
+      add <span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:string</span>, <span class="hljs-symbol">null:</span> <span class="hljs-literal">false</span>
+
+      timestamps()
+    <span class="hljs-keyword">end</span>
+
+    create unique_index(<span class="hljs-symbol">:categories</span>, [<span class="hljs-symbol">:name</span>])
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>video.ex</code> を <code>Category</code> に紐付けるように変更します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Video</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Web</span>, <span class="hljs-symbol">:model</span>
+
+  schema <span class="hljs-string">"videos"</span> <span class="hljs-keyword">do</span>
+    field <span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:string</span>
+    field <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:string</span>
+    field <span class="hljs-symbol">:description</span>, <span class="hljs-symbol">:string</span>
+    belongs_to <span class="hljs-symbol">:user</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">User</span>
+
+    belongs_to <span class="hljs-symbol">:category</span>, <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Category</span>
+
+    timestamps()
+  <span class="hljs-keyword">end</span>
+
+  <span class="hljs-variable">@doc</span> <span class="hljs-string">"""
+  Builds a changeset based on the `struct` and `params`.
+  """</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(struct, params \\ %{}) <span class="hljs-keyword">do</span>
+    struct
+    |&gt; cast(params, [<span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:description</span>])
+    |&gt; validate_required([<span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:description</span>], [<span class="hljs-symbol">:category_id</span>])
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>例に漏れず <code>cast/4</code> じゃなくなってるので適当に公式ドキュメント見て辻褄合わせしてます。 <code>video</code> モデルに <code>category_id</code> を追加するためのマイグレーションファイルを作ります。</p>
+<pre><code class="language-shell hljs">rumbl $ mix ecto.gen.migration add_category_id_to_video
+</code></pre>
+<p>出来上がったファイルを編集します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Repo.Migrations.AddCategoryIdToVideo</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Migration</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">change</span></span> <span class="hljs-keyword">do</span>
+    alter table(<span class="hljs-symbol">:videos</span>) <span class="hljs-keyword">do</span>
+      add <span class="hljs-symbol">:category_id</span>, references(<span class="hljs-symbol">:categories</span>)
+    <span class="hljs-keyword">end</span>
+
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>マイグレーションを実行します。いつものコマンドです。 マイグレーション出来たら <code>seeds.exs</code> を編集して初期データを作ります。カテゴリー名は他の要素で編集されない固定の値だからです。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Repo</span>
+<span class="hljs-keyword">alias</span> <span class="hljs-title class_">Rumbl</span>.<span class="hljs-title class_">Category</span>
+
+<span class="hljs-keyword">for</span> category &lt;- <span class="hljs-string">~w(Action Drama Romance Comedy Sci-fi)</span> <span class="hljs-keyword">do</span>
+  <span class="hljs-comment"># カテゴリがすでに存在するか確認して無ければ入れる</span>
+  <span class="hljs-title class_">Repo</span>.get_by(<span class="hljs-title class_">Category</span>, <span class="hljs-symbol">name:</span> category) || <span class="hljs-title class_">Repo</span>.insert!(%<span class="hljs-title class_">Category</span>{<span class="hljs-symbol">name:</span> category})
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>用意したら <code>mix run priv/repo/seeds.ex</code> コマンドを実行すればシードデータ投入完了です。 ここまでの流れも余り違和感も不思議なところも無いかと思います。</p>
+</section>
+<section id="ectoについて
+">
+<h2>Ectoについて</h2>
+<p>ここで <code>Ecto</code> の <code>Query</code> とかについて軽く解説がありました。 <code>iex</code> で以下のコマンドを入力すると何が起こっているかわかります。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(1)&gt; </span><span class="language-bash">import Ecto.Query</span>
+Ecto.Query
+<span class="hljs-meta prompt_">iex(2)&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Repo</span> 
+Rumbl.Repo
+<span class="hljs-meta prompt_">iex(3)&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Category</span>
+Rumbl.Category
+<span class="hljs-meta prompt_">iex(4)&gt; </span><span class="language-bash">Repo.all from c <span class="hljs-keyword">in</span> Category, select: c.name</span>
+[debug] QUERY OK source="categories" db=188.0ms decode=15.0ms
+SELECT c0."name" FROM "categories" AS c0 []
+["Action", "Drama", "Romance", "Comedy", "Sci-fi"]
+<span class="hljs-meta prompt_">iex(5)&gt;</span><span class="language-bash">
+</span></code></pre>
+<p>上記を見てわかるのは</p>
+<ul>
+<li><p><code>Repo.all</code> は <code>Ecto.Query</code> を取る</p></li>
+<li><p><code>Ecto.Query</code> は <code>from</code> マクロで作れる</p></li>
+<li><p><code>from</code> マクロ以降の使い方は <code>LINQ to SQL</code> のクエリ式っぽく書ける</p></li>
+</ul>
+<p><code>LINQ to SQL</code> のクエリ式に馴染みがあるとすんなり受け入れられそうです。メソッドとかでラップされない分柔軟に使えそうだなと思いました。分解して構築することも可能です。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(6)&gt; </span><span class="language-bash">query = Category</span>
+Rumbl.Category
+<span class="hljs-meta prompt_">iex(7)&gt; </span><span class="language-bash">query = from c <span class="hljs-keyword">in</span> query, order_by: c.name</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Query&lt;from c <span class="hljs-keyword">in</span> Rumbl.Category, order_by: [asc: c.name]&gt;</span>
+<span class="hljs-meta prompt_">iex(8)&gt; </span><span class="language-bash">query = from c <span class="hljs-keyword">in</span> query, select: c.name</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Query&lt;from c <span class="hljs-keyword">in</span> Rumbl.Category, order_by: [asc: c.name], select: c.name&gt;</span>
+<span class="hljs-meta prompt_">iex(9)&gt; </span><span class="language-bash">Repo.all query</span>
+[debug] QUERY OK source="categories" db=47.0ms
+SELECT c0."name" FROM "categories" AS c0 ORDER BY c0."name" []
+["Action", "Comedy", "Drama", "Romance", "Sci-fi"]
+<span class="hljs-meta prompt_">iex(10)&gt;</span><span class="language-bash">
+</span></code></pre>
+<p>実際に <code>Repo.all/1</code> とかが引数として取れるものは <code>Ecto.Queryable</code> プロトコルを実装したものらしいです。 <code>Repo.all(Category)</code> とかのような使い方が許されるのはこれらがプロトコルを実装しているからです。</p>
+</section>
+<section id="ecto.queryableについて
+">
+<h2>Ecto.Queryableについて</h2>
+<p>ふと疑問に思って <code>Category</code> とか <code>User</code> とか <code>Video</code> とかに <code>Ecto.Queryable</code> プロトコル実装している部分はどこかと思って探しました。 ざっくり探った感じまず、 <code>Ecto.Queryable</code> の該当ソースを見ると以下のようになっています。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defimpl</span> <span class="hljs-title">Ecto.Queryable</span></span>, <span class="hljs-symbol">for:</span> <span class="hljs-title class_">Atom</span> <span class="hljs-keyword">do</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">to_query</span></span>(module) <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">try</span> <span class="hljs-keyword">do</span>
+      module.__schema__(<span class="hljs-symbol">:query</span>)
+    <span class="hljs-keyword">rescue</span>
+      <span class="hljs-title class_">UndefinedFunctionError</span> -&gt;
+        message = <span class="hljs-keyword">if</span> <span class="hljs-symbol">:code</span>.is_loaded(module) <span class="hljs-keyword">do</span>
+          <span class="hljs-string">"the given module does not provide a schema"</span>
+        <span class="hljs-keyword">else</span>
+          <span class="hljs-string">"the given module does not exist"</span>
+        <span class="hljs-keyword">end</span>
+
+        <span class="hljs-keyword">raise</span> <span class="hljs-title class_">Protocol</span>.<span class="hljs-title class_">UndefinedError</span>,
+          <span class="hljs-symbol">protocol:</span> <span class="hljs-variable">@protocol</span>, <span class="hljs-symbol">value:</span> module, <span class="hljs-symbol">description:</span> message
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>for: Atom</code> なんだからモジュールはだめじゃん？とか思われるかもしれませんが、モジュール名の実体は <code>Atom</code> なので問題ないです。  モジュールに <code>to_atom</code> すると <code>true</code> になります。ちなみに <code>Erlang</code> のモジュールは小文字から始まって <code>Elixir</code> のモジュールは <code>:'Elixir.Module'</code> とかになっています。ココらへんはプログラミングElixirとかを参考にするとよいかもしれないです。</p>
+<p>話を戻して、 <code>try</code> の部分を見ると <code>module.__schema__(:query)</code> となっていることがわかります。 じゃあ <code>__schema__/1</code> はどこにあるかというと <code>Ecto.Schema</code> に書いてあります。（内容は直接は関係ないのでおいておきます。） ここまで見て一旦自分で <code>Queryable</code> なモジュールを作ってみました。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Test</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>これで以下を呼び出してみます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(0)&gt; </span><span class="language-bash">Ecto.Queryable.to_query(Test)</span>
+** (Protocol.UndefinedError) protocol Ecto.Queryable not implemented for Test, the given module does not provide a schema
+  (ecto) lib/ecto/queryable.ex:37: Ecto.Queryable.Atom.to_query/1
+</code></pre>
+<p>モジュールの中に <code>schema</code> がないとだめとか言われているので適当に作ってみます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Test</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>
+
+  schema <span class="hljs-string">"test"</span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p>これでさっきのをもっかい打ち込んでみます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(0)&gt; </span><span class="language-bash">Ecto.Queryable.to_query(Test)</span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Query&lt;from t <span class="hljs-keyword">in</span> Test&gt;</span>
+</code></pre>
+<p>これでOKです。まとめておくと以下の点を満たすものが <code>Queryable</code> になっていると言ってよさそうです。</p>
+<ul>
+<li><p><code>Ecto.Schema</code> を <code>use</code> している</p></li>
+<li><p>モジュール内で <code>schema</code> マクロを使っている</p></li>
+</ul>
+</section>
+<section id="おまけ
+">
+<h2>おまけ</h2>
+<p><code>Ecto.Schema</code> の <code>__using__</code> マクロを見てみると以下のようになっています。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">defmacro</span> <span class="hljs-title">__using__</span></span>(_) <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">quote</span> <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">import</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>, <span class="hljs-symbol">only:</span> [<span class="hljs-symbol">schema:</span> <span class="hljs-number">2</span>, <span class="hljs-symbol">embedded_schema:</span> <span class="hljs-number">1</span>]
+
+    <span class="hljs-variable">@primary_key</span> <span class="hljs-literal">nil</span>
+    <span class="hljs-variable">@timestamps_opts</span> []
+    <span class="hljs-variable">@foreign_key_type</span> <span class="hljs-symbol">:id</span>
+    <span class="hljs-variable">@schema_prefix</span> <span class="hljs-literal">nil</span>
+
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_primary_keys</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_fields</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_assocs</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_embeds</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_raw</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_autogenerate</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.register_attribute(__MODULE__, <span class="hljs-symbol">:ecto_autoupdate</span>, <span class="hljs-symbol">accumulate:</span> <span class="hljs-literal">true</span>)
+    <span class="hljs-title class_">Module</span>.put_attribute(__MODULE__, <span class="hljs-symbol">:ecto_autogenerate_id</span>, <span class="hljs-literal">nil</span>)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>import Ecto.Schema, only: [schema: 2, embedded_schema: 1]</code> となっているので <code>schema/2</code> マクロを見てみます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">defmacro</span> <span class="hljs-title">schema</span></span>(source, [<span class="hljs-symbol">do:</span> block]) <span class="hljs-keyword">do</span>
+  schema(source, <span class="hljs-literal">true</span>, <span class="hljs-symbol">:id</span>, block)
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">defp</span> <span class="hljs-title">schema</span></span>(source, meta?, type, block) <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">quote</span> <span class="hljs-keyword">do</span>
+      ...
+    <span class="hljs-title class_">Module</span>.eval_quoted __ENV__, [
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__defstruct__(<span class="hljs-variable">@struct_fields</span>),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__changeset__(<span class="hljs-variable">@changeset_fields</span>),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__schema__(prefix, source, fields, primary_key_fields),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__types__(fields),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__assocs__(assocs),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__embeds__(embeds),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__read_after_writes__(<span class="hljs-variable">@ecto_raw</span>),
+      <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Schema</span>.__autogenerate__(<span class="hljs-variable">@ecto_autogenerate_id</span>, autogenerate, autoupdate)]
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>Module.eval_quoted</code> となっています。 <code>eval_quoted</code> の <a href="https://hexdocs.pm/elixir/Module.html#eval_quoted/4">ドキュメントを見ると</a> <code>quote</code> を展開してモジュールに <code>sum</code> 関数を導入している例が見れます。 <code>Ecto.Schema.__schema__</code> をみてみます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(prefix, source, fields, primary_key) <span class="hljs-keyword">do</span>
+  field_names = <span class="hljs-title class_">Enum</span>.map(fields, &amp;elem(&amp;<span class="hljs-number">1</span>, <span class="hljs-number">0</span>))
+
+  <span class="hljs-comment"># Hash is used by the query cache to specify</span>
+  <span class="hljs-comment"># the underlying schema structure did not change.</span>
+  <span class="hljs-comment"># We don't include the source because the source</span>
+  <span class="hljs-comment"># is already part of the query cache itself.</span>
+  hash = <span class="hljs-symbol">:erlang</span>.phash2({primary_key, fields})
+
+  <span class="hljs-keyword">quote</span> <span class="hljs-keyword">do</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(<span class="hljs-symbol">:query</span>),       <span class="hljs-symbol">do:</span> %<span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Query</span>{<span class="hljs-symbol">from:</span> {<span class="hljs-keyword">unquote</span>(source), __MODULE__}, <span class="hljs-symbol">prefix:</span> <span class="hljs-keyword">unquote</span>(prefix)}
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(<span class="hljs-symbol">:prefix</span>),      <span class="hljs-symbol">do:</span> <span class="hljs-keyword">unquote</span>(prefix)
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(<span class="hljs-symbol">:source</span>),      <span class="hljs-symbol">do:</span> <span class="hljs-keyword">unquote</span>(source)
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(<span class="hljs-symbol">:fields</span>),      <span class="hljs-symbol">do:</span> <span class="hljs-keyword">unquote</span>(field_names)
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(<span class="hljs-symbol">:primary_key</span>), <span class="hljs-symbol">do:</span> <span class="hljs-keyword">unquote</span>(primary_key)
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__schema__</span></span>(<span class="hljs-symbol">:hash</span>),        <span class="hljs-symbol">do:</span> <span class="hljs-keyword">unquote</span>(hash)
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>quote</code> の部分が評価されるのでこれで上記のドキュメントの例と同様に <code>__schema__</code> 関数がモジュールで使えるようになることがわかります。 やっぱメタプログラミングをもっと勉強しないとちゃんとソースの中身見るのはつらそうな気がします。</p>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>Ecto.Query</code> は分解して書ける</p></li>
+<li><p><code>Repo.all</code> の引数に取れるのは <code>Ecto.Queryable</code> プロトコルを実装したもののみ</p></li>
+<li><p><code>Ecto.Queryable</code> になれるモジュールは <code>use Ecto.Schema</code> と <code>schema</code> を定義したモジュールになる。</p></li>
+</ul>
+<p>気になったことを調べたら本題とは別の部分で長くなってしまいました・・・</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix8/" rel="prev">Programming Phoenix勉強その8</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix10/" rel="next">Programming Phoenix勉強その10</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix9/ -->
+  
+
+</body></html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+    <title>
+      
+        Programming Phoenix勉強その10 | zonukoブログ
+      
+    </title>
+    <meta name="description" content="Programming Phoenixって本を読むその10">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css"><link rel="stylesheet" href="/styles.css">
+    <link rel="alternate" href="/feed.xml" type="application/atom+xml" title="zonukoブログ">
+    <link rel="alternate" href="/feed.json" type="application/json" title="zonukoブログ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89443473-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-89443473-1');
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SQ699WG8QE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-SQ699WG8QE');
+    </script>
+
+  <script type="text/javascript" src="/pagefind/pagefind-ui.js"></script><script type="text/javascript">window.addEventListener('DOMContentLoaded', () => { new PagefindUI({"element":"#search","showImages":false,"showEmptyFilters":true,"resetStyles":false,"bundlePath":"/pagefind/","baseUrl":"/"}); });</script></head>
+  <body>
+    <nav class="navbar">
+      <a href="/" class="navbar-home">
+        <strong>zonukoブログ</strong>
+      </a>
+
+      <ul class="navbar-links">
+        <li>
+          <a href="/about/">
+            About
+          </a>
+        </li>
+        <li>
+          <a href="/game/">
+            Game
+          </a>
+        </li>
+      </ul>
+
+      <div class="navbar-search">
+        <div id="search"></div>
+      </div>
+    </nav>
+
+    <main class="body-post">
+      <div class="main-content">
+        <article class="post" data-pagefind-body="">
+  <div class="post-header">
+    <h1 class="post-title">Programming Phoenix勉強その10</h1>
+
+    <nav class="post-tags">
+    
+      <a href="/tags/phoenix/" class="tag">phoenix</a>
+    
+      <a href="/tags/elixir/" class="tag">elixir</a>
+    
+      <a href="/tags/programming/" class="tag">programming</a>
+    
+    </nav>
+
+    <time class="post-date" datetime="2017-01-24 22:21:00">
+      January 24th, 2017
+    </time>
+    <div class="share">
+      <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async="" src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      <a href="https://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/v4/public/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;"></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+    </div>
+  </div>
+
+  <div class="post-body">
+    
+<section id="programming-phoenix勉強その10
+">
+<h1>Programming Phoenix勉強その10</h1>
+<p>その10です。 chapter7の続きです。</p>
+<section id="ecto.queryの利用
+">
+<h2>Ecto.Queryの利用</h2>
+<p>前のChapterで調べた <code>Ecto.Query</code> を利用して <code>Category</code> にソート用の <code>query</code> と取得用の <code>query</code> を生成できる関数を用意します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">alphabetical</span></span>(query) <span class="hljs-keyword">do</span>
+  from c <span class="hljs-keyword">in</span> query, <span class="hljs-symbol">order_by:</span> c.name
+<span class="hljs-keyword">end</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">names_and_ids</span></span>(query) <span class="hljs-keyword">do</span>
+  from c <span class="hljs-keyword">in</span> query, <span class="hljs-symbol">select:</span> {c.name, c.id}
+<span class="hljs-keyword">end</span>
+</code></pre>
+</section>
+<section id="テンプレートの準備
+">
+<h2>テンプレートの準備</h2>
+<p>カテゴリ一覧は取得できるようになったのでそれを表示できるようにしておきます。 <code>video/form.html.eex</code> を以下のように編集します。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml">&lt;%=</span><span class="language-ruby"> form_for <span class="hljs-variable">@changeset</span>, <span class="hljs-variable">@action</span>, fn f -&gt; </span><span class="language-xml">%&gt;
+  ...
+  <span class="hljs-comment">&lt;!-- 追加 --&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"form-group"</span>&gt;</span>
+    &lt;%=</span><span class="language-ruby"> label f, <span class="hljs-symbol">:category_id</span>, <span class="hljs-string">"Category"</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"control-label"</span> </span><span class="language-xml">%&gt;
+    &lt;%=</span><span class="language-ruby"> select f, <span class="hljs-symbol">:category_id</span>, <span class="hljs-variable">@categories</span>, <span class="hljs-symbol">class:</span> <span class="hljs-string">"form-control"</span>, <span class="hljs-symbol">prompt:</span> <span class="hljs-string">"Choose a category"</span> </span><span class="language-xml">%&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  ...
+&lt;%</span><span class="language-ruby"> <span class="hljs-keyword">end</span> </span><span class="language-xml">%&gt;
+</span></code></pre>
+<p><code>video/new.html.eex</code> を以下のように編集します。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>New video<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+
+&lt;%=</span><span class="language-ruby"> render <span class="hljs-string">"form.html"</span>, <span class="hljs-symbol">changeset:</span> <span class="hljs-variable">@changeset</span>, <span class="hljs-symbol">categories:</span> <span class="hljs-variable">@categories</span>,
+                        <span class="hljs-symbol">action:</span> video_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:create</span>) </span><span class="language-xml">%&gt;
+
+&lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"Back"</span>, <span class="hljs-symbol">to:</span> video_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:index</span>) </span><span class="language-xml">%&gt;
+</span></code></pre>
+<p><code>video/edit.html.eex</code> を以下のように編集します。</p>
+<pre><code class="language-ERB hljs"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Edit video<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+
+&lt;%=</span><span class="language-ruby"> render <span class="hljs-string">"form.html"</span>, <span class="hljs-symbol">changeset:</span> <span class="hljs-variable">@changeset</span>, <span class="hljs-symbol">categories:</span> <span class="hljs-variable">@categories</span>,
+                        <span class="hljs-symbol">action:</span> video_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:update</span>, <span class="hljs-variable">@video</span>) </span><span class="language-xml">%&gt;
+
+&lt;%=</span><span class="language-ruby"> link <span class="hljs-string">"Back"</span>, <span class="hljs-symbol">to:</span> video_path(<span class="hljs-variable">@conn</span>, <span class="hljs-symbol">:index</span>) </span><span class="language-xml">%&gt;
+</span></code></pre>
+</section>
+<section id="queryのapiについて
+">
+<h2>QueryのAPIについて</h2>
+<p><code>Query</code> 構築の際に使えるものは以下</p>
+<ul>
+<li><p><code>==, !=, &lt;=, &gt;=,&lt;,&gt;</code></p></li>
+<li><p><code>and, or, not</code></p></li>
+<li><p><code>in</code></p></li>
+<li><p><code>like,ilike</code></p></li>
+<li><p><code>is_nil</code></p></li>
+<li><p><code>count, avg, sum, min, max</code></p></li>
+<li><p><code>datetime_add, date_add</code></p></li>
+<li><p><code>fragment, field, type</code></p></li>
+</ul>
+<p>より柔軟に <code>Query</code> を使いたい場合は <code>fragments</code> を使うことが出来る。</p>
+<pre><code class="language-Elixir hljs">from(u <span class="hljs-keyword">in</span> <span class="hljs-title class_">User</span>, <span class="hljs-symbol">where:</span> fragment(<span class="hljs-string">"lower(username) = ?"</span>, ^<span class="hljs-title class_">String</span>.downcase(uname)))
+</code></pre>
+<p>よくある静的プレースホルダと同じでしょうか。この方法でもセキュリティは担保されています。</p>
+<p>もっと柔軟にクエリを投げたいときは以下のように直接SQLを実行できます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Ecto.Adapters.SQL.query(Rumbl.Repo, <span class="hljs-string">"SELECT power(<span class="hljs-variable">$1</span>, <span class="hljs-variable">$2</span>)"</span>, [2, 10])</span>
+</code></pre>
+<p>クエリで関連するものも取りたい時は以下</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(6)&gt; </span><span class="language-bash">user = Repo.one from(u <span class="hljs-keyword">in</span> User, <span class="hljs-built_in">limit</span>: 1)</span>
+[debug] QUERY OK source="users" db=16.0ms decode=15.0ms
+SELECT u0."id", u0."name", u0."username", u0."password_hash", u0."inserted_at", u0."updated_at" FROM "users" AS u0 LIMIT 1 []
+<span class="hljs-meta prompt_">%</span><span class="language-bash">Rumbl.User{__meta__: <span class="hljs-comment">#Ecto.Schema.Metadata&lt;:loaded, "users"&gt;, id: 1,</span></span>
+ inserted_at: ~N[2017-01-11 03:37:33.878000], name: "aaa", password: nil,
+ password_hash: "$2b$12$L2IGA8kAewNvbOLJ0/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae",
+ updated_at: ~N[2017-01-16 03:40:31.371000], username: "aaa",
+ videos: #Ecto.Association.NotLoaded&lt;association :videos is not loaded&gt;}
+<span class="hljs-meta prompt_">iex(7)&gt; </span><span class="language-bash">user.videos <span class="hljs-comment"># この時点ではNotLoaded</span></span>
+<span class="hljs-meta prompt_">#</span><span class="language-bash">Ecto.Association.NotLoaded&lt;association :videos is not loaded&gt;</span>
+<span class="hljs-meta prompt_">iex(8)&gt; </span><span class="language-bash">user = Repo.preload(user, :videos) <span class="hljs-comment"># preloadすると関連するものも取れる</span></span>
+[debug] QUERY OK source="videos" db=78.0ms
+SELECT v0."id", v0."url", v0."title", v0."description", v0."user_id", v0."category_id", v0."inserted_at", v0."updated_at", v0."user_id" FROM "videos" AS v0 WHERE (v0."user_id" = $1)
+ ORDER BY v0."user_id" [1]
+<span class="hljs-meta prompt_">%</span><span class="language-bash">Rumbl.User{__meta__: <span class="hljs-comment">#Ecto.Schema.Metadata&lt;:loaded, "users"&gt;, id: 1,</span></span>
+ inserted_at: ~N[2017-01-11 03:37:33.878000], name: "aaa", password: nil,
+ password_hash: "$2b$12$L2IGA8kAewNvbOLJ0/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae",
+ updated_at: ~N[2017-01-16 03:40:31.371000], username: "aaa", videos: []}
+<span class="hljs-meta prompt_">iex(9)&gt; </span><span class="language-bash">user.videos</span>
+[]
+</code></pre>
+<p><code>Repo.preload</code> 関数を使えば関連するものも一緒に取得できます。ただ、毎回 <code>user</code> の取得と <code>preload</code> を別々にやるのは面倒なので以下のようなオプションが良いされてます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(10)&gt; </span><span class="language-bash">user = Repo.one from(u <span class="hljs-keyword">in</span> User, <span class="hljs-built_in">limit</span>: 1, preload: [:videos])</span>
+[debug] QUERY OK source="users" db=0.0ms
+SELECT u0."id", u0."name", u0."username", u0."password_hash", u0."inserted_at", u0."updated_at" FROM "users" AS u0 LIMIT 1 []
+[debug] QUERY OK source="videos" db=16.0ms
+SELECT v0."id", v0."url", v0."title", v0."description", v0."user_id", v0."category_id", v0."inserted_at", v0."updated_at", v0."user_id" FROM "videos" AS v0 WHERE (v0."user_id" = $1)
+ ORDER BY v0."user_id" [1]
+<span class="hljs-meta prompt_">%</span><span class="language-bash">Rumbl.User{__meta__: <span class="hljs-comment">#Ecto.Schema.Metadata&lt;:loaded, "users"&gt;, id: 1,</span></span>
+ inserted_at: ~N[2017-01-11 03:37:33.878000], name: "aaa", password: nil,
+ password_hash: "$2b$12$L2IGA8kAewNvbOLJ0/c7i.4m6k18hAmuTSG4JuaHhyUK0qWfB0hae",
+ updated_at: ~N[2017-01-16 03:40:31.371000], username: "aaa", videos: []}
+<span class="hljs-meta prompt_">iex(11)&gt;</span><span class="language-bash">
+</span></code></pre>
+<p><code>join</code> も普通に出来ます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(11)&gt; </span><span class="language-bash">Repo.all from u <span class="hljs-keyword">in</span> User,</span>
+...(11)&gt;   join: v in assoc(u, :videos),
+...(11)&gt;   join: c in assoc(v, :category),
+...(11)&gt;   where: c.name == "Comedy",
+...(11)&gt;   select: {u, v}
+[debug] QUERY OK source="users" db=31.0ms
+SELECT u0."id", u0."name", u0."username", u0."password_hash", u0."inserted_at", u0."updated_at", v1."id", v1."url", v1."title", v1."description", v1."user_id", v1."category_id", v1.
+"inserted_at", v1."updated_at" FROM "users" AS u0 INNER JOIN "videos" AS v1 ON v1."user_id" = u0."id" INNER JOIN "categories" AS c2 ON c2."id" = v1."category_id" WHERE (c2."name" =
+'Comedy') []
+[]
+<span class="hljs-meta prompt_">iex(12)&gt;</span><span class="language-bash">
+</span></code></pre>
+</section>
+<section id="各制約について
+">
+<h2>各制約について</h2>
+<p>現状のアプリケーションはマイグレーションファイルに <code>create unique_index(:users, [:username])</code> とあり、重複するユーザーネームを登録しようとするとエラーになります。</p>
+<img alt=" Quicksilver
+" src="/images/Phoenix_error2.jpg">
+<p>このままだと画面にエラーが出てしまうので <code>changeset</code> で受け取れるように変更してみます。 <code>user.ex</code> を編集します。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(model, params \\ %{}) <span class="hljs-keyword">do</span>
+  model
+  |&gt; cast(params, [<span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:username</span>]) <span class="hljs-comment"># 更新予定のパラメータカラムを第三引数でとる(?)</span>
+  |&gt; validate_required([<span class="hljs-symbol">:name</span>, <span class="hljs-symbol">:username</span>]) <span class="hljs-comment"># このリストがcastが返すchangesetに存在するか検証</span>
+  |&gt; validate_length(<span class="hljs-symbol">:username</span>, <span class="hljs-symbol">min:</span> <span class="hljs-number">1</span>, <span class="hljs-symbol">max:</span> <span class="hljs-number">20</span>)
+  |&gt; unique_constraint(<span class="hljs-symbol">:username</span>)
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>unique_constraint</code> を最後のパイプラインに追加することで <code>:username</code> がかぶっていればエラーにしてくれます。</p>
+<p>この調子で外部キー制約もエラーハンドリングできるようにします。 <code>video.ex</code> を以下のように変更します。 色々やった結果元の部分も間違っていたので修正してます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">changeset</span></span>(struct, params \\ %{}) <span class="hljs-keyword">do</span>
+  struct
+  |&gt; cast(params, [<span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:description</span>, <span class="hljs-symbol">:category_id</span>])
+  |&gt; validate_required([<span class="hljs-symbol">:url</span>, <span class="hljs-symbol">:title</span>, <span class="hljs-symbol">:description</span>])
+  |&gt; assoc_constraint(<span class="hljs-symbol">:category</span>)
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>validate_required</code> の第三引数には何がはいるのだろうか・・・と思いましたが、 <a href="https://hexdocs.pm/ecto/Ecto.Changeset.html#content">公式ドキュメント</a> に書いてありました。 <code>:message</code> を取り、エラーメッセージをカスタマイズできるっぽいです。</p>
+<p>これで外部制約も確かめることが出来ます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex(1)&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Repo</span>
+<span class="hljs-meta prompt_">iex(2)&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Video</span>
+<span class="hljs-meta prompt_">iex(3)&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Category</span>
+<span class="hljs-meta prompt_">iex(4)&gt; </span><span class="language-bash">import Ecto.Query</span>
+<span class="hljs-meta prompt_">iex(5)&gt; </span><span class="language-bash"> video = Repo.one(from v <span class="hljs-keyword">in</span> Video, <span class="hljs-built_in">limit</span>: 1)</span>
+<span class="hljs-meta prompt_">iex(6)&gt; </span><span class="language-bash">changeset = Video.changeset(video, %{category_id: 12345})</span>
+<span class="hljs-meta prompt_">iex(7)&gt; </span><span class="language-bash">Repo.update changeset</span>
+[debug] QUERY OK db=0.0ms
+begin []
+[debug] QUERY ERROR db=46.0ms
+UPDATE "videos" SET "category_id" = $1, "updated_at" = $2 WHERE "id" = $3 [12345, {{2017, 1, 23}, {15, 2, 49, 366000}}, 1]
+[debug] QUERY OK db=0.0ms
+rollback []
+{:error,
+<span class="hljs-meta prompt_"> #</span><span class="language-bash">Ecto.Changeset&lt;action: :update, changes: %{category_id: 12345},</span>
+  errors: [category: {"does not exist", []}], data: #Rumbl.Video&lt;&gt;,
+  valid?: false&gt;}
+</code></pre>
+<p>良さそうです。</p>
+<p>また、削除するときには <code>foreign_key_constraint</code> 関数が使えます。これを使うとカテゴリが削除出来ない理由をユーザに示す事ができます。</p>
+<pre><code class="language-shell hljs"><span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Repo</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Category</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash"><span class="hljs-built_in">alias</span> Rumbl.Video</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">import Ecto.Query</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">import Ecto.Changeset</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">category = Repo.get_by Category, name: <span class="hljs-string">"Drama"</span></span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">changeset = Ecto.Changeset.change(category)</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">changeset = foreign_key_constraint(changeset, :videos, name: :videos_category_id_fkey, message: <span class="hljs-string">"still exist"</span>)</span>
+<span class="hljs-meta prompt_">iex&gt; </span><span class="language-bash">Repo.delete changeset</span>
+[debug] QUERY ERROR db=312.0ms
+DELETE FROM "categories" WHERE "id" = $1 [6]
+{:error,
+<span class="hljs-meta prompt_"> #</span><span class="language-bash">Ecto.Changeset&lt;action: :delete, changes: %{},</span>
+  errors: [videos: {"still exist", []}], data: #Rumbl.Category&lt;&gt;,
+  valid?: false&gt;}
+</code></pre>
+<p><code>video</code> のデータの中に既に <code>Drama</code> カテゴリーのIDを参照しているものがあれば設定したエラーを出してくれます。ちなみにどっかで書いたかもしれませんが <code>Ecto.Changeset.change</code> 関数は構造体とかからチェンジセット作ってくれる関数です。 <code>cast</code> やバリデーションを使いたくない時に使えるみたいです。（ <a href="https://hexdocs.pm/ecto/Ecto.Changeset.html#change/2">参考</a> ）</p>
+<p>もう一つの選択肢として、マイグレーション時に参照先が削除された時どうするかの設定が書けるみたいです。前に作った <code>add_category_id_to_video</code> を見てみます。</p>
+<pre><code class="language-Elixir hljs"><span class="hljs-class"><span class="hljs-keyword">defmodule</span> <span class="hljs-title">Rumbl.Repo.Migrations.AddCategoryIdToVideo</span></span> <span class="hljs-keyword">do</span>
+  <span class="hljs-keyword">use</span> <span class="hljs-title class_">Ecto</span>.<span class="hljs-title class_">Migration</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">change</span></span> <span class="hljs-keyword">do</span>
+    alter table(<span class="hljs-symbol">:videos</span>) <span class="hljs-keyword">do</span>
+      add <span class="hljs-symbol">:category_id</span>, references(<span class="hljs-symbol">:categories</span>)
+    <span class="hljs-keyword">end</span>
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<p><code>add :category_id, references(:categories)</code> の部分が肝です。 <code>references(:categories)</code> には <code>:on_delete</code> オプションが付けられるようです。</p>
+<ul>
+<li><p><code>:nothing</code> ：デフォルト値。何もしない</p></li>
+<li><p><code>:delete_all</code> ：関連するものも一緒に削除する</p></li>
+<li><p><code>:nilify_all</code> ：関連するものが削除されたとき <code>NULL</code> にする</p></li>
+</ul>
+</section>
+<section id="まとめ
+">
+<h2>まとめ</h2>
+<ul>
+<li><p><code>Query</code> のAPIを使うことでデータベースへの柔軟な問合せができる。</p></li>
+<li><p><code>*_constraints</code> を使うことで各制約のバリデーションを使える。</p></li>
+</ul>
+<p>書籍の中には頻繁にデータベースでやることはデータベースの中でやるべきだとありました。また、全部に <code>*_constraints</code> 付けるのではなくクラッシュすべきところはクラッシュすべきとも書いてありました。ココらへんはElixirのLet's Crashの思想から来ているのかと思います。ユーザ側がどうにか出来る制約エラーの場合はカスタムエラーメッセージを出すと良いらしいです。（また英語力が・・・）</p>
+</section>
+</section>
+
+
+  </div>
+</article>
+
+
+<hr>
+
+<nav class="post-navigation">
+  <ul>
+    <li>
+      ← Previous: <a href="/posts/programming-phoenix9/" rel="prev">Programming Phoenix勉強その9</a>
+    </li>
+    
+    <li>
+      <strong>Next: <a href="/posts/programming-phoenix11/" rel="next">Programming Phoenix勉強その11</a> →</strong>
+    </li>
+    
+  </ul>
+</nav>
+      </div>
+      <div class="sidebar">
+        <aside>
+          <section>
+            <ul>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-link"></i>
+                  <span>Social</span>
+                </h4>
+                <ul>
+                  <li>
+                    <i class="fa-brands fa-twitter"></i>
+                    <span><a href="https://twitter.com/nuhera" target="_blank" rel="noopener noreferrer">Twitter</a></span>
+                </li></ul>
+              </li>
+              <li>
+                <h4>
+                  <i class="fa-solid fa-newspaper"></i>
+                  <span>Recent Posts</span>
+                </h4>
+                <ul>
+                    <li><a href="https://zonuko.github.io/posts/blog-to-lume/">blogをdeno製静的サイトジェネレーターlumeに移植した</a></li>
+                    <li><a href="https://zonuko.github.io/posts/clojure-crawler/">Clojureで○○画像を集める</a></li>
+                    <li><a href="https://zonuko.github.io/posts/job-change/">そろそろ誕生日だし転職活動しようと思う</a></li>
+                    <li><a href="https://zonuko.github.io/posts/professional-clojure1/">Professional Clojureメモその1</a></li>
+                    <li><a href="https://zonuko.github.io/posts/inventory/">社会に出て3年間でやってたこと</a></li>
+                </ul>
+              </li>
+              <li>
+                <h4><i class="fa-solid fa-tag"></i><span>Tags</span>
+                <ul>
+                  
+                    <li><a href="/tags/career/">career</a></li>
+                  
+                    <li><a href="/tags/clojure/">clojure</a></li>
+                  
+                    <li><a href="/tags/deno/">deno</a></li>
+                  
+                    <li><a href="/tags/elixir/">elixir</a></li>
+                  
+                    <li><a href="/tags/game/">game</a></li>
+                  
+                    <li><a href="/tags/javascript/">javascript</a></li>
+                  
+                    <li><a href="/tags/misc/">misc</a></li>
+                  
+                    <li><a href="/tags/music/">music</a></li>
+                  
+                    <li><a href="/tags/phoenix/">phoenix</a></li>
+                  
+                    <li><a href="/tags/programming/">programming</a></li>
+                  
+                </ul>
+              </h4></li>
+            </ul>
+        </section></aside>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- Current page: /posts/programming-phoenix10/ -->
+  
+
+</body></html>
